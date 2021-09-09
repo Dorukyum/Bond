@@ -30,7 +30,7 @@ class Fun(Cog):
     @group(invoke_without_command=True)
     async def poll(self, ctx: Context, question, choice1, choice2):
         """Create a poll."""
-        await ctx.send(
+        message = await ctx.send(
             embed=discord.Embed(
                 title=f"Poll | {question}",
                 description=f":a: {choice1}\n:b: {choice2}",
@@ -39,11 +39,13 @@ class Fun(Cog):
                 name=ctx.author.display_name, icon_url=ctx.author.display_avatar
             )
         )
+        await message.add_reaction("🅰")
+        await message.add_reaction("🅱")
 
     @poll.command()
     async def yesno(self, ctx: Context, *, question):
         """Create a poll with the options being yes or no."""
-        await ctx.send(
+        message = await ctx.send(
             embed=discord.Embed(
                 title=f"Yes/No Poll",
                 description=question,
@@ -52,6 +54,8 @@ class Fun(Cog):
                 name=ctx.author.display_name, icon_url=ctx.author.display_avatar
             )
         )
+        await message.add_reaction("✅")
+        await message.add_reaction("❎")
 
 
 def setup(bot):
