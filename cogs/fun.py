@@ -1,4 +1,4 @@
-from re import findall
+from re import findall, escape
 
 import discord
 from discord.ext.commands import Context, command, group
@@ -24,7 +24,7 @@ class Fun(Cog):
     async def regex(self, ctx: Context, *, regex):
         """Shows the amount of people that has the supplied regex in their display name."""
         await ctx.send(
-            f"{len(tuple(x for x in ctx.guild.members if findall(regex, x.display_name)))} people have `{regex}` in their display name."
+            f"{len(tuple(x for x in ctx.guild.members if findall(escape(regex), x.display_name)))} people have `{regex}` in their display name."
         )
 
     @group(invoke_without_command=True)
