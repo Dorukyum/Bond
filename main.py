@@ -11,7 +11,7 @@ class PycordManager(commands.Bot):
     def __init__(self):
         super().__init__(
             command_prefix=commands.when_mentioned_or("p."),
-            intents=Intents(members=True, guild_messages=True, guilds=True),
+            intents=Intents(members=True, messages=True, guilds=True),
             owner_ids={543397958197182464},
             help_command=commands.MinimalHelpCommand(),
         )

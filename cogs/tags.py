@@ -8,7 +8,7 @@ class Tags(Cog):
     """A cog for commands related to tags."""
 
     @group(invoke_without_command=True)
-    async def tag(self, ctx: Context, name):
+    async def tag(self, ctx: Context, *, name):
         """View a tag's content."""
         if tag := await Tag.filter(name=name, guild_id=ctx.guild.id).first():
             await ctx.reply(tag.content)

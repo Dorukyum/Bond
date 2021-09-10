@@ -1,6 +1,5 @@
 import discord
-from discord.ext import commands
-from discord.ext.commands import Context, command, has_permissions
+from discord.ext.commands import Context, command, has_permissions, Greedy
 
 from utils import Cog
 
@@ -23,7 +22,7 @@ class Moderation(Cog):
     @command()
     @has_permissions(ban_members=True)
     async def ban(
-        self, ctx: Context, members: commands.Greedy[discord.Member], *, reason
+        self, ctx: Context, members: Greedy[discord.Member], *, reason
     ):
         """Ban the supplied members from the guild."""
         for member in members:
