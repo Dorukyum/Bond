@@ -10,7 +10,7 @@ from tortoise import Tortoise
 class PycordManager(commands.Bot):
     def __init__(self):
         super().__init__(
-            command_prefix=commands.when_mentioned_or("p."),
+            command_prefix="p.",
             intents=Intents(members=True, messages=True, guilds=True),
             owner_ids={543397958197182464},
             help_command=commands.MinimalHelpCommand(),
