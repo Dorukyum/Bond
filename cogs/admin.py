@@ -49,7 +49,7 @@ class Admin(Cog, command_attrs={"hidden": True}):
             await ctx.send("All cogs have been reloaded.")
 
     async def cog_check(self, ctx):
-        return ctx.author.id == self.bot.owner.id
+        return ctx.author.id in self.bot.owner_ids
 
 
 def setup(bot):
