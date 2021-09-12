@@ -1,7 +1,7 @@
 from os import environ, listdir
 from re import compile as re_compile
 
-from discord import Color, Embed, Intents
+from discord import Color, Embed, Intents, AllowedMentions
 from discord.ext import commands
 from dotenv import load_dotenv
 from tortoise import Tortoise
@@ -14,6 +14,7 @@ class PycordManager(commands.Bot):
             intents=Intents(members=True, messages=True, guilds=True),
             owner_ids={543397958197182464},
             help_command=commands.MinimalHelpCommand(),
+            allowed_mentions=AllowedMentions.none()
         )
 
     async def on_ready(self):
