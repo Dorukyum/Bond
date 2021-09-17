@@ -29,6 +29,16 @@ class Moderation(Cog):
             f"Banned **{len(members)}** member{'s' if len(members) > 1 else ''}."
         )
 
+    @command()
+    @has_permissions(manage_messages=True)
+    async def slowmode(self, ctx: Context, seconds: int = 0):
+        await ctx.channel.edit(slowmode_delay=seconds)
+        await ctx.send(
+            f"Slowmode is now `{seconds}` seconds."
+            if seconds > 0
+            else "Slowmode is now disabled."
+        )
+
 
 def setup(bot):
     bot.add_cog(Moderation(bot))
