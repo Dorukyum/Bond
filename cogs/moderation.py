@@ -32,6 +32,7 @@ class Moderation(Cog):
     @command()
     @has_permissions(manage_messages=True)
     async def slowmode(self, ctx: Context, seconds: int = 0):
+        """Set slowmode for the current channel."""
         if not 21600 > seconds > 0:
             await ctx.send("Slowmode should be between `21600` and `0` seconds.")
         else:
