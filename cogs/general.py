@@ -3,6 +3,7 @@ from contextlib import suppress
 from discord import Forbidden, Message
 from discord.ext.commands import Context, command
 from discord.utils import format_dt
+from urllib import parse
 
 from utils import Cog
 
@@ -33,9 +34,9 @@ class General(Cog):
     async def search(self, ctx: Context, *, query):
         """Get a search url from DuckDuckGo and Google.
         NOTE: limited to 100 characters."""
-        query = query.replace(" ", "+")[:100]
+        query = parse.urlencode({"q": query[:100]})
         await ctx.reply(
-            f"DuckDuckGo: <https://www.duckduckgo.com/?q={query}>\nGoogle: <https://www.google.com/search?q={query}>"
+            f"DuckDuckGo: <https://www.duckduckgo.com/?{query}>\nGoogle: <https://www.google.com/search?{query}>"
         )
 
     @command()
