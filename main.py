@@ -18,6 +18,7 @@ class PycordManager(commands.Bot):
         )
 
     async def on_ready(self):
+        self.cache = {"afk": {}}
         environ.setdefault("JISHAKU_HIDE", "1")
         environ.setdefault("JISHAKU_NO_UNDERSCORE", "1")
         self.load_extension("jishaku")
