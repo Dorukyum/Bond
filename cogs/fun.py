@@ -17,14 +17,14 @@ class Fun(Cog):
             await ctx.send("Nobody.")
         else:
             await ctx.send(
-                f"{len(tuple(x for x in ctx.guild.members if text in x.display_name))} people have `{text}` (any case) in their display name."
+                f"{sum((text in member.display_name.lower()) for member in ctx.guild.members)} people have `{text}` (any case) in their display name."
             )
 
     @how_many.command()
     async def regex(self, ctx: Context, *, regex):
         """Shows the amount of people that has the supplied regex in their display name."""
         await ctx.send(
-            f"{len(tuple(x for x in ctx.guild.members if findall(regex, x.display_name)))} people have `{regex}` in their display name."
+            f"{sum(bool(findall(regex, x.display_name)) for x in ctx.guild.members)} people have `{regex}` in their display name."
         )
 
     @group(invoke_without_command=True)
