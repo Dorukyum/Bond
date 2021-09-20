@@ -1,4 +1,5 @@
 from re import findall
+import random
 
 import discord
 from discord.ext.commands import Context, command, group
@@ -56,6 +57,10 @@ class Fun(Cog):
         )
         await message.add_reaction("✅")
         await message.add_reaction("❎")
+
+    @bot.command(name="whosus", description="find out who's the sus person among us") 
+    async def whosus(ctx):
+        await ctx.message.reply(random.choice(ctx.guild.members).name + " is sus :flushed:")
 
 
 def setup(bot):
