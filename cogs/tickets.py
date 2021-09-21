@@ -1,5 +1,5 @@
 import discord
-from discord.ext.commands import Bot, Context, command, has_permissions
+from discord.ext.commands import Context, command, has_permissions
 
 from utils import Cog
 

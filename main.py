@@ -1,7 +1,7 @@
 from os import environ, listdir
 from re import compile as re_compile
 
-from discord import Color, Embed, Intents, AllowedMentions
+import discord
 from discord.ext import commands
 from dotenv import load_dotenv
 from tortoise import Tortoise
@@ -11,10 +11,10 @@ class PycordManager(commands.Bot):
     def __init__(self):
         super().__init__(
             command_prefix="p.",
-            intents=Intents(members=True, messages=True, guilds=True),
+            intents=discord.Intents(members=True, messages=True, guilds=True),
             owner_ids={543397958197182464},
             help_command=commands.MinimalHelpCommand(),
-            allowed_mentions=AllowedMentions.none()
+            allowed_mentions=discord.AllowedMentions.none()
         )
 
     async def on_ready(self):
@@ -42,12 +42,12 @@ class PycordManager(commands.Bot):
         if isinstance(error, commands.CommandInvokeError):
             raise error
         await ctx.send(
-            embed=Embed(
+            embed=discord.Embed(
                 title=" ".join(
                     re_compile(r"[A-Z][a-z]*").findall(error.__class__.__name__)
                 ),
                 description=str(error),
-                color=Color.red(),
+                color=discord.Color.red(),
             )
         )
 

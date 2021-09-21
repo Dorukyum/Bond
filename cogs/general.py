@@ -1,8 +1,7 @@
 from contextlib import suppress
 
-from discord import Forbidden, Message
+import discord
 from discord.ext.commands import Context, command
-from discord.utils import format_dt
 from urllib import parse
 
 from utils import Cog
@@ -14,6 +13,7 @@ class General(Cog):
     def __init__(self, bot) -> None:
         super().__init__(bot)
         self.afk_cache = bot.cache["afk"]
+        self.suggestions_channel = bot.get_channel(881735375947722753)
 
     @command()
     async def ping(self, ctx: Context):
@@ -28,7 +28,9 @@ class General(Cog):
             await ctx.send("Invalid style. Valid styles are `f|F|d|D|t|T|R`.")
         else:
             time = ctx.message.created_at
-            await ctx.send(f"{format_dt(time, style=style)} (`{time.timestamp()}`)")
+            await ctx.send(
+                f"{discord.utils.format_dt(time, style=style)} (`{time.timestamp()}`)"
+            )
 
     @command()
     async def search(self, ctx: Context, *, query):
@@ -40,15 +42,29 @@ class General(Cog):
         )
 
     @command()
+    async def suggest(self, ctx: Context, *, text):
+        """Suggest something related to library design."""
+        if self.suggestions_channel.permissions_for(ctx.author).send_messages:
+            await self.suggestions_channel.send(
+                embed=discord.Embed(
+                    description=text,
+                    colour=discord.Color.blurple(),
+                )
+                .set_author(name=str(ctx.author), icon_url=ctx.author.display_avatar.url)
+                .set_footer(text=f"ID: {ctx.author.id}")
+            )
+            await ctx.message.delete()
+
+    @command()
     async def afk(self, ctx: Context, *, message="_No reason specified._"):
         """Become AFK."""
         await ctx.send(f"Set your AFK: {message}")
         self.afk_cache[ctx.author.id] = message
-        with suppress(Forbidden):
+        with suppress(discord.Forbidden):
             await ctx.author.edit(nick=f"[AFK] {ctx.author.display_name}")
 
     @Cog.listener()
-    async def on_message(self, message: Message):
+    async def on_message(self, message: discord.Message):
         if message.author.bot:
             return
 
@@ -58,7 +74,7 @@ class General(Cog):
                 f"Welcome back {message.author.display_name}! You're no longer AFK.",
                 delete_after=4.0,
             )
-            with suppress(Forbidden):
+            with suppress(discord.Forbidden):
                 await message.author.edit(nick=message.author.display_name[6:])
         for mention in message.mentions:
             if msg := self.afk_cache.get(mention.id):
