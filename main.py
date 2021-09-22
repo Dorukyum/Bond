@@ -52,10 +52,11 @@ class PycordManager(commands.Bot):
             )
         )
 
-    async def on_message(self, message):
+    async def on_message(self, message: discord.Message):
         if message.author.bot:
             return
 
+        # AFK
         if message.author.id in self.cache["afk"].keys():
             del self.cache["afk"][message.author.id]
             await message.channel.send(
@@ -67,6 +68,19 @@ class PycordManager(commands.Bot):
         for mention in message.mentions:
             if msg := self.cache["afk"].get(mention.id):
                 await message.channel.send(f"{mention.display_name} is AFK: {msg}")
+
+        # Pull requests and issues
+        if message.content.startswith("#"):
+            if (
+                message.content[1:].startswith("#") and message.content[2:].isdigit()
+            ):  # pull request
+                await message.reply(
+                    f"https://github.com/Pycord-Development/pycord/pull/{message.content[2:]}"
+                )
+            elif message.content[1:].isdigit():  # issue
+                await message.reply(
+                    f"https://github.com/Pycord-Development/pycord/issues/{message.content[1:]}"
+                )
 
         await self.process_commands(message)
 
