@@ -1,8 +1,8 @@
 from contextlib import suppress
+from urllib import parse
 
 import discord
 from discord.ext.commands import Context, command
-from urllib import parse
 
 from utils import Cog
 
@@ -12,7 +12,6 @@ class General(Cog):
 
     def __init__(self, bot) -> None:
         super().__init__(bot)
-        self.afk_cache = bot.cache["afk"]
         self.suggestions_channel = bot.get_channel(881735375947722753)
 
     @command()
@@ -50,7 +49,9 @@ class General(Cog):
                     description=text,
                     colour=discord.Color.blurple(),
                 )
-                .set_author(name=str(ctx.author), icon_url=ctx.author.display_avatar.url)
+                .set_author(
+                    name=str(ctx.author), icon_url=ctx.author.display_avatar.url
+                )
                 .set_footer(text=f"ID: {ctx.author.id}")
             )
             await ctx.message.delete()
@@ -59,26 +60,9 @@ class General(Cog):
     async def afk(self, ctx: Context, *, message="_No reason specified._"):
         """Become AFK."""
         await ctx.send(f"Set your AFK: {message}")
-        self.afk_cache[ctx.author.id] = message
+        self.bot.cache["afk"][ctx.author.id] = message
         with suppress(discord.Forbidden):
             await ctx.author.edit(nick=f"[AFK] {ctx.author.display_name}")
-
-    @Cog.listener()
-    async def on_message(self, message: discord.Message):
-        if message.author.bot:
-            return
-
-        if message.author.id in self.afk_cache.keys():
-            del self.afk_cache[message.author.id]
-            await message.channel.send(
-                f"Welcome back {message.author.display_name}! You're no longer AFK.",
-                delete_after=4.0,
-            )
-            with suppress(discord.Forbidden):
-                await message.author.edit(nick=message.author.display_name[6:])
-        for mention in message.mentions:
-            if msg := self.afk_cache.get(mention.id):
-                await message.channel.send(f"{mention.display_name} is AFK: {msg}")
 
 
 def setup(bot):
