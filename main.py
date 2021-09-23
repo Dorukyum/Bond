@@ -70,17 +70,13 @@ class PycordManager(commands.Bot):
                 await message.channel.send(f"{mention.display_name} is AFK: {msg}")
 
         # Pull requests and issues
-        if message.content.startswith("#"):
-            if (
-                message.content[1:].startswith("#") and message.content[2:].isdigit()
-            ):  # pull request
-                await message.reply(
-                    f"https://github.com/Pycord-Development/pycord/pull/{message.content[2:]}"
-                )
-            elif message.content[1:].isdigit():  # issue
-                await message.reply(
-                    f"https://github.com/Pycord-Development/pycord/issues/{message.content[1:]}"
-                )
+        links = [
+            f"<https://github.com/Pycord-Development/pycord/issues/{text[1:]}>"
+            for text in message.content.split()
+            if text.startswith("#") and text[1:].isdigit()
+        ]
+        if links:
+            await message.reply("\n".join(links))
 
         await self.process_commands(message)
 
