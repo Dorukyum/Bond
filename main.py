@@ -41,4 +41,4 @@ class PycordManager(commands.Bot):
 
 bot = PycordManager()
 load_dotenv(".env")
-bot.run(environ.get("token"))
+bot.run(environ.get("TOKEN"))
