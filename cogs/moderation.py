@@ -24,7 +24,7 @@ class Moderation(Cog):
     async def ban(self, ctx: Context, members: Greedy[discord.Member], *, reason):
         """Ban the supplied members from the guild."""
         for member in members:
-            await member.ban(reason=reason)
+            await ctx.guild.ban(member, reason=reason)
         await ctx.send(
             f"Banned **{len(members)}** member{'s' if len(members) > 1 else ''}."
         )
@@ -38,7 +38,7 @@ class Moderation(Cog):
         else:
             await ctx.channel.edit(slowmode_delay=seconds)
             await ctx.send(
-                f"Slowmode is now `{seconds}` seconds."
+                f"Slowmode is now `{seconds}` second{'s' if seconds > 1 else ''}."
                 if seconds > 0
                 else "Slowmode is now disabled."
             )
