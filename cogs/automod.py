@@ -28,9 +28,12 @@ class Automod(Cog):
                 return
 
             await message.channel.send(f"{message.author.mention} Too many mentions.")
-            await message.author.add_roles(
-                self.muted_role, reason=f"Too many mentions ({mentions})"
-            )
+            try:
+                await message.author.add_roles(
+                    self.muted_role, reason=f"Too many mentions ({mentions})"
+                )
+            except (Forbidden, HTTPException):
+                return
 
             async def unmute():
                 await asyncio.sleep(10800)  # 3 hours
