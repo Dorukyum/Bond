@@ -9,8 +9,9 @@ from utils import Cog
 class Automod(Cog):
     def __init__(self, bot) -> None:
         super().__init__(bot)
-        self.mod_role = bot.get_role(881407111211384902)
-        self.muted_role = bot.get_role(881532095661494313)
+        guild = bot.get_guild(881207955029110855)
+        self.mod_role = guild.get_role(881407111211384902)
+        self.muted_role = guild.get_role(881532095661494313)
 
     @Cog.listener()
     async def on_message(self, message: Message):
