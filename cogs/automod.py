@@ -18,7 +18,7 @@ class Automod(Cog):
         if message.author.bot:
             return
 
-        mentions = sum(not member.bot for member in message.mentions)
+        mentions = len(message.raw_mentions)
         if mentions >= 5 and self.mod_role not in message.author.roles:
             await message.delete()
             if mentions >= 8:
