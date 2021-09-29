@@ -15,6 +15,9 @@ class Automod(Cog):
 
     @Cog.listener()
     async def on_message(self, message: Message):
+        if message.author.bot:
+            return
+
         mentions = sum(not member.bot for member in message.mentions)
         if mentions >= 5 and self.mod_role not in message.author.roles:
             await message.delete()
