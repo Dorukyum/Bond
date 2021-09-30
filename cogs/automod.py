@@ -19,9 +19,9 @@ class Automod(Cog):
             return
 
         mentions = len(message.raw_mentions)
-        if mentions >= 5 and self.mod_role not in message.author.roles:
+        if mentions >= 6 and self.mod_role not in message.author.roles:
             await message.delete()
-            if mentions >= 8:
+            if mentions >= 10:
                 await message.guild.ban(
                     message.author, reason=f"Too many mentions ({mentions})"
                 )
