@@ -3,6 +3,9 @@ from urllib import parse
 
 import discord
 from discord.ext.commands import Context, command
+import io
+import inspect
+
 
 from utils import Cog
 
@@ -64,6 +67,19 @@ class General(Cog):
         with suppress(discord.Forbidden):
             await ctx.author.edit(nick=f"[AFK] {ctx.author.display_name}")
 
+    @command(aliases=["src"])
+    async def source(self, ctx: Context, *, command: str):
+        """See the source of a specific command"""
+        c = self.bot.get_command(command)
+        if not c:
+            return await ctx.send(f"Command {command} was not found")
+        callback = c.callback
+        if command == "help":
+            callback = self.bot.help_command.__class__
+        src = inspect.getsource(callback)
+        buf = io.StringIO(src)
+        file = discord.File(buf, inspect.getsourcefile(callback))
+        await ctx.send(file=file)
 
 def setup(bot):
     bot.add_cog(General(bot))
