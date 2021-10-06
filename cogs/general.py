@@ -69,13 +69,12 @@ class General(Cog):
 
     @command(aliases=["src"])
     async def source(self, ctx: Context, *, command: str):
-        """See the source of a specific command"""
+        """See the source of a specific command."""
         c = self.bot.get_command(command)
         if not c:
             return await ctx.send(f"Command {command} was not found")
-        callback = c.callback
-        if command == "help":
-            callback = self.bot.help_command.__class__
+
+        callback = self.bot.help_command.__class__ if command == "help" else c.callback
         src = inspect.getsource(callback)
         buf = io.StringIO(src)
         file = discord.File(buf, inspect.getsourcefile(callback))
