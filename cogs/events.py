@@ -28,9 +28,9 @@ class Events(Cog):
 
         # Pull requests and issues
         links = [
-            f"<https://github.com/Pycord-Development/pycord/issues/{text[1:]}>"
+            f"<https://github.com/Pycord-Development/pycord/issues/{text[2:]}>"
             for text in message.content.split()
-            if text.startswith("#") and text[1:].isdigit()
+            if text.startswith("##") and len(text) > 2 and text[2:].isdigit()
         ]
         if links:
             await message.reply("\n".join(links))
