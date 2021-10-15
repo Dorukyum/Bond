@@ -84,9 +84,9 @@ class Moderation(Cog):
     @has_permissions(manage_messages=True)
     async def _unmute(self, ctx: Context, member: discord.Member):
         if self.muted_role in member.roles:
-            await ctx.send("This member is not muted.")
-        else:
             await member.remove_roles(self.muted_role)
+        else:
+            await ctx.send("This member is not muted.")
 
     @Cog.listener()
     async def on_message(self, message: discord.Message):
