@@ -74,8 +74,19 @@ class Moderation(Cog):
     async def _mute(
         self, ctx: Context, member: discord.Member, duration: Optional[int], *, reason
     ):
-        await self.mute(member, reason, duration)
-        await ctx.send(f"Muted {member.mention} for `{reason}`.")
+        if member.top_role.position >= ctx.author.top_role.position:
+            await ctx.send("You cant mute someone with the same or higher top role.")
+        else:
+            await self.mute(member, reason, duration)
+            await ctx.send(f"Muted {member.mention} for `{reason}`.")
+
+    @command(name="unmute")
+    @has_permissions(manage_messages=True)
+    async def _unmute(self, ctx: Context, member: discord.Member):
+        if self.muted_role in member.roles:
+            await ctx.send("This member is not muted.")
+        else:
+            await member.remove_roles(self.muted_role)
 
     @Cog.listener()
     async def on_message(self, message: discord.Message):
