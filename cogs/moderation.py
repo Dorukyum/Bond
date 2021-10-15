@@ -85,6 +85,7 @@ class Moderation(Cog):
     async def _unmute(self, ctx: Context, member: discord.Member):
         if self.muted_role in member.roles:
             await member.remove_roles(self.muted_role)
+            await ctx.send(f"Unmuted {member.mention}")
         else:
             await ctx.send("This member is not muted.")
 
