@@ -1,7 +1,10 @@
-import discord
-from discord.ext.commands import Context, Greedy, command, has_permissions
 import asyncio
 from contextlib import suppress
+from typing import Optional
+
+import discord
+from discord.ext.commands import Context, Greedy, command, has_permissions
+
 from utils import Cog
 
 
@@ -22,6 +25,25 @@ class Moderation(Cog):
                 color=discord.Color.brand_red(),
             ).set_author(name=mod.display_name, icon_url=mod.display_avatar)
         )
+
+    async def mute(
+        self, member: discord.Member, reason: str, duration: Optional[float] = None
+    ):
+        try:
+            await member.add_roles(self.muted_role, reason=reason)
+        except (discord.Forbidden, discord.HTTPException):
+            return
+
+        if duration is not None:
+
+            async def unmute():
+                await asyncio.sleep(duration)  # 3 hours
+                with suppress(discord.Forbidden, discord.HTTPException):
+                    await member.remove_roles(
+                        self.muted_role, reason="Mute duration expired."
+                    )
+
+            asyncio.create_task(unmute())
 
     @command()
     @has_permissions(ban_members=True)
@@ -47,6 +69,14 @@ class Moderation(Cog):
                 else "Slowmode is now disabled."
             )
 
+    @command(name="mute")
+    @has_permissions(manage_messages=True)
+    async def _mute(
+        self, ctx: Context, member: discord.Member, duration: Optional[int], *, reason
+    ):
+        await self.mute(member, reason, duration)
+        await ctx.send(f"Muted {member.mention} for `{reason}`.")
+
     @Cog.listener()
     async def on_message(self, message: discord.Message):
         if message.author.bot:
@@ -62,21 +92,7 @@ class Moderation(Cog):
                 return
 
             await message.channel.send(f"{message.author.mention} Too many mentions.")
-            try:
-                await message.author.add_roles(
-                    self.muted_role, reason=f"Too many mentions ({mentions})"
-                )
-            except (discord.Forbidden, discord.HTTPException):
-                return
-
-            async def unmute():
-                await asyncio.sleep(10800)  # 3 hours
-                with suppress(discord.Forbidden, discord.HTTPException):
-                    await message.author.remove_roles(
-                        self.muted_role, reason="Mute duration expired."
-                    )
-
-            asyncio.create_task(unmute())
+            await self.mute(message.author, f"Too many mentions ({mentions})", 10800)
 
 
 def setup(bot):
