@@ -20,6 +20,7 @@ class PycordManager(commands.Bot):
         )
 
     async def on_ready(self):
+        self.main_guild = self.get_guild(881207955029110855)
         self.cache = {"afk": {}}
         environ.setdefault("JISHAKU_HIDE", "1")
         environ.setdefault("JISHAKU_NO_UNDERSCORE", "1")
