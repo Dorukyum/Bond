@@ -88,7 +88,7 @@ class Events(Cog):
         view.add_item(WelcomeButton(member))
         view.embed = discord.Embed(
             title="New Member",
-            description=f"{member.mention} joined the server :wave:\n\n",
+            description=f"{member} joined the server :wave:\n\n",
             color=discord.Color.blurple(),
         ).set_thumbnail(url=member.display_avatar.url)
         view.message = await self.bot.main_guild.system_channel.send(
