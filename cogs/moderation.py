@@ -24,7 +24,7 @@ class Moderation(Cog):
         guild = bot.get_guild(881207955029110855)
         self.mod_role = guild.get_role(881407111211384902)
         self.muted_role = guild.get_role(881532095661494313)
-        self.mod_log_channel = bot.get_channel(881412086041804811)
+        self.mod_log_channel = bot.get_channel(884992286826577940)
 
     async def mod_log(
         self, mod: discord.Member, member: discord.Member, reason: str, action: ModAction
