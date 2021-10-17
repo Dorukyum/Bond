@@ -16,7 +16,7 @@ class Moderation(Cog):
 
     BAN = ModAction("brand_red", ":hammer:", "Banned")
     KICK = ModAction("brand_red", ":hammer:", "Kicked")
-    MUTE = ModAction("grey", ":mute:", "Muted")
+    MUTE = ModAction("dark_grey", ":mute:", "Muted")
     UNMUTE = ModAction("brand_green", ":loud_speaker:", "Unuted")
 
     def __init__(self, bot) -> None:
