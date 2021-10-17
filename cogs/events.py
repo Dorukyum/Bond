@@ -25,10 +25,15 @@ class WelcomeButton(discord.ui.Button):
                 "You have already welcomed this member.", ephemeral=True
             )
         else:
+            if len(used_by) == 0:
+                case = "welcomes"
+            else:
+                case = "welcome"
             self.used_by.append(interaction.user)
             users = ", ".join(f"**{user.name}**" for user in self.used_by)
+            
             self.view.embed.description = self.view.embed.description.split("\n")[0] + (
-                f"\n\n{users} welcome {self.member.name}."
+                f"\n\n{users} {case} {self.member.name}."
             )
             await self.view.message.edit(
                 embed=self.view.embed,
