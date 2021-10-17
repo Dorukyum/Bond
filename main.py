@@ -10,6 +10,7 @@ class PycordManager(commands.Bot):
     def __init__(self):
         super().__init__(
             command_prefix="p.",
+            case_insensitive=True,
             intents=discord.Intents(members=True, messages=True, guilds=True),
             owner_ids={543397958197182464},
             help_command=commands.MinimalHelpCommand(),
