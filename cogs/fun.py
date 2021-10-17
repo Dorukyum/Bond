@@ -47,7 +47,7 @@ class Fun(Cog):
         """Create a poll with the options being yes or no."""
         message = await ctx.send(
             embed=discord.Embed(
-                title=f"Yes/No Poll",
+                title="Yes/No Poll",
                 description=question,
                 color=discord.Color.brand_green(),
             ).set_author(

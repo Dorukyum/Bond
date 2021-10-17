@@ -5,11 +5,19 @@ from typing import Optional
 import discord
 from discord.ext.commands import Context, Greedy, command, has_permissions
 
+from collections import namedtuple
 from utils import Cog
+
+ModAction = namedtuple("LogData", ("color", "emoji", "text"))
 
 
 class Moderation(Cog):
     """A cog for moderation commands"""
+
+    BAN = ModAction("brand_red", ":hammer:", "Banned")
+    KICK = ModAction("brand_red", ":hammer:", "Kicked")
+    MUTE = ModAction("grey", ":mute:", "Muted")
+    UNMUTE = ModAction("brand_green", ":loud_speaker:", "Unuted")
 
     def __init__(self, bot) -> None:
         super().__init__(bot)
@@ -18,12 +26,14 @@ class Moderation(Cog):
         self.muted_role = guild.get_role(881532095661494313)
         self.mod_log_channel = bot.get_channel(881412086041804811)
 
-    async def mod_log(self, mod, member, action):
+    async def mod_log(
+        self, mod: discord.Member, member: discord.Member, reason: str, action: ModAction
+    ) -> None:
         await self.mod_log_channel.send(
             embed=discord.Embed(
-                description=f"{member.mention} has been {action} by {mod.mention}.",
-                color=discord.Color.brand_red(),
-            ).set_author(name=mod.display_name, icon_url=mod.display_avatar)
+                description=f"**{action.emoji} {action.text} {member.name}**{member.discriminator} *(ID {member.id})*\n:page_facing_up: **Reason:** {reason}",
+                color=getattr(discord.Color, action.color),
+            ).set_author(name=f"{mod} (ID {mod.id})", icon_url=mod.display_avatar)
         )
 
     async def mute(
@@ -48,9 +58,13 @@ class Moderation(Cog):
     @command()
     @has_permissions(ban_members=True)
     async def ban(self, ctx: Context, members: Greedy[discord.Member], *, reason):
-        """Ban the supplied members from the guild."""
+        """Ban the supplied members from the guild. Limited to 10 at a time."""
+        if len(members) > 10:
+            await ctx.send("Banning multiple members is limited to 10 at a time.")
+            return
         for member in members:
             await ctx.guild.ban(member, reason=reason)
+            await self.mod_log(ctx.author, member, reason, self.BAN)
         await ctx.send(
             f"Banned **{len(members)}** member{'s' if len(members) > 1 else ''}."
         )
@@ -79,6 +93,7 @@ class Moderation(Cog):
         else:
             await self.mute(member, reason, duration)
             await ctx.send(f"Muted {member.mention} for `{reason}`.")
+            await self.mod_log(ctx.author, member, reason, self.MUTE)
 
     @command(name="unmute")
     @has_permissions(manage_messages=True)
@@ -86,6 +101,7 @@ class Moderation(Cog):
         if self.muted_role in member.roles:
             await member.remove_roles(self.muted_role)
             await ctx.send(f"Unmuted {member.mention}")
+            await self.mod_log(ctx.author, member, "Unknown", self.UNMUTE)
         else:
             await ctx.send("This member is not muted.")
 
