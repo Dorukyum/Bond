@@ -4,7 +4,7 @@ from re import compile as re_compile
 import discord
 from discord.ext import commands
 
-from utils import Cog
+from utils import Cog, s
 
 
 class WelcomeView(discord.ui.View):
@@ -33,7 +33,7 @@ class WelcomeView(discord.ui.View):
             self.used_by.append(interaction.user)
             users = ", ".join(f"**{user.name}**" for user in self.used_by)
             self.embed.description = self.embed.description.split("\n")[0] + (
-                f"\n\n{users} welcome {self.member.name}."
+                f"\n\n{users} welcome{s(self.used_by)} {self.member.name}."
             )
             await self.message.edit(
                 embed=self.embed,
