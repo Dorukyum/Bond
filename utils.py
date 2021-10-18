@@ -5,6 +5,9 @@ from tortoise import fields
 from tortoise.models import Model
 
 
+__all__ = ("Cog", "s", "Tag")
+
+
 class Cog(commands.Cog):
     """Base class for all cogs"""
 
@@ -13,12 +16,12 @@ class Cog(commands.Cog):
 
 
 def s(data) -> Literal["", "s"]:
-    check = data
+    check = data == 1
     if hasattr(data, "endswith"):
-        check = data.endswith("s")
+        check = not data.endswith("s")
     elif hasattr(data, "__len__"):
         check = len(data) == 1
-    return "" if check else "s"
+    return "s" if check else ""
 
 
 class Tag(Model):
