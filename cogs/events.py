@@ -7,15 +7,20 @@ from discord.ext import commands
 from utils import Cog
 
 
-class WelcomeButton(discord.ui.Button):
+class WelcomeView(discord.ui.View):
     def __init__(self, member: discord.Member):
-        super().__init__(
-            style=discord.ButtonStyle.green, label="Welcome", emoji="\U0001f44b"
-        )
+        super().__init__()
         self.member = member
         self.used_by = []
 
-    async def callback(self, interaction: discord.Interaction):
+    async def on_timeout(self):
+        self.children[0].disabled = True
+        await self.message.edit(view=self)
+
+    @discord.ui.button(
+        style=discord.ButtonStyle.green, label="Welcome", emoji="\U0001f44b"
+    )
+    async def welcome(self, button: discord.ui.Button, interaction: discord.Interaction):
         if interaction.user == self.member:
             await interaction.response.send_message(
                 "You can't welcome yourself.", ephemeral=True
@@ -27,11 +32,11 @@ class WelcomeButton(discord.ui.Button):
         else:
             self.used_by.append(interaction.user)
             users = ", ".join(f"**{user.name}**" for user in self.used_by)
-            self.view.embed.description = self.view.embed.description.split("\n")[0] + (
+            self.embed.description = self.embed.description.split("\n")[0] + (
                 f"\n\n{users} welcome {self.member.name}."
             )
-            await self.view.message.edit(
-                embed=self.view.embed,
+            await self.message.edit(
+                embed=self.embed,
             )
             await interaction.response.send_message(
                 f"You welcomed {self.member}.", ephemeral=True
@@ -84,8 +89,7 @@ class Events(Cog):
 
     @Cog.listener()
     async def on_member_join(self, member: discord.Member):
-        view = discord.ui.View()
-        view.add_item(WelcomeButton(member))
+        view = WelcomeView(member)
         view.embed = discord.Embed(
             title="New Member",
             description=f"{member} joined the server :wave:\n\n",
