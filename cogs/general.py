@@ -1,11 +1,10 @@
+import inspect
+import io
 from contextlib import suppress
 from urllib import parse
 
 import discord
 from discord.ext.commands import Context, command
-import io
-import inspect
-
 
 from utils import Cog
 
@@ -79,6 +78,7 @@ class General(Cog):
         buf = io.StringIO(src)
         file = discord.File(buf, inspect.getsourcefile(callback))
         await ctx.send(file=file)
+
 
 def setup(bot):
     bot.add_cog(General(bot))

@@ -1,3 +1,5 @@
+from typing import Literal
+
 from discord.ext import commands
 from tortoise import fields
 from tortoise.models import Model
@@ -8,6 +10,15 @@ class Cog(commands.Cog):
 
     def __init__(self, bot) -> None:
         self.bot: commands.Bot = bot
+
+
+def s(data) -> Literal["", "s"]:
+    check = data
+    if hasattr(data, "endswith"):
+        check = data.endswith("s")
+    elif hasattr(data, "__len__"):
+        check = len(data) == 1
+    return "" if check else "s"
 
 
 class Tag(Model):

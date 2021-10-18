@@ -1,7 +1,7 @@
 import discord
 from discord.ext.commands import Context, command, group
 
-from utils import Cog, Tag
+from utils import Cog, Tag, s
 
 
 class Tags(Cog):
@@ -150,12 +150,12 @@ class Tags(Cog):
     @command(name="tags")
     async def _tags(self, ctx: Context, member: discord.Member = None):
         """View the guild's tags.
-           Shows the tags of a member if supplied."""
+        Shows the tags of a member if supplied."""
         if member:
             if tags := await Tag.filter(guild_id=ctx.guild.id, author_id=member.id):
                 await ctx.send(
                     embed=discord.Embed(
-                        title=f"{member.display_name}'{'' if member.display_name.endswith('s') else 's'} Tags",
+                        title=f"{member.display_name}'{s(member.display_name)} Tags",
                         description="\n".join(
                             f"{i+1}. {tag.name}" for i, tag in enumerate(tags)
                         ),
@@ -164,19 +164,18 @@ class Tags(Cog):
                 )
             else:
                 await ctx.reply("This member does not have any tags in this server.")
-        else:
-            if tags := await Tag.filter(guild_id=ctx.guild.id):
-                await ctx.send(
-                    embed=discord.Embed(
-                        title=f"Tags in {ctx.guild.name}",
-                        description="\n".join(
-                            f"{i+1}. {tag.name}" for i, tag in enumerate(tags)
-                        ),
-                        color=discord.Color.blurple(),
-                    )
+        elif tags := await Tag.filter(guild_id=ctx.guild.id):
+            await ctx.send(
+                embed=discord.Embed(
+                    title=f"Tags in {ctx.guild.name}",
+                    description="\n".join(
+                        f"{i+1}. {tag.name}" for i, tag in enumerate(tags)
+                    ),
+                    color=discord.Color.blurple(),
                 )
-            else:
-                await ctx.reply("This server does not have any tags.")
+            )
+        else:
+            await ctx.reply("This server does not have any tags.")
 
 
 def setup(bot):

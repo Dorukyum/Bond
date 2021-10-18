@@ -1,12 +1,12 @@
 import asyncio
+from collections import namedtuple
 from contextlib import suppress
 from typing import Optional
 
 import discord
 from discord.ext.commands import Context, Greedy, command, has_permissions
 
-from collections import namedtuple
-from utils import Cog
+from utils import Cog, s
 
 ModAction = namedtuple("LogData", ("color", "emoji", "text"))
 
@@ -27,7 +27,11 @@ class Moderation(Cog):
         self.mod_log_channel = bot.get_channel(884992286826577940)
 
     async def mod_log(
-        self, mod: discord.Member, member: discord.Member, reason: str, action: ModAction
+        self,
+        mod: discord.Member,
+        member: discord.Member,
+        reason: str,
+        action: ModAction,
     ) -> None:
         await self.mod_log_channel.send(
             embed=discord.Embed(
@@ -65,9 +69,7 @@ class Moderation(Cog):
         for member in members:
             await ctx.guild.ban(member, reason=reason)
             await self.mod_log(ctx.author, member, reason, self.BAN)
-        await ctx.send(
-            f"Banned **{len(members)}** member{'s' if len(members) > 1 else ''}."
-        )
+        await ctx.send(f"Banned **{len(members)}** member{s(members)}.")
 
     @command()
     @has_permissions(manage_messages=True)
@@ -78,7 +80,7 @@ class Moderation(Cog):
         else:
             await ctx.channel.edit(slowmode_delay=seconds)
             await ctx.send(
-                f"Slowmode is now `{seconds}` second{'s' if seconds > 1 else ''}."
+                f"Slowmode is now `{seconds}` second{s(seconds)}."
                 if seconds > 0
                 else "Slowmode is now disabled."
             )
