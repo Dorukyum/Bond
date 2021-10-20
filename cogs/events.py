@@ -7,43 +7,11 @@ from discord.ext import commands
 from utils import Cog, s
 
 
-class WelcomeView(discord.ui.View):
-    def __init__(self, member: discord.Member):
-        super().__init__()
-        self.member = member
-        self.used_by = []
-
-    async def on_timeout(self):
-        self.children[0].disabled = True
-        await self.message.edit(view=self)
-
-    @discord.ui.button(
-        style=discord.ButtonStyle.green, label="Welcome", emoji="\U0001f44b"
-    )
-    async def welcome(self, button: discord.ui.Button, interaction: discord.Interaction):
-        if interaction.user == self.member:
-            await interaction.response.send_message(
-                "You can't welcome yourself.", ephemeral=True
-            )
-        elif interaction.user in self.used_by:
-            await interaction.response.send_message(
-                "You have already welcomed this member.", ephemeral=True
-            )
-        else:
-            self.used_by.append(interaction.user)
-            users = ", ".join(f"**{user.name}**" for user in self.used_by)
-            self.embed.description = self.embed.description.split("\n")[0] + (
-                f"\n\n{users} welcome{s(self.used_by)} {self.member.name}."
-            )
-            await self.message.edit(
-                embed=self.embed,
-            )
-            await interaction.response.send_message(
-                f"You welcomed {self.member}.", ephemeral=True
-            )
-
-
 class Events(Cog):
+    def __init__(self, bot):
+        super().__init__(bot)
+        self.general = bot.main_guild.get_channel(881224361015672863)
+
     @Cog.listener()
     async def on_message(self, message: discord.Message):
         if message.author.bot:
@@ -89,15 +57,12 @@ class Events(Cog):
 
     @Cog.listener()
     async def on_member_join(self, member: discord.Member):
-        view = WelcomeView(member)
-        view.embed = discord.Embed(
-            title="New Member",
-            description=f"{member} joined the server :wave:\n\n",
-            color=discord.Color.blurple(),
-        ).set_thumbnail(url=member.display_avatar.url)
-        view.message = await self.bot.main_guild.system_channel.send(
-            embed=view.embed,
-            view=view,
+        message = await self.general.send(
+            embed=discord.Embed(
+                title="New Member",
+                description=f"{member} joined the server :wave:\n\n",
+                color=discord.Color.blurple(),
+            ).set_thumbnail(url=member.display_avatar.url),
         )
 
 
