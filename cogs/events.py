@@ -60,9 +60,14 @@ class Events(Cog):
         message = await self.general.send(
             embed=discord.Embed(
                 title="New Member",
-                description=f"{member} joined the server :wave:\n\n",
-                color=discord.Color.blurple(),
-            ).set_thumbnail(url=member.display_avatar.url),
+                description=f"{member} joined the server :wave:",
+                color=discord.Color.brand_green(),
+            )
+            .set_thumbnail(url=member.display_avatar.url)
+            .add_field(
+                name="Account Created",
+                value=f"<t:{int(member.created_at.timestamp())}:R>",
+            ),
         )
 
 
