@@ -10,7 +10,7 @@ class Server(Cog):
         self.last_staff_list = None
 
     @command()
-    @has_permissions(manage_server=True)
+    @has_permissions(manage_guild=True)
     async def update_staff_list(self, ctx: Context):
         staff_roles = [
             881411529415729173,  # Server Manager
