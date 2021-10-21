@@ -6,7 +6,7 @@ from jishaku.codeblocks import codeblock_converter
 from utils import Cog
 
 
-class Admin(Cog, command_attrs={"hidden": True}):
+class Developer(Cog, command_attrs={"hidden": True}):
     @command(name="eval")
     async def _eval(self, ctx, *, code: codeblock_converter):
         cog = self.bot.get_cog("Jishaku")
@@ -53,4 +53,4 @@ class Admin(Cog, command_attrs={"hidden": True}):
 
 
 def setup(bot):
-    bot.add_cog(Admin(bot))
+    bot.add_cog(Developer(bot))

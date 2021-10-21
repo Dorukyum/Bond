@@ -4,7 +4,6 @@ from discord.ext import commands
 from tortoise import fields
 from tortoise.models import Model
 
-
 __all__ = ("Cog", "s", "Tag")
 
 
