@@ -7,8 +7,8 @@ from utils import Cog
 class Server(Cog):
     def __init__(self, bot):
         super().__init__(bot)
-        self.staff_list = bot.get_channel(884730803588829206)
-        self.last_staff_list = None
+        self.staff_list_channel = bot.get_channel(884730803588829206)
+        self.staff_list = None
 
     @command()
     @has_permissions(manage_guild=True)
@@ -32,8 +32,8 @@ class Server(Cog):
                 embed.description += f"> `{member.id}` {member.mention}\n"
             embed.description += "\n"
 
-        if self.last_staff_list is not None:
-            await self.last_staff_list.edit(embed=embed)
+        if self.staff_list is not None:
+            await self.staff_list.edit(embed=embed)
         else:
             await self.staff_list_channel.purge(limit=1)
             await self.staff_list_channel.send(embed=embed)
