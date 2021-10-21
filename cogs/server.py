@@ -22,7 +22,7 @@ class Server(Cog):
         embed = Embed(title="**Staff List**", color=0x2F3136)
         embed.description = ""
         for role in staff_roles:
-            role = ctx.guild.get_role(r)
+            role = ctx.guild.get_role(role)
             valid_members = [
                 member for member in role.members if member.top_role == role
             ]
