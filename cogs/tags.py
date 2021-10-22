@@ -32,7 +32,7 @@ class Tags(Cog):
             await ctx.reply(f"Tag `{name}` created successfully.")
 
     @tag.command()
-    async def edit(self, ctx: Context, name, content):
+    async def edit(self, ctx: Context, name, *, content):
         """Edit the content of a tag."""
         if tag := await Tag.filter(name=name, guild_id=ctx.guild.id).first():
             if (
