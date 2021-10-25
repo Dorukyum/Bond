@@ -35,7 +35,7 @@ class Events(Cog):
             f"<https://github.com/Pycord-Development/pycord/issues/{text[2:]}>"
             for text in message.content.split()
             if text.startswith("##") and len(text) > 2 and text[2:].isdigit()
-        ]
+        ][:3]
         if links:
             await message.reply("\n".join(links))
 
