@@ -1,14 +1,14 @@
 import discord
 from discord.ext.commands import Context, command, group
 
-from utils import Cog, Tag, s
+from utils import Cog, Lowercase, Tag, s
 
 
 class Tags(Cog):
     """A cog for commands related to tags."""
 
     @group(invoke_without_command=True)
-    async def tag(self, ctx: Context, *, name):
+    async def tag(self, ctx: Context, *, name: Lowercase):
         """View a tag's content."""
         if tag := await Tag.filter(name=name, guild_id=ctx.guild.id).first():
             await ctx.reply(tag.content)
@@ -17,7 +17,7 @@ class Tags(Cog):
             await ctx.reply("A tag with this name doesn't exist.")
 
     @tag.command()
-    async def create(self, ctx: Context, name, *, content):
+    async def create(self, ctx: Context, name: Lowercase, *, content):
         """Create a tag."""
         if await Tag.filter(name=name, guild_id=ctx.guild.id).first():
             await ctx.reply("A tag with this name already exists.")
@@ -32,7 +32,7 @@ class Tags(Cog):
             await ctx.reply(f"Tag `{name}` created successfully.")
 
     @tag.command()
-    async def edit(self, ctx: Context, name, *, content):
+    async def edit(self, ctx: Context, name: Lowercase, *, content):
         """Edit the content of a tag."""
         if tag := await Tag.filter(name=name, guild_id=ctx.guild.id).first():
             if (
@@ -47,7 +47,7 @@ class Tags(Cog):
             await ctx.reply("A tag with this name doesn't exist.")
 
     @tag.command()
-    async def delete(self, ctx: Context, *, name):
+    async def delete(self, ctx: Context, *, name: Lowercase):
         """Delete a tag."""
         if tag := await Tag.filter(name=name, guild_id=ctx.guild.id).first():
             if (
@@ -62,7 +62,7 @@ class Tags(Cog):
             await ctx.reply("A tag with this name doesn't exist.")
 
     @tag.command()
-    async def transfer(self, ctx: Context, name, member: discord.Member = None):
+    async def transfer(self, ctx: Context, name: Lowercase, member: discord.Member = None):
         """Transfer a tag's ownership."""
         if tag := await Tag.filter(name=name, guild_id=ctx.guild.id).first():
             if tag.author_id == ctx.author.id:
@@ -74,7 +74,7 @@ class Tags(Cog):
             await ctx.reply("A tag with this name doesn't exist.")
 
     @tag.command()
-    async def rename(self, ctx: Context, name, *, new_name):
+    async def rename(self, ctx: Context, name: Lowercase, *, new_name: Lowercase):
         """Rename a tag."""
         if tag := await Tag.filter(name=name, guild_id=ctx.guild.id).first():
             if tag.author_id == ctx.author.id:
@@ -91,7 +91,7 @@ class Tags(Cog):
             await ctx.reply("A tag with this name doesn't exist.")
 
     @tag.command()
-    async def info(self, ctx: Context, *, name):
+    async def info(self, ctx: Context, *, name: Lowercase):
         """View info about a tag."""
         if tag := await Tag.filter(name=name, guild_id=ctx.guild.id).first():
             owner = self.bot.get_user(tag.author_id) or await self.bot.fetch_user(
@@ -109,7 +109,7 @@ class Tags(Cog):
             await ctx.reply("A tag with this name doesn't exist.")
 
     @tag.command()
-    async def raw(self, ctx: Context, *, name):
+    async def raw(self, ctx: Context, *, name: Lowercase):
         """View the content of a tag, with escaped markdown."""
         if tag := await Tag.filter(name=name, guild_id=ctx.guild.id).first():
             await ctx.send(discord.utils.escape_markdown(tag.content))
@@ -117,7 +117,7 @@ class Tags(Cog):
             await ctx.reply("A tag with this name doesn't exist.")
 
     @tag.command()
-    async def claim(self, ctx: Context, *, name):
+    async def claim(self, ctx: Context, *, name: Lowercase):
         """Claim a tag."""
         if tag := await Tag.filter(name=name, guild_id=ctx.guild.id).first():
             if ctx.guild.get_member(tag.author_id):

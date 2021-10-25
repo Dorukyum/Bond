@@ -4,7 +4,7 @@ from discord.ext import commands
 from tortoise import fields
 from tortoise.models import Model
 
-__all__ = ("Cog", "s", "Tag")
+__all__ = ("Cog", "Lowercase", "s", "Tag")
 
 
 class Cog(commands.Cog):
@@ -12,6 +12,14 @@ class Cog(commands.Cog):
 
     def __init__(self, bot) -> None:
         self.bot: commands.Bot = bot
+
+
+class _Lowercase(commands.Converter):
+    async def convert(self, ctx, text):
+        return text.lower()
+
+
+Lowercase = _Lowercase()
 
 
 def s(data) -> Literal["", "s"]:

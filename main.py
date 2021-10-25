@@ -5,8 +5,12 @@ from discord.ext import commands
 from dotenv import load_dotenv
 from tortoise import Tortoise
 
+from utils import Tag
+
 
 class PycordManager(commands.Bot):
+    Tag = Tag
+
     def __init__(self):
         super().__init__(
             command_prefix="p.",
