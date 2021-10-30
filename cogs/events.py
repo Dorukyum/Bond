@@ -57,17 +57,8 @@ class Events(Cog):
 
     @Cog.listener()
     async def on_member_join(self, member: discord.Member):
-        message = await self.general.send(
-            embed=discord.Embed(
-                title="New Member",
-                description=f"{member} joined the server :wave:",
-                color=discord.Color.brand_green(),
-            )
-            .set_thumbnail(url=member.display_avatar.url)
-            .add_field(
-                name="Account Created",
-                value=f"<t:{int(member.created_at.timestamp())}:R>",
-            ),
+        await self.general.send(
+            f"**{member}** ({member.mention}) joined the server :wave:"
         )
 
 
