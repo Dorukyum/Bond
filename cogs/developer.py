@@ -12,7 +12,7 @@ class Developer(Cog, command_attrs={"hidden": True}):
 
     @command(name="eval")
     async def _eval(self, ctx, *, code: codeblock_converter):
-        await self.jishaku.jsk_python(ctx, code)
+        await self.jishaku.jsk_python(ctx, argument=code)
 
     @command(aliases=["reload"])
     async def load(self, ctx, *files: ExtensionConverter):
@@ -30,7 +30,7 @@ class Developer(Cog, command_attrs={"hidden": True}):
     @command()
     async def pull(self, ctx):
         cog = self.bot.get_cog("Jishaku")
-        await cog.jsk_git(ctx, "pull")
+        await cog.jsk_git(ctx, argument="pull")
 
     async def cog_check(self, ctx):
         return ctx.author.id in self.bot.owner_ids
