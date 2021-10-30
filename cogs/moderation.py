@@ -64,8 +64,8 @@ class Moderation(Cog):
     async def ban(self, ctx: Context, members: Greedy[discord.Member], *, reason):
         """Ban the supplied members from the guild. Limited to 10 at a time."""
         if len(members) > 10:
-            await ctx.send("Banning multiple members is limited to 10 at a time.")
-            return
+            return await ctx.send("Banning multiple members is limited to 10 at a time.")
+
         for member in members:
             await ctx.guild.ban(member, reason=reason)
             await self.mod_log(ctx.author, member, reason, self.BAN)
@@ -76,14 +76,13 @@ class Moderation(Cog):
     async def slowmode(self, ctx: Context, seconds: int = 0):
         """Set slowmode for the current channel."""
         if not 21600 > seconds > 0:
-            await ctx.send("Slowmode should be between `21600` and `0` seconds.")
-        else:
-            await ctx.channel.edit(slowmode_delay=seconds)
-            await ctx.send(
-                f"Slowmode is now `{seconds}` second{s(seconds)}."
-                if seconds > 0
-                else "Slowmode is now disabled."
-            )
+            return await ctx.send("Slowmode should be between `21600` and `0` seconds.")
+        await ctx.channel.edit(slowmode_delay=seconds)
+        await ctx.send(
+            f"Slowmode is now `{seconds}` second{s(seconds)}."
+            if seconds > 0
+            else "Slowmode is now disabled."
+        )
 
     @command(name="mute")
     @has_permissions(manage_messages=True)
@@ -91,11 +90,10 @@ class Moderation(Cog):
         self, ctx: Context, member: discord.Member, duration: Optional[int], *, reason
     ):
         if member.top_role.position >= ctx.author.top_role.position:
-            await ctx.send("You cant mute someone with the same or higher top role.")
-        else:
-            await self.mute(member, reason, duration)
-            await ctx.send(f"Muted {member.mention} for `{reason}`.")
-            await self.mod_log(ctx.author, member, reason, self.MUTE)
+            return await ctx.send("You cant mute someone with the same or higher top role.")
+        await self.mute(member, reason, duration)
+        await ctx.send(f"Muted {member.mention} for `{reason}`.")
+        await self.mod_log(ctx.author, member, reason, self.MUTE)
 
     @command(name="unmute")
     @has_permissions(manage_messages=True)
@@ -116,10 +114,9 @@ class Moderation(Cog):
         if mentions >= 6 and self.mod_role not in message.author.roles:
             await message.delete()
             if mentions >= 10:
-                await message.guild.ban(
+                return await message.guild.ban(
                     message.author, reason=f"Too many mentions ({mentions})"
                 )
-                return
 
             await message.channel.send(f"{message.author.mention} Too many mentions.")
             await self.mute(message.author, f"Too many mentions ({mentions})", 10800)

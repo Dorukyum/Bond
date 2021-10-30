@@ -26,12 +26,11 @@ class General(Cog):
         """Get the current timestamp.
         Valid styles are `f|F|d|D|t|T|R`."""
         if style not in (None, "f", "F", "d", "D", "t", "T", "R"):
-            await ctx.send("Invalid style. Valid styles are `f|F|d|D|t|T|R`.")
-        else:
-            time = ctx.message.created_at
-            await ctx.send(
-                f"{discord.utils.format_dt(time, style=style)} (`{time.timestamp()}`)"
-            )
+            return await ctx.send("Invalid style. Valid styles are `f|F|d|D|t|T|R`.")
+        time = ctx.message.created_at
+        await ctx.send(
+            f"{discord.utils.format_dt(time, style=style)} (`{time.timestamp()}`)"
+        )
 
     @command()
     async def search(self, ctx: Context, *, query):
@@ -70,19 +69,17 @@ class General(Cog):
     async def source(self, ctx: Context, *, command: str = None):
         """See the source code of the bot."""
         if not command:
-            await ctx.send("https://github.com/Dorukyum/Pycord-Manager")
-            return
+            return await ctx.send("https://github.com/Dorukyum/Pycord-Manager")
         c = self.bot.get_command(command)
         if not c:
-            await ctx.send(f"Command {command} was not found")
-        else:
-            callback = (
-                self.bot.help_command.__class__ if command == "help" else c.callback
-            )
-            src = getsource(callback)
-            buf = StringIO(src)
-            file = discord.File(buf, getsourcefile(callback))
-            await ctx.send(file=file)
+            return await ctx.send(f"Command {command} was not found")
+        callback = (
+            self.bot.help_command.__class__ if command == "help" else c.callback
+        )
+        src = getsource(callback)
+        buf = StringIO(src)
+        file = discord.File(buf, getsourcefile(callback))
+        await ctx.send(file=file)
 
 
 def setup(bot):

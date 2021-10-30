@@ -1,7 +1,7 @@
 from re import findall
 
 import discord
-from discord.ext.commands import Context, command, group
+from discord.ext.commands import Context, group
 
 from utils import Cog
 
@@ -14,11 +14,10 @@ class Fun(Cog):
         """Shows the amount of people that has the supplied text in their display name."""
         text = text.strip().lower()
         if text == "asked":
-            await ctx.send("Nobody.")
-        else:
-            await ctx.send(
-                f"{sum((text in member.display_name.lower()) for member in ctx.guild.members)} people have `{text}` (any case) in their display name."
-            )
+            return await ctx.send("Nobody.")
+        await ctx.send(
+            f"{sum((text in member.display_name.lower()) for member in ctx.guild.members)} people have `{text}` (any case) in their display name."
+        )
 
     @how_many.command()
     async def regex(self, ctx: Context, *, regex):
