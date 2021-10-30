@@ -1,17 +1,12 @@
 from contextlib import suppress
-from re import compile as re_compile
 
 import discord
 from discord.ext import commands
 
-from utils import Cog, s
+from utils import Cog
 
 
 class Events(Cog):
-    def __init__(self, bot):
-        super().__init__(bot)
-        self.general = bot.main_guild.get_channel(881224361015672863)
-
     @Cog.listener()
     async def on_message(self, message: discord.Message):
         if message.author.bot:
@@ -47,18 +42,10 @@ class Events(Cog):
             raise error
         await ctx.send(
             embed=discord.Embed(
-                title=" ".join(
-                    re_compile(r"[A-Z][a-z]*").findall(error.__class__.__name__)
-                ),
+                title=error.__class__.__name__,
                 description=str(error),
                 color=discord.Color.red(),
             )
-        )
-
-    @Cog.listener()
-    async def on_member_join(self, member: discord.Member):
-        await self.general.send(
-            f"**{member}** ({member.mention}) joined the server :wave:"
         )
 
 
