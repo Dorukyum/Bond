@@ -44,18 +44,19 @@ class General(Cog):
     @command()
     async def suggest(self, ctx: Context, *, text):
         """Suggest something related to library design."""
-        if self.suggestions_channel.permissions_for(ctx.author).send_messages:
-            await self.suggestions_channel.send(
-                embed=discord.Embed(
-                    description=text,
-                    colour=discord.Color.blurple(),
-                )
-                .set_author(
-                    name=str(ctx.author), icon_url=ctx.author.display_avatar.url
-                )
-                .set_footer(text=f"ID: {ctx.author.id}")
+        await ctx.message.delete()
+        msg = await self.suggestions_channel.send(
+            embed=discord.Embed(
+                description=text,
+                colour=discord.Color.blurple(),
             )
-            await ctx.message.delete()
+            .set_author(
+                name=str(ctx.author), icon_url=ctx.author.display_avatar.url
+            )
+            .set_footer(text=f"ID: {ctx.author.id}")
+        )
+        await msg.add_reaction("<:upvote:881521766231584848>")
+        await msg.add_reaction("<:downvote:904068725475508274>")
 
     @command()
     async def afk(self, ctx: Context, *, message="_No reason specified._"):
