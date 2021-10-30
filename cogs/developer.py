@@ -1,5 +1,3 @@
-from os import listdir
-
 from discord.ext.commands import command
 from jishaku.codeblocks import codeblock_converter
 from jishaku.modules import ExtensionConverter
@@ -14,7 +12,7 @@ class Developer(Cog, command_attrs={"hidden": True}):
 
     @command(name="eval")
     async def _eval(self, ctx, *, code: codeblock_converter):
-        await self.jishaku.jsk_python(ctx, argument=code)
+        await self.jishaku.jsk_python(ctx, code)
 
     @command(aliases=["reload"])
     async def load(self, ctx, *files: ExtensionConverter):
@@ -28,6 +26,11 @@ class Developer(Cog, command_attrs={"hidden": True}):
     async def shutdown(self, ctx):
         await ctx.send("Shutting down.")
         await self.bot.close()
+
+    @command()
+    async def pull(self, ctx):
+        cog = self.bot.get_cog("Jishaku")
+        await cog.jsk_git(ctx, "pull")
 
     async def cog_check(self, ctx):
         return ctx.author.id in self.bot.owner_ids
