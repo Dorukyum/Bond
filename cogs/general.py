@@ -1,5 +1,5 @@
-import inspect
-import io
+from inspect import getsource, getsourcefile
+from io import StringIO
 from contextlib import suppress
 from urllib import parse
 
@@ -67,17 +67,22 @@ class General(Cog):
             await ctx.author.edit(nick=f"[AFK] {ctx.author.display_name}")
 
     @command(aliases=["src"])
-    async def source(self, ctx: Context, *, command: str):
-        """See the source of a specific command."""
+    async def source(self, ctx: Context, *, command: str = None):
+        """See the source code of the bot."""
+        if not command:
+            await ctx.send("https://github.com/Dorukyum/Pycord-Manager")
+            return
         c = self.bot.get_command(command)
         if not c:
-            return await ctx.send(f"Command {command} was not found")
-
-        callback = self.bot.help_command.__class__ if command == "help" else c.callback
-        src = inspect.getsource(callback)
-        buf = io.StringIO(src)
-        file = discord.File(buf, inspect.getsourcefile(callback))
-        await ctx.send(file=file)
+            await ctx.send(f"Command {command} was not found")
+        else:
+            callback = (
+                self.bot.help_command.__class__ if command == "help" else c.callback
+            )
+            src = getsource(callback)
+            buf = StringIO(src)
+            file = discord.File(buf, getsourcefile(callback))
+            await ctx.send(file=file)
 
 
 def setup(bot):
