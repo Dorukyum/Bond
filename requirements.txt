@@ -1,4 +1,4 @@
-git+https://github.com/Pycord-Development/pycord@feature/slash
+git+https://github.com/Pycord-Development/pycord
 python-dotenv
 tortoise-orm
 jishaku
