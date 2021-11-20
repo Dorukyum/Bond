@@ -1,4 +1,5 @@
 from os import environ, listdir
+from sys import argv
 
 import discord
 from discord.ext import commands
@@ -13,7 +14,7 @@ class PycordManager(commands.Bot):
 
     def __init__(self):
         super().__init__(
-            command_prefix="p.",
+            command_prefix=("p." if "-t" not in argv else "d."),
             intents=discord.Intents(members=True, messages=True, guilds=True),
             owner_ids={543397958197182464},
             help_command=commands.MinimalHelpCommand(),
