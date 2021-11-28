@@ -107,6 +107,8 @@ class Moderation(Cog):
 
     @Cog.listener()
     async def on_message(self, message: discord.Message):
+        if message.guild != self.bot.main_guild:
+            return
         if message.author.bot:
             return
 
