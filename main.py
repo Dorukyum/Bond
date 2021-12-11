@@ -24,19 +24,19 @@ class PycordManager(commands.Bot):
             ),
         )
 
-    async def on_ready(self):
-        self.main_guild = self.get_guild(881207955029110855)
-        self.cache = {"afk": {}}
-        environ.setdefault("JISHAKU_HIDE", "1")
-        environ.setdefault("JISHAKU_NO_UNDERSCORE", "1")
-        self.load_extension("jishaku")
-
         for filename in listdir("./cogs/"):
             if filename.endswith(".py"):
                 try:
                     self.load_extension(f"cogs.{filename[:-3]}")
                 except Exception as e:
                     print(e)
+
+    async def on_ready(self):
+        self.main_guild = self.get_guild(881207955029110855)
+        self.cache = {"afk": {}}
+        environ.setdefault("JISHAKU_HIDE", "1")
+        environ.setdefault("JISHAKU_NO_UNDERSCORE", "1")
+        self.load_extension("jishaku")
 
         await Tortoise.init(
             db_url="sqlite://data/database.db", modules={"models": ["utils"]}
