@@ -25,20 +25,40 @@ class PycordManager(commands.Bot):
             debug_guild=881207955029110855,
         )
 
+        self.on_ready_fired = False
         self.cache = {"afk": {}}
+        self.to_load = [
+            "cogs.developer",
+            "cogs.events",
+            "cogs.fun",
+            "cogs.general",
+            "cogs.moderation",
+            "cogs.server",
+            "cogs.tags",
+            "jishaku",
+        ]
 
-        for filename in listdir("./cogs/"):
-            if filename.endswith(".py"):
-                try:
-                    self.load_extension(f"cogs.{filename[:-3]}")
-                except Exception as e:
-                    print(e)
+        for cog in ["cogs.pycord"]:  # cogs with application commands
+            self.load_cog(cog)
+    
+    def load_cog(self, cog: str) -> None:
+        try:
+            self.load_extension(cog)
+        except Exception as e:
+            print(e)
 
     async def on_ready(self):
+        if self.on_ready_fired:
+            return
+        else:
+            self.on_ready_fired = True
+
         self.main_guild = self.get_guild(881207955029110855)
         environ.setdefault("JISHAKU_HIDE", "1")
         environ.setdefault("JISHAKU_NO_UNDERSCORE", "1")
-        self.load_extension("jishaku")
+
+        for cog in self.to_load:
+            self.load_cog(cog)
 
         await Tortoise.init(
             db_url="sqlite://data/database.db", modules={"models": ["utils"]}
