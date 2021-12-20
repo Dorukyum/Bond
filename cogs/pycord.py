@@ -29,7 +29,14 @@ class Pycord(Cog):
         for attr in item.split("."):
             if attr == "discord":
                 continue
-            thing = getattr(thing, attr)
+
+            try:
+                thing = getattr(thing, attr)
+            except AttributeError:
+                return await ctx.respond("Item not found.")
+
+        if thing.__doc__ is None:
+            return await ctx.respond(f"Couldn't find documentation for `{item}`.")
         await ctx.respond(f"```\n{cleandoc(thing.__doc__)}```")
 
 
