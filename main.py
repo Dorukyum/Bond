@@ -28,6 +28,7 @@ class PycordManager(commands.Bot):
         self.on_ready_fired = False
         self.cache = {"afk": {}}
         self.to_load = [
+            "jishaku",
             "cogs.developer",
             "cogs.events",
             "cogs.fun",
@@ -35,7 +36,6 @@ class PycordManager(commands.Bot):
             "cogs.moderation",
             "cogs.server",
             "cogs.tags",
-            "jishaku",
         ]
 
         for cog in ["cogs.pycord"]:  # cogs with application commands
