@@ -22,7 +22,7 @@ class PycordManager(commands.Bot):
             activity=discord.Activity(
                 type=discord.ActivityType.listening, name="p.help"
             ),
-            debug_guild=881207955029110855,
+            debug_guilds=[881207955029110855],
         )
 
         self.on_ready_fired = False
