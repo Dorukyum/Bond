@@ -51,13 +51,13 @@ class Moderation(Cog):
         if duration is not None:
 
             async def unmute():
-                await asyncio.sleep(duration)  # 3 hours
+                await asyncio.sleep(duration)
                 with suppress(discord.Forbidden, discord.HTTPException):
                     await member.remove_roles(
                         self.muted_role, reason="Mute duration expired."
                     )
 
-            asyncio.create_task(unmute())
+            self.bot.cache["unmute_task"][member.id] = asyncio.create_task(unmute())
 
     @command()
     @has_permissions(ban_members=True)
@@ -100,6 +100,9 @@ class Moderation(Cog):
     async def _unmute(self, ctx: Context, member: discord.Member):
         if self.muted_role in member.roles:
             await member.remove_roles(self.muted_role)
+            if (task := self.bot.cache["unmute_task"].pop(member.id)):
+                task.cancel()
+
             await ctx.send(f"Unmuted {member.mention}")
             await self.mod_log(ctx.author, member, "Unknown", self.UNMUTE)
         else:
