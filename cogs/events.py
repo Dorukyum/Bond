@@ -35,6 +35,11 @@ class Events(Cog):
             await message.reply("\n".join(links))
 
     @Cog.listener()
+    async def on_message_edit(self, before: discord.Message, after: discord.Message):
+        if before.content != after.content:
+            await self.bot.process_commands(after)
+
+    @Cog.listener()
     async def on_command_error(
         self, ctx: commands.Context, error: commands.CommandError
     ):
