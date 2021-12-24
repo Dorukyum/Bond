@@ -35,7 +35,7 @@ class Moderation(Cog):
     ) -> None:
         await self.mod_log_channel.send(
             embed=discord.Embed(
-                description=f"**{action.emoji} {action.text} {member.name}**{member.discriminator} *(ID {member.id})*\n:page_facing_up: **Reason:** {reason}",
+                description=f"**{action.emoji} {action.text} {member.name}**#{member.discriminator} *(ID {member.id})*\n:page_facing_up: **Reason:** {reason}",
                 color=getattr(discord.Color, action.color)(),
             ).set_author(name=f"{mod} (ID {mod.id})", icon_url=mod.display_avatar)
         )
