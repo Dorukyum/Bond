@@ -20,7 +20,7 @@ async def getattrs(ctx):
 
 
 class DiscordAttribute:
-    async def convert(self, path):
+    async def convert(self, ctx, path):
         thing = discord
         for attr in path.split("."):
             if attr == "discord":
