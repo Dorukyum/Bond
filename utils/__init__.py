@@ -1,10 +1,13 @@
 from typing import Literal
 
 from discord.ext import commands
-from tortoise import fields
-from tortoise.models import Model
 
 from .bot import PycordManager
+from .models import Tag
+
+
+PycordManager.Tag = Tag
+
 
 __all__ = ("PycordManager", "Cog", "Lowercase", "s", "Tag")
 
@@ -31,18 +34,3 @@ def s(data) -> Literal["", "s"]:
     elif hasattr(data, "__len__"):
         check = len(data) == 1
     return "s" if check else ""
-
-
-class Tag(Model):
-    name = fields.TextField()
-    created_at = fields.DatetimeField(null=True, auto_now_add=True)
-    author_id = fields.IntField()
-    guild_id = fields.IntField()
-    content = fields.TextField()
-    uses = fields.IntField()
-
-    def __str__(self):
-        return self.content
-
-
-PycordManager.Tag = Tag
