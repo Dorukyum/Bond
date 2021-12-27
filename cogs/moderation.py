@@ -5,7 +5,7 @@ from datetime import timedelta
 from typing import Optional
 
 import discord
-from discord.ext.commands import Context, Greedy, command, has_permissions
+from discord.ext.commands import Context, Greedy, command, has_permissions, is_owner, group
 
 from utils import Cog, s
 
@@ -26,6 +26,7 @@ class Moderation(Cog):
         self.mod_role = guild.get_role(881407111211384902)
         self.muted_role = guild.get_role(881532095661494313)
         self.mod_log_channel = bot.get_channel(884992286826577940)
+        self.automod = bot.config["automod"]
 
     async def mod_log(
         self,
@@ -109,8 +110,19 @@ class Moderation(Cog):
         else:
             await ctx.send("This member is not muted.")
 
+    @group("automod", invoke_without_command=True)
+    @is_owner()
+    async def _automod(self, ctx: Context, status: bool):
+        self.automod = status
+        self.bot.dump_config({"automod": status})
+
+        status = {True: "on", False: "off"}[status]
+        await ctx.send(f"Automod turned {status}.")
+
     @Cog.listener()
     async def on_message(self, message: discord.Message):
+        if not self.automod:
+            return
         if message.guild != self.bot.main_guild:
             return
         if message.author.bot:

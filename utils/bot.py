@@ -56,6 +56,7 @@ class PycordManager(commands.Bot):
         config.setdefault("debug_guilds", [881207955029110855])
         config.setdefault("owner_ids", [543397958197182464])
         config.setdefault("prefix", ("p." if "-t" not in argv else "d."))
+        config.setdefault("automod", True)
 
         if update:
             self.config = config
