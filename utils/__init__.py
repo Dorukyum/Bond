@@ -4,14 +4,16 @@ from discord.ext import commands
 from tortoise import fields
 from tortoise.models import Model
 
-__all__ = ("Cog", "Lowercase", "s", "Tag")
+from .bot import PycordManager
+
+__all__ = ("PycordManager", "Cog", "Lowercase", "s", "Tag")
 
 
 class Cog(commands.Cog):
     """Base class for all cogs"""
 
-    def __init__(self, bot) -> None:
-        self.bot: commands.Bot = bot
+    def __init__(self, bot: PycordManager) -> None:
+        self.bot = bot
 
 
 class _Lowercase(commands.Converter):
@@ -41,3 +43,6 @@ class Tag(Model):
 
     def __str__(self):
         return self.content
+
+
+PycordManager.Tag = Tag
