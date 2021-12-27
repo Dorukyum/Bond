@@ -1,6 +1,7 @@
 import asyncio
 from collections import namedtuple
 from contextlib import suppress
+from datetime import timedelta
 from typing import Optional
 
 import discord
@@ -116,15 +117,17 @@ class Moderation(Cog):
             return
 
         mentions = len(message.raw_mentions)
-        if mentions >= 6 and self.mod_role not in message.author.roles:
+        if mentions >= 7 and self.mod_role not in message.author.roles:
             await message.delete()
-            if mentions >= 10:
+            if mentions >= 25:
                 return await message.guild.ban(
                     message.author, reason=f"Too many mentions ({mentions})"
                 )
 
             await message.channel.send(f"{message.author.mention} Too many mentions.")
-            await self.mute(message.author, f"Too many mentions ({mentions})", 10800)
+            await message.author.timeout_for(
+                timedelta(minutes=mentions*15), reason=f"Too many mentions ({mentions})",
+            )
 
 
 def setup(bot):
