@@ -1,4 +1,5 @@
-from discord.ext.commands import command
+from discord import Member
+from discord.ext.commands import command, group
 from jishaku.codeblocks import codeblock_converter
 from jishaku.modules import ExtensionConverter
 
@@ -31,6 +32,26 @@ class Developer(Cog, command_attrs={"hidden": True}):
     async def pull(self, ctx):
         cog = self.bot.get_cog("Jishaku")
         await cog.jsk_git(ctx, argument="pull")
+
+    @group(invoke_without_command=True)
+    async def owners(self, ctx):
+        await ctx.reply(
+            "\n".join(
+                self.bot.main_guild.get_member(id).mention for id in self.bot.owner_ids
+            )
+        )
+
+    @owners.command()
+    async def add(self, ctx, member: Member):
+        self.bot.owner_ids.append(member.id)
+        self.bot.dump_config({"owner_ids": self.bot.owner_ids})
+        await ctx.reply(f"Added `{member}` to owners.")
+
+    @owners.command()
+    async def remove(self, ctx, member: Member):
+        self.bot.owner_ids.remove(member.id)
+        self.bot.dump_config({"owner_ids": self.bot.owner_ids})
+        await ctx.reply(f"Removed `{member}` from owners.")
 
     async def cog_check(self, ctx):
         return ctx.author.id in self.bot.owner_ids

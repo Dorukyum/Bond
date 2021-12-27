@@ -61,9 +61,10 @@ class PycordManager(commands.Bot):
             self.config = config
         return config
 
-    def dump_config(self, config: Optional[dict] = None) -> None:
+    def dump_config(self, new_data: Optional[dict] = None) -> None:
+        self.config.update(new_data)
         with open("config.json", "w") as f:
-            dump(config or self.config, f)
+            dump(self.config, f)
 
     async def on_ready(self):
         if self.on_ready_fired:
