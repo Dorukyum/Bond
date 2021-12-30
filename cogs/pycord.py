@@ -45,6 +45,26 @@ class Pycord(Cog):
 
         await ctx.respond(f"```\n{cleandoc(thing.__doc__)}```")
 
+    @discord.slash_command()
+    async def example(self, ctx, name: str = ""):
+        """Get the link of an example from the Pycord repository."""
+
+        if not name.endswith(".py"):
+            name = f"{name}.py"
+        if name.startswith("slash_"):
+            name = f"app_commands/{name}"
+        file_name = name.split("/")[-1]
+        example_name = " ".join(file_name.split("_")).split(".")[0]
+        await ctx.respond(
+            f"Here's the {example_name} example.",
+            view=discord.ui.View(
+                discord.ui.Button(
+                    label=file_name,
+                    url=f"https://github.com/Pycord-Development/pycord/tree/master/examples/{name}",
+                )
+            ),
+        )
+
 
 def setup(bot):
     bot.add_cog(Pycord(bot))
