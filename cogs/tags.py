@@ -177,6 +177,9 @@ class Tags(Cog):
         else:
             await ctx.reply("This server does not have any tags.")
 
+    async def cog_check(self, ctx) -> bool:
+        return ctx.guild is not None
+
 
 def setup(bot):
     bot.add_cog(Tags(bot))

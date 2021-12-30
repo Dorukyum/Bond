@@ -5,7 +5,7 @@ from datetime import timedelta
 from typing import Optional
 
 import discord
-from discord.ext.commands import Context, Greedy, command, has_permissions, is_owner, group
+from discord.ext.commands import Context, Greedy, command, has_permissions, guild_only, group
 
 from utils import Cog, GuildModel, s
 
@@ -62,6 +62,7 @@ class Moderation(Cog):
 
     @command()
     @has_permissions(ban_members=True)
+    @guild_only()
     async def ban(self, ctx: Context, members: Greedy[discord.Member], *, reason):
         """Ban the supplied members from the guild. Limited to 10 at a time."""
         if len(members) > 10:
@@ -74,6 +75,7 @@ class Moderation(Cog):
 
     @command()
     @has_permissions(manage_messages=True)
+    @guild_only()
     async def slowmode(self, ctx: Context, seconds: int = 0):
         """Set slowmode for the current channel."""
         if not 21600 > seconds > 0:
@@ -87,6 +89,7 @@ class Moderation(Cog):
 
     @command(name="mute")
     @has_permissions(manage_messages=True)
+    @guild_only()
     async def _mute(
         self, ctx: Context, member: discord.Member, duration: Optional[int], *, reason
     ):
@@ -98,6 +101,7 @@ class Moderation(Cog):
 
     @command(name="unmute")
     @has_permissions(manage_messages=True)
+    @guild_only()
     async def _unmute(self, ctx: Context, member: discord.Member):
         if self.muted_role in member.roles:
             await member.remove_roles(self.muted_role)

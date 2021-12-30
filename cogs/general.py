@@ -4,7 +4,7 @@ from contextlib import suppress
 from urllib import parse
 
 import discord
-from discord.ext.commands import Context, command
+from discord.ext.commands import Context, command, guild_only
 
 from utils import Cog, pycord_only
 
@@ -43,6 +43,7 @@ class General(Cog):
 
     @command()
     @pycord_only
+    @guild_only()
     async def suggest(self, ctx: Context, *, text):
         """Suggest something related to library design."""
         await ctx.message.delete()
