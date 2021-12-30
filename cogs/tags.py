@@ -1,7 +1,7 @@
 import discord
 from discord.ext.commands import Context, command, group
 
-from utils import Cog, Lowercase, Tag, s
+from utils import Cog, Lowercase, TagModel, s
 
 
 class Tags(Cog):
@@ -10,7 +10,7 @@ class Tags(Cog):
     @group(invoke_without_command=True)
     async def tag(self, ctx: Context, *, name: Lowercase):
         """View a tag's content."""
-        if tag := await Tag.filter(name=name, guild_id=ctx.guild.id).first():
+        if tag := await TagModel.filter(name=name, guild_id=ctx.guild.id).first():
             await ctx.reply(tag.content)
             await tag.update_from_dict({"uses": tag.uses + 1}).save()
         else:
@@ -19,10 +19,10 @@ class Tags(Cog):
     @tag.command()
     async def create(self, ctx: Context, name: Lowercase, *, content):
         """Create a tag."""
-        if await Tag.filter(name=name, guild_id=ctx.guild.id).first():
+        if await TagModel.filter(name=name, guild_id=ctx.guild.id).first():
             await ctx.reply("A tag with this name already exists.")
         else:
-            await Tag.create(
+            await TagModel.create(
                 name=name,
                 content=content,
                 author_id=ctx.author.id,
@@ -34,7 +34,7 @@ class Tags(Cog):
     @tag.command()
     async def edit(self, ctx: Context, name: Lowercase, *, content):
         """Edit the content of a tag."""
-        if tag := await Tag.filter(name=name, guild_id=ctx.guild.id).first():
+        if tag := await TagModel.filter(name=name, guild_id=ctx.guild.id).first():
             if (
                 tag.author_id == ctx.author.id
                 or ctx.channel.permissions_for(ctx.author).manage_messages
@@ -49,7 +49,7 @@ class Tags(Cog):
     @tag.command()
     async def delete(self, ctx: Context, *, name: Lowercase):
         """Delete a tag."""
-        if tag := await Tag.filter(name=name, guild_id=ctx.guild.id).first():
+        if tag := await TagModel.filter(name=name, guild_id=ctx.guild.id).first():
             if (
                 tag.author_id == ctx.author.id
                 or ctx.channel.permissions_for(ctx.author).manage_messages
@@ -64,7 +64,7 @@ class Tags(Cog):
     @tag.command()
     async def transfer(self, ctx: Context, name: Lowercase, member: discord.Member = None):
         """Transfer a tag's ownership."""
-        if tag := await Tag.filter(name=name, guild_id=ctx.guild.id).first():
+        if tag := await TagModel.filter(name=name, guild_id=ctx.guild.id).first():
             if tag.author_id == ctx.author.id:
                 await tag.update_from_dict({"author_id": member.id}).save()
                 await ctx.send(f"Tag `{name}` transferred to {member} successfully.")
@@ -76,9 +76,9 @@ class Tags(Cog):
     @tag.command()
     async def rename(self, ctx: Context, name: Lowercase, *, new_name: Lowercase):
         """Rename a tag."""
-        if tag := await Tag.filter(name=name, guild_id=ctx.guild.id).first():
+        if tag := await TagModel.filter(name=name, guild_id=ctx.guild.id).first():
             if tag.author_id == ctx.author.id:
-                if await Tag.filter(name=new_name, guild_id=ctx.guild.id):
+                if await TagModel.filter(name=new_name, guild_id=ctx.guild.id):
                     await ctx.send("A tag with this name already exists.")
                 else:
                     await tag.update_from_dict({"name": new_name}).save()
@@ -93,7 +93,7 @@ class Tags(Cog):
     @tag.command()
     async def info(self, ctx: Context, *, name: Lowercase):
         """View info about a tag."""
-        if tag := await Tag.filter(name=name, guild_id=ctx.guild.id).first():
+        if tag := await TagModel.filter(name=name, guild_id=ctx.guild.id).first():
             owner = self.bot.get_user(tag.author_id) or await self.bot.fetch_user(
                 tag.author_id
             )
@@ -111,7 +111,7 @@ class Tags(Cog):
     @tag.command()
     async def raw(self, ctx: Context, *, name: Lowercase):
         """View the content of a tag, with escaped markdown."""
-        if tag := await Tag.filter(name=name, guild_id=ctx.guild.id).first():
+        if tag := await TagModel.filter(name=name, guild_id=ctx.guild.id).first():
             await ctx.send(discord.utils.escape_markdown(tag.content))
         else:
             await ctx.reply("A tag with this name doesn't exist.")
@@ -119,7 +119,7 @@ class Tags(Cog):
     @tag.command()
     async def claim(self, ctx: Context, *, name: Lowercase):
         """Claim a tag."""
-        if tag := await Tag.filter(name=name, guild_id=ctx.guild.id).first():
+        if tag := await TagModel.filter(name=name, guild_id=ctx.guild.id).first():
             if ctx.guild.get_member(tag.author_id):
                 await ctx.reply("The author of this tag is still in the server.")
             else:
@@ -131,7 +131,7 @@ class Tags(Cog):
     @tag.command()
     async def search(self, ctx: Context, *, query):
         """Search the guild's tags."""
-        if tags := await Tag.filter(guild_id=ctx.guild.id):
+        if tags := await TagModel.filter(guild_id=ctx.guild.id):
             await ctx.send(
                 embed=discord.Embed(
                     title=f"Tag Search | {query}",
@@ -152,7 +152,7 @@ class Tags(Cog):
         """View the guild's tags.
         Shows the tags of a member if supplied."""
         if member:
-            if tags := await Tag.filter(guild_id=ctx.guild.id, author_id=member.id):
+            if tags := await TagModel.filter(guild_id=ctx.guild.id, author_id=member.id):
                 await ctx.send(
                     embed=discord.Embed(
                         title=f"{member.display_name}'{s(member.display_name)} Tags",
@@ -164,7 +164,7 @@ class Tags(Cog):
                 )
             else:
                 await ctx.reply("This member does not have any tags in this server.")
-        elif tags := await Tag.filter(guild_id=ctx.guild.id):
+        elif tags := await TagModel.filter(guild_id=ctx.guild.id):
             await ctx.send(
                 embed=discord.Embed(
                     title=f"Tags in {ctx.guild.name}",
