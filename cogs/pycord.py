@@ -27,11 +27,8 @@ class Pycord(Cog):
         for attr in path.split("."):
             if attr == "discord":
                 continue
-            try:
-                thing = getattr(thing, attr)
-            except AttributeError:
-                return
-            return thing, path
+            thing = getattr(thing, attr)
+        return thing, path
 
     @discord.slash_command(name="doc")
     @discord.option("thing", autocomplete=getattrs)
