@@ -9,7 +9,14 @@ from .models import Tag
 PycordManager.Tag = Tag
 
 
-__all__ = ("PycordManager", "Cog", "Lowercase", "s", "Tag")
+__all__ = (
+    "PycordManager",
+    "pycord_only",
+    "Cog",
+    "Lowercase",
+    "s",
+    "Tag",
+)
 
 
 class Cog(commands.Cog):
@@ -34,3 +41,16 @@ def s(data) -> Literal["", "s"]:
     elif hasattr(data, "__len__"):
         check = len(data) == 1
     return "s" if check else ""
+
+
+class PycordOnly(commands.CheckFailure):
+    pass
+
+
+async def predicate(ctx):
+    if ctx.guild and ctx.guild.id == 881207955029110855:
+        return True
+    raise PycordOnly("This command can only be used in the Pycord server.")
+
+
+pycord_only = commands.check(predicate)

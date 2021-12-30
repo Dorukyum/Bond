@@ -1,7 +1,7 @@
 from discord import Embed
 from discord.ext.commands import Context, command, has_permissions
 
-from utils import Cog
+from utils import Cog, pycord_only
 
 
 class Server(Cog):
@@ -11,6 +11,7 @@ class Server(Cog):
         self.staff_list = None
 
     @command()
+    @pycord_only
     @has_permissions(manage_guild=True)
     async def update_staff_list(self, ctx: Context):
         staff_roles = [
