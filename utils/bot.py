@@ -73,7 +73,7 @@ class PycordManager(commands.Bot):
         else:
             self.on_ready_fired = True
 
-        self.main_guild = self.get_guild(881207955029110855)
+        self.pycord = self.get_guild(881207955029110855)
         environ.setdefault("JISHAKU_HIDE", "1")
         environ.setdefault("JISHAKU_NO_UNDERSCORE", "1")
 

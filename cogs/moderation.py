@@ -123,7 +123,7 @@ class Moderation(Cog):
     async def on_message(self, message: discord.Message):
         if not self.automod:
             return
-        if message.guild != self.bot.main_guild:
+        if message.guild != self.bot.pycord:
             return
         if message.author.bot:
             return

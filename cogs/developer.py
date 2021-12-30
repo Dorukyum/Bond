@@ -37,7 +37,7 @@ class Developer(Cog, command_attrs={"hidden": True}):
     async def owners(self, ctx):
         await ctx.reply(
             "\n".join(
-                self.bot.main_guild.get_member(id).mention for id in self.bot.owner_ids
+                self.bot.pycord.get_member(id).mention for id in self.bot.owner_ids
             )
         )
 
