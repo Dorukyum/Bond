@@ -11,15 +11,16 @@ from tortoise import Tortoise
 class PycordManager(commands.Bot):
     def __init__(self):
         config = self.load_config()
+        prefix = config["prefix"] if "-t" not in argv else "d."
 
         super().__init__(
-            command_prefix=config["prefix"],
+            command_prefix=prefix,
             intents=discord.Intents(members=True, messages=True, guilds=True),
             owner_ids=config["owner_ids"],
             help_command=commands.MinimalHelpCommand(),
             allowed_mentions=discord.AllowedMentions.none(),
             activity=discord.Activity(
-                type=discord.ActivityType.listening, name="p.help"
+                type=discord.ActivityType.listening, name=f"{config['prefix']}help"
             ),
             debug_guilds=config["debug_guilds"],
         )
@@ -55,7 +56,7 @@ class PycordManager(commands.Bot):
 
         config.setdefault("debug_guilds", [881207955029110855])
         config.setdefault("owner_ids", [543397958197182464])
-        config.setdefault("prefix", ("p." if "-t" not in argv else "d."))
+        config.setdefault("prefix", "p.")
 
         if update:
             self.config = config
