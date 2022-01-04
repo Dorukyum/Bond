@@ -43,7 +43,7 @@ class Pycord(Cog):
         if thing.__doc__ is None:
             return await ctx.respond(f"Couldn't find documentation for `{path}`.")
 
-        await ctx.respond(f"```\n{cleandoc(thing.__doc__)}```")
+        await ctx.respond(f"```\n{cleandoc(thing.__doc__)[:1993]}```")
 
     @discord.slash_command()
     async def example(self, ctx, name: str = ""):
