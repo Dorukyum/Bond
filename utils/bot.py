@@ -1,6 +1,7 @@
 from os import environ, getenv, path
 from sys import argv
 from json import load, dump
+from traceback import format_exception
 from typing import Optional
 
 import discord
@@ -88,6 +89,28 @@ class PycordManager(commands.Bot):
         )
         await Tortoise.generate_schemas()
         print(self.user, "is ready")
-    
+
+    async def on_command_error(
+        self, ctx: commands.Context, error: commands.CommandError
+    ):
+        if isinstance(error, commands.CommandInvokeError):
+            await ctx.send("An unexpected error has occured, I've notified my developer.")
+            text = "".join(
+                format_exception(type(error), error, error.__traceback__)
+            )
+            return await self.log_error(f"```\n{text}```")
+
+        await ctx.send(
+            embed=discord.Embed(
+                title=error.__class__.__name__,
+                description=str(error),
+                color=discord.Color.red(),
+            )
+        )
+
+    async def on_message_edit(self, before: discord.Message, after: discord.Message):
+        if before.content != after.content:
+            await self.process_commands(after)
+
     def run(self):
         super().run(getenv("TOKEN"))
