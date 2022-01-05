@@ -1,4 +1,5 @@
 from contextlib import suppress
+from traceback import format_exception
 
 import discord
 from discord.ext import commands
@@ -44,7 +45,12 @@ class Events(Cog):
         self, ctx: commands.Context, error: commands.CommandError
     ):
         if isinstance(error, commands.CommandInvokeError):
-            raise error
+            await ctx.send("An unexpected error has occured, I've notified my developer.")
+            text = "".join(
+                format_exception(type(error), error, error.__traceback__)
+            )
+            return await self.bot.log_error(f"```\n{text}```")
+
         await ctx.send(
             embed=discord.Embed(
                 title=error.__class__.__name__,

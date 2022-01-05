@@ -1,4 +1,4 @@
-from os import environ, path
+from os import environ, getenv, path
 from sys import argv
 from json import load, dump
 from typing import Optional
@@ -74,6 +74,9 @@ class PycordManager(commands.Bot):
             self.on_ready_fired = True
 
         self.pycord = self.get_guild(881207955029110855)
+        self.log_error = discord.Webhook.from_url(
+            getenv("ERRORS_WEBHOOK"), session=self.http._HTTPClient__session, bot_token=self.http.token
+        ).send
         environ.setdefault("JISHAKU_HIDE", "1")
         environ.setdefault("JISHAKU_NO_UNDERSCORE", "1")
 
@@ -85,3 +88,6 @@ class PycordManager(commands.Bot):
         )
         await Tortoise.generate_schemas()
         print(self.user, "is ready")
+    
+    def run(self):
+        super().run(getenv("TOKEN"))
