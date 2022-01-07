@@ -76,10 +76,7 @@ class General(Cog):
         # AFK
         if message.author.id in self.bot.cache["afk"].keys():
             del self.bot.cache["afk"][message.author.id]
-            await message.channel.send(
-                f"Welcome back {message.author.display_name}! You're no longer AFK.",
-                delete_after=4.0,
-            )
+            await message.add_reaction("\U0001f44b")
             with suppress(discord.Forbidden):
                 await message.author.edit(nick=message.author.display_name[6:])
         for mention in message.mentions:
