@@ -73,12 +73,12 @@ class PycordManager(commands.Bot):
             return [d['name'] for d in data if d['type'] == 'file']
         examples_directory = []
         session = self.http._HTTPClient__session
-        async with session.get('https://api.github.com/repos/Pycord-Development/pycord/contents/examples') as resp:
-            examples_directory.extend(get_files(await resp.json()))
-        async with session.get('https://api.github.com/repos/Pycord-Development/pycord/contents/examples/views') as resp:
-            examples_directory.extend([f"views_{file}" for file in get_files(await resp.json())])
-        async with session.get('https://api.github.com/repos/Pycord-Development/pycord/contents/examples/app_commands') as resp:
-            examples_directory.extend([f"slash_{file}" for file in get_files(await resp.json())])
+        async with session.get('https://api.github.com/repos/Pycord-Development/pycord/contents/examples') as response:
+            examples_directory.extend(get_files(await response.json()))
+        async with session.get('https://api.github.com/repos/Pycord-Development/pycord/contents/examples/views') as response:
+            examples_directory.extend([f"views_{file}" for file in get_files(await response.json())])
+        async with session.get('https://api.github.com/repos/Pycord-Development/pycord/contents/examples/app_commands') as response:
+            examples_directory.extend([f"slash_{file}" for file in get_files(await response.json())])
         self.pycord_examples = examples_directory
         await super().on_connect()
 
