@@ -6,6 +6,7 @@ from typing import Optional
 
 import discord
 from discord.ext import commands
+from aiohttp import ClientSession
 from tortoise import Tortoise
 
 
@@ -67,6 +68,20 @@ class PycordManager(commands.Bot):
         self.config.update(new_data)
         with open("config.json", "w") as f:
             dump(self.config, f)
+
+    async def on_connect(self):
+        def get_files(data):
+            return [d['name'] for d in data if d['type'] == 'file']
+        examples_directory = []
+        session = aiohttp.ClientSession()
+        async with session.get('https://api.github.com/repos/Pycord-Development/pycord/contents/examples') as resp:
+            examples_directory.extend(get_files(await resp.json()))
+        async with session.get('https://api.github.com/repos/Pycord-Development/pycord/contents/examples/views') as resp:
+            examples_directory.extend([f"views_{file}" for file in get_files(await resp.json())])
+        async with session.get('https://api.github.com/repos/Pycord-Development/pycord/contents/examples/app_commands') as resp:
+            examples_directory.extend([f"slash_{file}" for file in get_files(await resp.json())])
+        self.pycord_examples = examples_directory
+        await super().on_connect()
 
     async def on_ready(self):
         if self.on_ready_fired:
