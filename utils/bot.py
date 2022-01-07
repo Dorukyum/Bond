@@ -68,6 +68,20 @@ class PycordManager(commands.Bot):
         with open("config.json", "w") as f:
             dump(self.config, f)
 
+    async def on_connect(self):
+        def get_files(data):
+            return [d['name'] for d in data if d['type'] == 'file']
+        examples_directory = []
+        session = self.http._HTTPClient__session
+        async with session.get('https://api.github.com/repos/Pycord-Development/pycord/contents/examples') as response:
+            examples_directory.extend(get_files(await response.json()))
+        async with session.get('https://api.github.com/repos/Pycord-Development/pycord/contents/examples/views') as response:
+            examples_directory.extend([f"views_{file}" for file in get_files(await response.json())])
+        async with session.get('https://api.github.com/repos/Pycord-Development/pycord/contents/examples/app_commands') as response:
+            examples_directory.extend([f"slash_{file}" for file in get_files(await response.json())])
+        self.pycord_examples = examples_directory
+        await super().on_connect()
+
     async def on_ready(self):
         if self.on_ready_fired:
             return
