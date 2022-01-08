@@ -15,7 +15,8 @@ class Server(Cog):
     @has_permissions(manage_guild=True)
     async def update_staff_list(self, ctx: Context):
         staff_roles = [
-            881411529415729173,  # Server Manager
+            929080208148017242,  # PA
+            929081045087838309,  # Server Manager
             881407111211384902,  # Moderator
             882105157536591932,  # Trainee Moderator
             881519419375910932,  # Helper
