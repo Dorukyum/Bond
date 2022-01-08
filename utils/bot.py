@@ -8,6 +8,24 @@ import discord
 from discord.ext import commands
 from tortoise import Tortoise
 
+class ExamplesSlashCommand(discord.SlashCommand):
+    def __init__(self, bot, *args, **kwargs):
+        examples = bot.pycord_examples
+        # choices are limited to 25 choices per option
+        # so we can't view all /examples files for now
+        async def callback(ctx, name: discord.Option(str, 'Name of the example.', choices=list(examples.keys())[:25])):
+            # do /example command here
+            await ctx.respond(
+                f"Here's the {name} example.",
+                view = discord.ui.View(
+                    discord.ui.Button(
+                        label = name,
+                        url = examples[name],
+                    )
+                )
+            )
+        kwargs["name"] = "example" # command name
+        super().__init__(callback, *args, **kwargs)
 
 class PycordManager(commands.Bot):
     def __init__(self):
@@ -81,6 +99,9 @@ class PycordManager(commands.Bot):
             examples = {**examples, **get_files(await response.json(), "slash_")}
 
         self.pycord_examples = examples
+        self.add_application_command(ExamplesSlashCommand(self))
+        # it should be added after defining `pycord_examples`
+        # and before connecting
         await super().on_connect()
 
     async def on_ready(self):
