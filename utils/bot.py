@@ -31,7 +31,6 @@ class PycordManager(commands.Bot):
         self.to_load = [
             "jishaku",
             "cogs.developer",
-            "cogs.events",
             "cogs.fun",
             "cogs.general",
             "cogs.moderation",

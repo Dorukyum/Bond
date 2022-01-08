@@ -38,9 +38,9 @@ Lowercase = _Lowercase()
 
 
 def s(data) -> Literal["", "s"]:
-    check = data == 1
-    if hasattr(data, "endswith"):
-        check = not data.endswith("s")
+    if isinstance(data, str):
+        data = int(not data.endswith("s"))
     elif hasattr(data, "__len__"):
-        check = len(data) == 1
+        data = len(data)
+    check = data != 1
     return "s" if check else ""
