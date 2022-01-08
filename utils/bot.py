@@ -70,7 +70,7 @@ class PycordManager(commands.Bot):
 
     async def on_connect(self):
         def get_files(data, path = ""):
-            return {d[f"{path}name"]: d["html_url"] for d in data if d["type"] == "file"}
+            return {f"{path}{d['name']}": d["html_url"] for d in data if d["type"] == "file"}
 
         examples = {}
         session = self.http._HTTPClient__session
