@@ -78,7 +78,7 @@ class Moderation(Cog):
     @guild_only()
     async def slowmode(self, ctx: Context, seconds: int = 0):
         """Set slowmode for the current channel."""
-        if not 21600 > seconds > 0:
+        if not 21600 >= seconds >= 0:
             return await ctx.send("Slowmode should be between `21600` and `0` seconds.")
         await ctx.channel.edit(slowmode_delay=seconds)
         await ctx.send(
