@@ -8,7 +8,7 @@ class ExamplesSlashCommand(disoord.SlashCommand):
         examples = bot.pycord_examples
         async def callback(ctx, name: discord.Option(str, 'Name of the example.', choices=list(examples.keys()):
             # do /example command here
-            await ctx.semd(
+            await ctx.send(
                 f"Here's the {name} example.",
                 view = discord.ui.View(
                     discord.ui.Button(
@@ -58,6 +58,10 @@ class Pycord(Cog):
             return await ctx.respond(f"Couldn't find documentation for `{path}`.")
 
         await ctx.respond(f"```\n{cleandoc(thing.__doc__)[:1993]}```")
+
+    @discord.application_command(cls=ExamplesSlashCommand, name='example')
+    async def _example():
+        pass
 
 def setup(bot):
     bot.add_cog(Pycord(bot))
