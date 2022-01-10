@@ -97,7 +97,7 @@ class General(Cog):
         """See the source code of the bot."""
         if not command:
             return await ctx.send("https://github.com/Dorukyum/Pycord-Manager")
-        c = self.bot.get_command(command)
+        c = self.bot.get_command(command) or self.bot.get_application_command("doc")
         if not c:
             return await ctx.send(f"Command {command} was not found")
         callback = (
