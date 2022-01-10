@@ -17,3 +17,13 @@ class TagModel(Model):
 class GuildModel(Model):
     id = fields.IntField(pk=True)
     automod = fields.BooleanField(default=False)
+
+class StarboardModel(Model):
+    id = fields.IntField(pk=True)
+    channel_id = fields.IntField()
+    message_id = fields.IntField()
+    created_at = fields.DatetimeField(null=True, auto_now_add=True)
+    author_id = fields.IntField()
+    content = fields.TextField()
+    stars = fields.IntField()
+    send = fields.BooleanField(default=False)

@@ -1,6 +1,6 @@
 import discord
 
-from utils import Cog, pycord_only
+from utils import Cog, pycord_only, StarboardModel
 
 class Starboard(Cog):
     """A cog for the starboard."""
