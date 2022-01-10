@@ -14,5 +14,12 @@ class Starboard(Cog):
         if message.author.bot:
             return
 
+        isKnown = async IsKnown(message.id)
+
+        if isKnown:
+            return
+        else:
+            return
+
 def setup(bot):
     bot.add_cog(Starboard(bot))
