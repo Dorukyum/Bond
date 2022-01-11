@@ -38,7 +38,7 @@ class Server(Cog):
             await self.staff_list.edit(embed=embed)
         else:
             await self.staff_list_channel.purge(limit=1)
-            await self.staff_list_channel.send(embed=embed)
+            self.staff_list = await self.staff_list_channel.send(embed=embed)
         await ctx.send("Done!")
 
 
