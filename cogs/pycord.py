@@ -1,7 +1,8 @@
 from inspect import cleandoc
-from utils import Cog
+from utils import Cog, pycord_only
 
 import discord
+from discord.ext.commands import command, Context, has_permissions
 
 
 async def getattrs(ctx):
@@ -21,6 +22,11 @@ async def getattrs(ctx):
 
 class Pycord(Cog):
     """A cog for Pycord-related commands."""
+
+    def __init__(self, bot):
+        super().__init__(bot)
+        self.staff_list_channel = bot.get_channel(884730803588829206)
+        self.staff_list = None
 
     async def convert_attr(self, path):
         thing = discord
@@ -64,6 +70,35 @@ class Pycord(Cog):
                 )
             ),
         )
+
+    @command()
+    @pycord_only
+    @has_permissions(manage_guild=True)
+    async def update_staff_list(self, ctx: Context):
+        staff_roles = [
+            929080208148017242,  # PA
+            881223820059504691,  # Core Developer
+            881411529415729173,  # Server Manager
+            881407111211384902,  # Moderator
+            882105157536591932,  # Trainee Moderator
+            881519419375910932,  # Helper
+        ]
+        embed = discord.Embed(title="**Staff List**", color=0x2F3136)
+        embed.description = ""
+        for role in staff_roles:
+            role = self.bot.pycord.get_role(role)
+            embed.description += f"{role.mention} | **{len(role.members)}** \n"
+
+            for member in role.members:
+                embed.description += f"> `{member.id}` {member.mention}\n"
+            embed.description += "\n"
+
+        if self.staff_list is not None:
+            await self.staff_list.edit(embed=embed)
+        else:
+            await self.staff_list_channel.purge(limit=1)
+            self.staff_list = await self.staff_list_channel.send(embed=embed)
+        await ctx.send("Done!")
 
 
 def setup(bot):
