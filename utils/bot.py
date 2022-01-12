@@ -98,6 +98,8 @@ class PycordManager(commands.Bot):
                 format_exception(type(error), error, error.__traceback__)
             )
             return await self.log_error(f"```\n{text}```")
+        if isinstance(error, commands.CheckFailure) and await self.is_owner(ctx.author):
+            return await ctx.reinvoke()
 
         await ctx.send(
             embed=discord.Embed(
