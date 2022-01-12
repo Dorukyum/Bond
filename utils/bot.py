@@ -8,6 +8,10 @@ import discord
 from discord.ext import commands
 from tortoise import Tortoise
 
+
+__all__ = ("PycordManager",)
+
+
 class ExamplesSlashCommand(discord.SlashCommand):
     def __init__(self, bot, *args, **kwargs):
         examples = bot.pycord_examples
