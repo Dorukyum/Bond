@@ -141,8 +141,9 @@ class Moderation(Cog):
                 )
 
             await message.channel.send(f"{message.author.mention} Too many mentions.")
+            duration = min(mentions*15, 40320)
             await message.author.timeout_for(
-                timedelta(minutes=mentions*15), reason=f"Too many mentions ({mentions})",
+                timedelta(minutes=duration), reason=f"Too many mentions ({mentions})",
             )
 
 
