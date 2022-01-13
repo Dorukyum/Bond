@@ -34,11 +34,14 @@ class General(Cog):
 
     @command()
     async def search(self, ctx: Context, *, query):
-        """Get a search url from DuckDuckGo and Google.
-        NOTE: limited to 100 characters."""
-        query = parse.urlencode({"q": query[:100]})
-        await ctx.reply(
-            f"DuckDuckGo: <https://www.duckduckgo.com/?{query}>\nGoogle: <https://www.google.com/search?{query}>"
+        """Get a search url from DuckDuckGo and Google."""
+        param = parse.urlencode({"q": query})
+        await ctx.send(
+            f"Use the buttons below to search for `{query}` on the internet.",
+            view=discord.ui.View(
+                discord.ui.Button(label="Google", url=f"https://www.google.com/search?{param}"),
+                discord.ui.Button(label="DuckDuckGo", url=f"https://www.duckduckgo.com/?{param}"),
+            ),
         )
 
     @command()
