@@ -49,8 +49,9 @@ class General(Cog):
         """Become AFK."""
         await ctx.send(f"Set your AFK: {message}")
         self.bot.cache["afk"][ctx.author.id] = message
-        with suppress(discord.Forbidden):
-            await ctx.author.edit(nick=f"[AFK] {ctx.author.display_name}")
+        if not ctx.author.display_name.startswith("[AFK] "):
+            with suppress(discord.HTTPException):
+                await ctx.author.edit(nick=f"[AFK] {ctx.author.display_name}")
 
     @Cog.listener()
     async def on_message(self, message: discord.Message):
@@ -61,8 +62,9 @@ class General(Cog):
         if message.author.id in self.bot.cache["afk"].keys():
             del self.bot.cache["afk"][message.author.id]
             await message.add_reaction("\U0001f44b")
-            with suppress(discord.Forbidden):
-                await message.author.edit(nick=message.author.display_name[6:])
+            if message.author.nick and message.author.nick.startswith("[AFK] "):
+                with suppress(discord.HTTPException):
+                    await message.author.edit(nick=message.author.nick[6:])
         for mention in message.mentions:
             if msg := self.bot.cache["afk"].get(mention.id):
                 await message.channel.send(f"{mention.display_name} is AFK: {msg}")
