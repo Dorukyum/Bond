@@ -4,9 +4,9 @@ from contextlib import suppress
 from urllib import parse
 
 import discord
-from discord.ext.commands import Context, command, guild_only
+from discord.ext.commands import Context, command
 
-from utils import Cog, pycord_only
+from utils import Cog
 
 
 class General(Cog):
@@ -43,25 +43,6 @@ class General(Cog):
                 discord.ui.Button(label="DuckDuckGo", url=f"https://www.duckduckgo.com/?{param}"),
             ),
         )
-
-    @command()
-    @pycord_only
-    @guild_only()
-    async def suggest(self, ctx: Context, *, text):
-        """Suggest something related to library design."""
-        await ctx.message.delete()
-        msg = await self.suggestions_channel.send(
-            embed=discord.Embed(
-                description=text,
-                colour=discord.Color.blurple(),
-            )
-            .set_author(
-                name=str(ctx.author), icon_url=ctx.author.display_avatar.url
-            )
-            .set_footer(text=f"ID: {ctx.author.id}")
-        )
-        await msg.add_reaction("<:upvote:881521766231584848>")
-        await msg.add_reaction("<:downvote:904068725475508274>")
 
     @command()
     async def afk(self, ctx: Context, *, message="_No reason specified._"):
