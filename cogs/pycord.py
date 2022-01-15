@@ -25,8 +25,9 @@ class Pycord(Cog):
 
     def __init__(self, bot):
         super().__init__(bot)
-        self.staff_list_channel = bot.get_channel(884730803588829206)
         self.staff_list = None
+        self.staff_list_channel = bot.get_channel(884730803588829206)
+        self.suggestions_channel = bot.get_channel(881735375947722753)
 
     async def convert_attr(self, path):
         thing = discord
