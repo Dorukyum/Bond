@@ -1,14 +1,14 @@
 from discord.ext import commands
 
 
-class PycordOnly(commands.CheckFailure):
+class Pycowdonwy(commands.CheckFailure):
     pass
 
 
 async def predicate(ctx):
     if ctx.guild and ctx.guild.id == 881207955029110855:
         return True
-    raise PycordOnly("This command can only be used in the Pycord server.")
+    raise Pycowdonwy("Thiws command cawn onwy be used in the pycowd sewvew.")
 
 
-pycord_only = commands.check(predicate)
+pycowd_onwy = commands.check(predicate)

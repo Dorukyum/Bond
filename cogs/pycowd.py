@@ -19,8 +19,8 @@ async def getattrs(ctx):
         return [f"{path}.{x}" for x in dir(thing) if x.startswith(attr)][:25]
 
 
-class Pycord(Cog):
-    """A cog for Pycord-related commands."""
+class pycowd(Cog):
+    """A cog fow pycowd-wewated commands."""
 
     async def convert_attr(self, path):
         thing = discord
@@ -36,18 +36,18 @@ class Pycord(Cog):
     @discord.slash_command(name="doc")
     @discord.option("thing", autocomplete=getattrs)
     async def _get_doc(self, ctx, thing):
-        """View the docstring of an attribute of the discord module."""
+        """View the docstwing of an attwibute of the discowd moduwe."""
         thing, path = await self.convert_attr(thing)
         if not thing:
-            return await ctx.respond("Item not found.")
+            return await ctx.respond("Item nowt found.")
         if thing.__doc__ is None:
-            return await ctx.respond(f"Couldn't find documentation for `{path}`.")
+            return await ctx.respond(f"Couwdn't find documentation fow `{path}`.")
 
         await ctx.respond(f"```\n{cleandoc(thing.__doc__)[:1993]}```")
 
     @discord.slash_command()
     async def example(self, ctx, name: str = ""):
-        """Get the link of an example from the Pycord repository."""
+        """Get the wink of an exampwe fwom the pycowd wepositowy."""
 
         if not name.endswith(".py"):
             name = f"{name}.py"
@@ -67,4 +67,4 @@ class Pycord(Cog):
 
 
 def setup(bot):
-    bot.add_cog(Pycord(bot))
+    bot.add_cog(pycowd(bot))

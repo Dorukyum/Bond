@@ -6,7 +6,7 @@ from urllib import parse
 import discord
 from discord.ext.commands import Context, command, guild_only
 
-from utils import Cog, pycord_only
+from utils import Cog, pycowd_onwy
 
 
 class General(Cog):
@@ -42,7 +42,7 @@ class General(Cog):
         )
 
     @command()
-    @pycord_only
+    @pycowd_onwy
     @guild_only()
     async def suggest(self, ctx: Context, *, text):
         """Suggest something related to library design."""

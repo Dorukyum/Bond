@@ -1,13 +1,13 @@
 <div align="center">
-  <h1>Pycord Manager</h1>
-  <h2>A Discord bot made for the Pycord Discord server</h2>
+  <h1>Pycowd Managew</h1>
+  <h2>A discowd bot made fow the pycowd discowd sewvew</h2>
 </div>
 
-## How to Contribute
-- Fork this Github repository
-- _[Optional]_ Clone the repo
-- Make changes
-- Create a pull request
+## how tuwu contwibute
+- fowk thiws github wepositowy
+- _[optionaw]_ cwone the wepo
+- make changes
+- cweate a puww wequest
 
-## Reporting Bugs and Making Suggestions
-You can contact `Clone#4457` on Discord or [create an issue](https://github.com/Dorukyum/Pycord-Manager/issues/new).
+## wepowting bugs awnd making suggestions
+uwu cawn contact `Clone#4457` own discowd ow [cweate an issue](https://github.com/Dorukyum/Pycord-Manager/issues/new).

@@ -9,7 +9,7 @@ from discord.ext import commands
 from tortoise import Tortoise
 
 
-class PycordManager(commands.Bot):
+class Pycowdmanagew(commands.Bot):
     def __init__(self):
         config = self.load_config()
         prefix = config["prefix"] if "-t" not in argv else "d."
@@ -21,7 +21,7 @@ class PycordManager(commands.Bot):
             help_command=commands.MinimalHelpCommand(),
             allowed_mentions=discord.AllowedMentions.none(),
             activity=discord.Activity(
-                type=discord.ActivityType.listening, name=f"{config['prefix']}help"
+                type=discord.ActivityType.listening, name=f"{config['prefix']}hewp"
             ),
             debug_guilds=config["debug_guilds"],
         )
@@ -30,15 +30,15 @@ class PycordManager(commands.Bot):
         self.cache = {"afk": {}, "unmute_task": {}}
         self.to_load = [
             "jishaku",
-            "cogs.developer",
+            "cogs.devewopew",
             "cogs.fun",
-            "cogs.general",
-            "cogs.moderation",
-            "cogs.server",
+            "cogs.genewaw",
+            "cogs.modewation",
+            "cogs.sewvew",
             "cogs.tags",
         ]
 
-        for cog in ["cogs.pycord"]:  # cogs with application commands
+        for cog in ["cogs.pycowd"]:  # cogs with appwication commands
             self.load_cog(cog)
 
     def load_cog(self, cog: str) -> None:
@@ -75,7 +75,7 @@ class PycordManager(commands.Bot):
 
         self.pycord = self.get_guild(881207955029110855)
         self.log_error = discord.Webhook.from_url(
-            getenv("ERRORS_WEBHOOK"), session=self.http._HTTPClient__session, bot_token=self.http.token
+            getenv("EWWOWS_WEBHOOK"), session=self.http._HTTPClient__session, bot_token=self.http.token
         ).send
         environ.setdefault("JISHAKU_HIDE", "1")
         environ.setdefault("JISHAKU_NO_UNDERSCORE", "1")
@@ -93,7 +93,7 @@ class PycordManager(commands.Bot):
         self, ctx: commands.Context, error: commands.CommandError
     ):
         if isinstance(error, commands.CommandInvokeError):
-            await ctx.send("An unexpected error has occured, I've notified my developer.")
+            await ctx.send("An unexpected ewwow has occuwed, i've notified my devewopew.")
             text = "".join(
                 format_exception(type(error), error, error.__traceback__)
             )

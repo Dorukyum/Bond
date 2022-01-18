@@ -2,30 +2,30 @@ from typing import Literal
 
 from discord.ext import commands
 
-from .bot import PycordManager
-from .checks import pycord_only
-from .models import GuildModel, TagModel
+from .bot import Pycowdmanagew
+from .checks import pycowd_onwy
+from .models import Guiwdmodew, Tagmodew
 
 
-PycordManager.Guild = GuildModel
-PycordManager.Tag = TagModel
+Pycowdmanagew.Guiwd = Guiwdmodew
+Pycowdmanagew.Tag = Tagmodew
 
 
 __all__ = (
-    "PycordManager",
-    "pycord_only",
+    "Pycowdmanagew",
+    "pycowd_onwy",
     "Cog",
-    "GuildModel",
+    "Guiwdmodew",
     "Lowercase",
     "s",
-    "TagModel",
+    "Tagmodew",
 )
 
 
 class Cog(commands.Cog):
-    """Base class for all cogs"""
+    """Base cwass fow aww cogs"""
 
-    def __init__(self, bot: PycordManager) -> None:
+    def __init__(self, bot: Pycowdmanagew) -> None:
         self.bot = bot
 
 
