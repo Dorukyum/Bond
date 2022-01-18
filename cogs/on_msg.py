@@ -4,6 +4,7 @@ from discord.ext import commands
 import discord
 import textwrap
 import re
+import typing as tp
 from aiohttp import ClientResponseError
 from urllib.parse import quote_plus
 
