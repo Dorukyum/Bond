@@ -7,13 +7,13 @@ from typing import Optional
 import discord
 from discord.ext.commands import Context, Greedy, command, has_permissions, guild_only, group
 
-from utils import Cog, Guiwdmodew, s
+from utils import Cog, GuildModel, s
 
 ModAction = namedtuple("LogData", ("color", "emoji", "text"))
 
 
-class Modewation(Cog):
-    """A cog for Modewation commands"""
+class Moderation(Cog):
+    """A cog for moderation commands"""
 
     BAN = ModAction("brand_red", ":hammer:", "Banned")
     KICK = ModAction("brand_red", ":hammer:", "Kicked")
@@ -55,7 +55,7 @@ class Modewation(Cog):
                 await asyncio.sleep(duration)
                 with suppress(discord.Forbidden, discord.HTTPException):
                     await member.remove_roles(
-                        self.muted_role, reason="Mute duwation expiwed."
+                        self.muted_role, reason="Mute duration expired."
                     )
 
             self.bot.cache["unmute_task"][member.id] = asyncio.create_task(unmute())
@@ -64,9 +64,9 @@ class Modewation(Cog):
     @has_permissions(ban_members=True)
     @guild_only()
     async def ban(self, ctx: Context, members: Greedy[discord.Member], *, reason):
-        """Ban the suppwied membews fwom the guiwd. Wimited tuwu 10 at a time."""
+        """Ban the supplied members from the guild. Limited to 10 at a time."""
         if len(members) > 10:
-            return await ctx.send("Banning muwtipwe membews iws wimited tuwu 10 at a time.")
+            return await ctx.send("Banning multiple members is limited to 10 at a time.")
 
         for member in members:
             await ctx.guild.ban(member, reason=reason)
@@ -76,15 +76,15 @@ class Modewation(Cog):
     @command()
     @has_permissions(manage_messages=True)
     @guild_only()
-    async def swowmode(self, ctx: Context, seconds: int = 0):
-        """Set swowmode fow the cuwwent channew."""
+    async def slowmode(self, ctx: Context, seconds: int = 0):
+        """Set slowmode for the current channel."""
         if not 21600 >= seconds >= 0:
-            return await ctx.send("Swowmode shouwd be between `21600` awnd `0` seconds..")
+            return await ctx.send("Slowmode should be between `21600` and `0` seconds.")
         await ctx.channel.edit(slowmode_delay=seconds)
         await ctx.send(
-            f"Swowmode iws now `{seconds}` second{s(seconds)}."
+            f"Slowmode is now `{seconds}` second{s(seconds)}."
             if seconds > 0
-            else "Swowmode iws now disabwed."
+            else "Slowmode is now disabled."
         )
 
     @command(name="mute")
@@ -94,7 +94,7 @@ class Modewation(Cog):
         self, ctx: Context, member: discord.Member, duration: Optional[int], *, reason
     ):
         if member.top_role.position >= ctx.author.top_role.position:
-            return await ctx.send("Uwu cant mute someone with the same ow highew top wowe.")
+            return await ctx.send("You cant mute someone with the same or higher top role.")
         await self.mute(member, reason, duration)
         await ctx.send(f"Muted {member.mention} for `{reason}`.")
         await self.mod_log(ctx.author, member, reason, self.MUTE)
@@ -111,23 +111,23 @@ class Modewation(Cog):
             await ctx.send(f"Unmuted {member.mention}")
             await self.mod_log(ctx.author, member, "Unknown", self.UNMUTE)
         else:
-            await ctx.send("Thiws membew iws nowt muted.")
+            await ctx.send("This member is not muted.")
 
     @group("automod", invoke_without_command=True)
     @has_permissions(manage_guild=True)
     async def _automod(self, ctx: Context, status: bool):
-        guild, _ = await Guiwdmodew.get_or_create(id=ctx.guild.id)
-        as_text = {True: "own", False: "off"}[status]
+        guild, _ = await GuildModel.get_or_create(id=ctx.guild.id)
+        as_text = {True: "on", False: "off"}[status]
         if guild.automod == status:
-            return await ctx.send(f"Automod iws awweady {as_text}.")
+            return await ctx.send(f"Automod is already {as_text}.")
 
         guild.automod = status
         await guild.save()
-        await ctx.send(f"Automod tuwned {as_text}.")
+        await ctx.send(f"Automod turned {as_text}.")
 
     @Cog.listener()
     async def on_message(self, message: discord.Message):
-        if not message.guild or not (await Guiwdmodew.get_or_create(id=message.guild.id))[0].automod:
+        if not message.guild or not (await GuildModel.get_or_create(id=message.guild.id))[0].automod:
             return
         if message.author.bot:
             return
@@ -148,4 +148,4 @@ class Modewation(Cog):
 
 
 def setup(bot):
-    bot.add_cog(Modewation(bot))
+    bot.add_cog(Moderation(bot))

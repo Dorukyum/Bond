@@ -2,7 +2,7 @@ from tortoise import fields
 from tortoise.models import Model
 
 
-class Tagmodew(Model):
+class TagModel(Model):
     name = fields.TextField()
     created_at = fields.DatetimeField(null=True, auto_now_add=True)
     author_id = fields.IntField()
@@ -14,6 +14,6 @@ class Tagmodew(Model):
         return self.content
 
 
-class Guiwdmodew(Model):
+class GuildModel(Model):
     id = fields.IntField(pk=True)
     automod = fields.BooleanField(default=False)

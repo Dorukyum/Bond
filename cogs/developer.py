@@ -6,7 +6,7 @@ from jishaku.modules import ExtensionConverter
 from utils import Cog
 
 
-class Devewopew(Cog, command_attrs={"hidden": True}):
+class Developer(Cog, command_attrs={"hidden": True}):
     def __init__(self, bot) -> None:
         super().__init__(bot)
         self.jishaku = bot.get_cog("Jishaku")
@@ -45,17 +45,17 @@ class Devewopew(Cog, command_attrs={"hidden": True}):
     async def add(self, ctx, member: Member):
         self.bot.owner_ids.append(member.id)
         self.bot.dump_config({"owner_ids": self.bot.owner_ids})
-        await ctx.reply(f"Added `{member}` tuwu ownews.")
+        await ctx.reply(f"Added `{member}` to owners.")
 
     @owners.command()
     async def remove(self, ctx, member: Member):
         self.bot.owner_ids.remove(member.id)
         self.bot.dump_config({"owner_ids": self.bot.owner_ids})
-        await ctx.reply(f"Wemoved `{member}` fwom ownews.")
+        await ctx.reply(f"Removed `{member}` from owners.")
 
     async def cog_check(self, ctx):
         return ctx.author.id in self.bot.owner_ids
 
 
 def setup(bot):
-    bot.add_cog(Devewopew(bot))
+    bot.add_cog(Developer(bot))
