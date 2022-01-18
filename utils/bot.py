@@ -7,7 +7,8 @@ from typing import Optional
 import discord
 from discord.ext import commands
 from tortoise import Tortoise
-
+from aiohttp import AsyncResolver, ClientSession, TCPConnector
+import socket
 
 class PycordManager(commands.Bot):
     def __init__(self):
@@ -25,8 +26,11 @@ class PycordManager(commands.Bot):
             ),
             debug_guilds=config["debug_guilds"],
         )
-
+        self.http_session = ClientSession(
+            connector=TCPConnector(resolver=AsyncResolver(), family=socket.AF_INET)
+        )
         self.on_ready_fired = False
+        self._seen_messages = 0
         self.cache = {"afk": {}, "unmute_task": {}}
         self.to_load = [
             "jishaku",
@@ -35,6 +39,7 @@ class PycordManager(commands.Bot):
             "cogs.general",
             "cogs.moderation",
             "cogs.tags",
+            "cogs.on_msg",
         ]
 
         for cog in ["cogs.pycord"]:  # cogs with application commands
@@ -111,6 +116,11 @@ class PycordManager(commands.Bot):
     async def on_message_edit(self, before: discord.Message, after: discord.Message):
         if before.content != after.content:
             await self.process_commands(after)
+
+    async def on_message(self, message: discord.Message) -> None:
+        self._seen_messages += 1
+
+        await self.process_commands(message)
 
     def run(self):
         super().run(getenv("TOKEN"))
