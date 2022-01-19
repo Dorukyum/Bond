@@ -30,7 +30,6 @@ class PycordManager(commands.Bot):
             connector=TCPConnector(resolver=AsyncResolver(), family=socket.AF_INET)
         )
         self.on_ready_fired = False
-        self._seen_messages = 0
         self.cache = {"afk": {}, "unmute_task": {}}
         self.to_load = [
             "jishaku",
@@ -116,11 +115,6 @@ class PycordManager(commands.Bot):
     async def on_message_edit(self, before: discord.Message, after: discord.Message):
         if before.content != after.content:
             await self.process_commands(after)
-
-    async def on_message(self, message: discord.Message) -> None:
-        self._seen_messages += 1
-
-        await self.process_commands(message)
 
     def run(self):
         super().run(getenv("TOKEN"))
