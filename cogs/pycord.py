@@ -40,7 +40,7 @@ class Pycord(Cog):
                 return None, None
         return thing, path
 
-    @discord.slash_command(name="doc")
+    @discord.slash_command(name="doc", guild_ids=[881207955029110855])
     @discord.option("thing", autocomplete=getattrs)
     async def _get_doc(self, ctx, thing):
         """View the docstring of an attribute of the discord module."""
@@ -52,7 +52,7 @@ class Pycord(Cog):
 
         await ctx.respond(f"```\n{cleandoc(thing.__doc__)[:1993]}```")
 
-    @discord.slash_command()
+    @discord.slash_command(guild_ids=[881207955029110855])
     async def example(self, ctx, name: str = ""):
         """Get the link of an example from the Pycord repository."""
 

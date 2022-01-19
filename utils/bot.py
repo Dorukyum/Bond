@@ -23,7 +23,6 @@ class PycordManager(commands.Bot):
             activity=discord.Activity(
                 type=discord.ActivityType.listening, name=f"{config['prefix']}help"
             ),
-            debug_guilds=config["debug_guilds"],
         )
 
         self.on_ready_fired = False
