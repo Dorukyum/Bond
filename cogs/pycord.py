@@ -26,8 +26,8 @@ class Pycord(Cog):
     def __init__(self, bot):
         super().__init__(bot)
         self.staff_list = None
-        self.staff_list_channel = bot.get_channel(884730803588829206)
-        self.suggestions_channel = bot.get_channel(881735375947722753)
+        self.staff_list_channel = None
+        self.suggestions_channel = None
 
     async def convert_attr(self, path):
         thing = discord
@@ -79,6 +79,7 @@ class Pycord(Cog):
         """Suggest something related to library design.
         This will be posted to <#881735375947722753>."""
         await ctx.message.delete()
+        self.suggestions_channel = self.suggestions_channel or self.bot.get_channel(881735375947722753)
         msg = await self.suggestions_channel.send(
             embed=discord.Embed(
                 description=text,
@@ -117,6 +118,7 @@ class Pycord(Cog):
         if self.staff_list is not None:
             await self.staff_list.edit(embed=embed)
         else:
+            self.staff_list_channel = self.staff_list_channel or self.bot.get_channel(884730803588829206)
             await self.staff_list_channel.purge(limit=1)
             self.staff_list = await self.staff_list_channel.send(embed=embed)
         await ctx.send("Done!")
