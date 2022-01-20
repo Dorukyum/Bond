@@ -16,7 +16,9 @@ class PycordManager(commands.Bot):
 
         super().__init__(
             command_prefix=prefix,
-            intents=discord.Intents(members=True, messages=True, guilds=True),
+            intents=discord.Intents(
+                members=True, messages=True, guilds=True, bans=True
+            ),
             owner_ids=config["owner_ids"],
             help_command=commands.MinimalHelpCommand(),
             allowed_mentions=discord.AllowedMentions.none(),

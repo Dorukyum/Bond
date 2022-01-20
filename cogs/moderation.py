@@ -16,6 +16,7 @@ class Moderation(Cog):
     """A cog for moderation commands"""
 
     BAN = ModAction("brand_red", ":hammer:", "Banned")
+    UNBAN = ModAction("brand_green", ":unlock:", "Unbanned")
     KICK = ModAction("brand_red", ":hammer:", "Kicked")
     MUTE = ModAction("dark_grey", ":mute:", "Muted")
     UNMUTE = ModAction("brand_green", ":loud_sound:", "Unmuted")
@@ -41,15 +42,17 @@ class Moderation(Cog):
     async def mod_log(
         self,
         mod: discord.Member,
-        member: discord.Member,
+        target: discord.User,
         reason: str,
         action: ModAction,
     ) -> None:
         await self.mod_log_channel.send(
             embed=discord.Embed(
-                description=f"**{action.emoji} {action.text} {member.name}**#{member.discriminator} *(ID {member.id})*\n:page_facing_up: **Reason:** {reason}",
+                description=f"**{action.emoji} {action.text} {target.name}**#{target.discriminator} *(ID {target.id})*\n:page_facing_up: **Reason:** {reason}",
                 color=getattr(discord.Color, action.color)(),
-            ).set_author(name=f"{mod} (ID {mod.id})", icon_url=mod.display_avatar)
+            )
+            .set_author(name=f"{mod} (ID {mod.id})", icon_url=mod.display_avatar)
+            .set_thumbnail(url=target.display_avatar)
         )
 
     async def mute(
@@ -81,7 +84,6 @@ class Moderation(Cog):
 
         for member in members:
             await ctx.guild.ban(member, reason=reason)
-            await self.mod_log(ctx.author, member, reason, self.BAN)
         await ctx.send(f"Banned **{len(members)}** member{s(members)}.")
 
     @command()
@@ -136,6 +138,7 @@ class Moderation(Cog):
         await guild.save()
         await ctx.send(f"Automod turned {as_text}.")
 
+    # automod
     @Cog.listener()
     async def on_message(self, message: discord.Message):
         if await self.automod_on(message):
@@ -164,6 +167,31 @@ class Moderation(Cog):
                     await member.send(
                         f"You have been timed out for security reasons. You will be able to speak <t:{int(until.timestamp())}:R>."
                     )
+
+    # mod logs
+    @Cog.listener()
+    async def on_member_ban(self, guild: discord.Guild, user):
+        await asyncio.sleep(2)
+        async for entry in guild.audit_logs(limit=20, action=discord.AuditLogAction.ban):
+            if entry.target == user:
+                await self.mod_log(entry.user, user, entry.reason, self.BAN)
+                return
+
+    @Cog.listener()
+    async def on_member_ban(self, guild: discord.Guild, user):
+        await asyncio.sleep(2)
+        async for entry in guild.audit_logs(limit=20, action=discord.AuditLogAction.unban):
+            if entry.target == user:
+                await self.mod_log(entry.user, user, entry.reason, self.UNBAN)
+                return
+
+    @Cog.listener()
+    async def on_member_remove(self, member: discord.Member):
+        await asyncio.sleep(2)
+        async for entry in member.guild.audit_logs(limit=20, action=discord.AuditLogAction.kick):
+            if entry.target == member:
+                await self.mod_log(entry.user, member, entry.reason, self.KICK)
+                return
 
 
 def setup(bot):
