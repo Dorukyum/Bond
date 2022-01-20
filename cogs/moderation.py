@@ -27,6 +27,17 @@ class Moderation(Cog):
         self.muted_role = guild.get_role(881532095661494313)
         self.mod_log_channel = bot.get_channel(884992286826577940)
 
+    async def automod_on(self, target):
+        """Returns whether or not the target should be automodded."""
+        if hasattr(target, "bot") and target.bot:
+            return False
+        return (
+            target.guild
+            and (
+                await GuildModel.get_or_create(id=target.guild.id)
+            )[0].automod
+        )
+
     async def mod_log(
         self,
         mod: discord.Member,
@@ -53,7 +64,7 @@ class Moderation(Cog):
 
             async def unmute():
                 await asyncio.sleep(duration)
-                with suppress(discord.Forbidden, discord.HTTPException):
+                with suppress(discord.HTTPException):
                     await member.remove_roles(
                         self.muted_role, reason="Mute duration expired."
                     )
@@ -113,7 +124,7 @@ class Moderation(Cog):
         else:
             await ctx.send("This member is not muted.")
 
-    @group("automod", invoke_without_command=True)
+    @command(name="automod")
     @has_permissions(manage_guild=True)
     async def _automod(self, ctx: Context, status: bool):
         guild, _ = await GuildModel.get_or_create(id=ctx.guild.id)
@@ -127,24 +138,32 @@ class Moderation(Cog):
 
     @Cog.listener()
     async def on_message(self, message: discord.Message):
-        if not message.guild or not (await GuildModel.get_or_create(id=message.guild.id))[0].automod:
-            return
-        if message.author.bot:
-            return
+        if await self.automod_on(message):
+            mentions = len(message.raw_mentions)
+            if mentions >= 7 and self.mod_role not in message.author.roles:
+                await message.delete()
+                if mentions >= 25:
+                    return await message.guild.ban(
+                        message.author, reason=f"Too many mentions ({mentions})"
+                    )
 
-        mentions = len(message.raw_mentions)
-        if mentions >= 7 and self.mod_role not in message.author.roles:
-            await message.delete()
-            if mentions >= 25:
-                return await message.guild.ban(
-                    message.author, reason=f"Too many mentions ({mentions})"
+                await message.channel.send(f"{message.author.mention} Too many mentions.")
+                duration = min(mentions*15, 40320)
+                await message.author.timeout_for(
+                    timedelta(minutes=duration), reason=f"Too many mentions ({mentions})",
                 )
 
-            await message.channel.send(f"{message.author.mention} Too many mentions.")
-            duration = min(mentions*15, 40320)
-            await message.author.timeout_for(
-                timedelta(minutes=duration), reason=f"Too many mentions ({mentions})",
-            )
+    @Cog.listener()
+    async def on_member_join(self, member: discord.Member):
+        if await self.automod_on(member):
+            age = member.joined_at-member.created_at
+            if age.days < 56:
+                until = (timedelta(minutes=5) if age.days < 28 else timedelta(minutes=3)) + member.joined_at
+                await member.timeout(until, reason=f"Young account ({age.days} days)")
+                with suppress(discord.HTTPException):
+                    await member.send(
+                        f"You have been timed out for security reasons. You will be able to speak <t:{int(until.timestamp())}:R>."
+                    )
 
 
 def setup(bot):
