@@ -7,8 +7,6 @@ from typing import Optional
 import discord
 from discord.ext import commands
 from tortoise import Tortoise
-from aiohttp import AsyncResolver, ClientSession, TCPConnector
-import socket
 
 class PycordManager(commands.Bot):
     def __init__(self):
@@ -27,9 +25,7 @@ class PycordManager(commands.Bot):
                 type=discord.ActivityType.listening, name=f"{config['prefix']}help"
             ),
         )
-        self.http_session = ClientSession(
-            connector=TCPConnector(resolver=AsyncResolver(), family=socket.AF_INET)
-        )
+
         self.on_ready_fired = False
         self.cache = {"afk": {}, "unmute_task": {}}
         self.to_load = [
@@ -44,6 +40,10 @@ class PycordManager(commands.Bot):
 
         for cog in ["cogs.pycord"]:  # cogs with application commands
             self.load_cog(cog)
+
+    @property
+    def http_session(self):
+        return self.http._HTTPClient__session
 
     def load_cog(self, cog: str) -> None:
         try:

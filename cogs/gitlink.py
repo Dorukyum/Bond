@@ -33,6 +33,7 @@ BITBUCKET_RE = re.compile(
     r"/(?P<file_path>[^#>]+)(\?[^#>]+)?(#lines-(?P<start_line>\d+)(:(?P<end_line>\d+))?)"
 )
 
+
 class GitLink(Cog):
     def __init__(self, bot):
         super().__init__(bot)
@@ -220,13 +221,13 @@ class GitLink(Cog):
 
         # Sorts the list of snippets by their match index and joins them into a single message
         return "\n".join(map(lambda x: x[1], sorted(all_snippets)))
-    
+
     @Cog.listener()
     async def on_message(self, message: discord.Message):
         if not message.guild:
             return
-        if message.guild.me.id == message.author.id:
-            return # to prevent loops...
+        if self.bot.user == message.author:
+            return  # to prevent loops...
         message_to_send = await self._parse_snippets(message.content)
 
         if 0 < len(message_to_send) <= 1990:
@@ -235,11 +236,10 @@ class GitLink(Cog):
             try:
                 await message.edit(suppress=True)
             except discord.NotFound:
-                pass # message deleted
+                pass  # message deleted
             except discord.Forbidden:
-                pass # bot dont has permission
-        if message.author.bot:
-            return # for future features...
+                pass  # bot doesnt have permissions
+
 
 def setup(bot):
     bot.add_cog(GitLink(bot))
