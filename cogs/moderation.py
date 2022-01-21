@@ -4,6 +4,7 @@ from contextlib import suppress
 from datetime import timedelta
 from typing import Optional
 
+import aiohttp
 import discord
 from discord.ext.commands import Context, Greedy, command, has_permissions, guild_only, group
 
@@ -74,6 +75,17 @@ class Moderation(Cog):
 
             self.bot.cache["unmute_task"][member.id] = asyncio.create_task(unmute())
 
+    @discord.slash_command(name="dma", guild_ids=[881207955029110855])
+    @has_permissions(manage_messages=True)
+    async def _get_dma(self, ctx, article:int):
+        """Get a Discord Moderator Academy Article by it's ID"""
+        async with aiohttp.ClientSession() as session:
+            async with session.get(f"https://dis.gd/dma{article}") as response:
+                if response.status == 200:
+                    await ctx.respond(f"https://dis.gd/dma{article}")
+                else:
+                    await ctx.respond(f"Recieved status code {response.status} while trying to verify that DMA article exists. Are you sure https://dis.gd/dma{article} exists?")
+            
     @command()
     @has_permissions(ban_members=True)
     @guild_only()
