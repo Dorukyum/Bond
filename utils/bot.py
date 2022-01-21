@@ -38,7 +38,7 @@ class PycordManager(commands.Bot):
             "cogs.general",
             "cogs.moderation",
             "cogs.tags",
-            "cogs.on_msg",
+            "cogs.gitlink",
         ]
 
         for cog in ["cogs.pycord"]:  # cogs with application commands
