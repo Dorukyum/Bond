@@ -33,7 +33,7 @@ BITBUCKET_RE = re.compile(
     r"/(?P<file_path>[^#>]+)(\?[^#>]+)?(#lines-(?P<start_line>\d+)(:(?P<end_line>\d+))?)"
 )
 
-class OnMessage(Cog):
+class GitLink(Cog):
     def __init__(self, bot):
         super().__init__(bot)
         self.pattern_handlers = [
@@ -242,4 +242,4 @@ class OnMessage(Cog):
             return # for future features...
 
 def setup(bot):
-    bot.add_cog(OnMessage(bot))
+    bot.add_cog(GitLink(bot))
