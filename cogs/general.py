@@ -71,9 +71,16 @@ class General(Cog):
 
         # Pull requests and issues
         links = [
-            f"https://github.com/Pycord-Development/pycord/pull/{text[2:]}"
-            for text in message.content.split()
-            if text.startswith("##") and len(text) > 2 and text[2:].isdigit()
+            *[
+                f"https://github.com/Pycord-Development/pycord/pull/{text[2:]}"
+                for text in message.content.split()
+                if text.startswith("##") and len(text) > 2 and text[2:].isdigit()
+            ],
+            *[
+              f"https://github.com/Pycord-Development/Pycord.Wavelink/pull/{text[10:]}"
+              for text in message.content.split()
+              if text.startswith("Wavelink##") and len(text) > 10 and text[10:].isdigit()
+            ],
         ][:3]
         if links:
             await message.reply("\n".join(links))
