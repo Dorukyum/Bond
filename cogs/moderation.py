@@ -138,6 +138,22 @@ class Moderation(Cog):
         await guild.save()
         await ctx.send(f"Automod turned {as_text}.")
 
+    @command()
+    @has_permissions(ban_members=True)
+    async def lock(self, ctx: Context):
+        if not ctx.channel.permissions_for(ctx.guild.default_role).send_messages:
+            return await ctx.send("This channel is already locked.")
+        await ctx.channel.set_permissions(ctx.guild.default_role, send_messages=False)
+        await ctx.send("Locked this channel.")
+
+    @command()
+    @has_permissions(ban_members=True)
+    async def unlock(self, ctx: Context):
+        if ctx.channel.permissions_for(ctx.guild.default_role).send_messages:
+            return await ctx.send("This channel isn't locked.")
+        await ctx.channel.set_permissions(ctx.guild.default_role, send_messages=True)
+        await ctx.send("Unlocked this channel.")
+
     # automod
     @Cog.listener()
     async def on_message(self, message: discord.Message):
