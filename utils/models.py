@@ -17,3 +17,4 @@ class TagModel(Model):
 class GuildModel(Model):
     id = fields.IntField(pk=True)
     automod = fields.BooleanField(default=False)
+    mod_log = fields.IntField(default=0)
