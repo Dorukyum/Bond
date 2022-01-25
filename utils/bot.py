@@ -34,6 +34,7 @@ class PycordManager(commands.Bot):
             "cogs.fun",
             "cogs.general",
             "cogs.moderation",
+            "cogs.warns",
             "cogs.tags",
             "cogs.gitlink",
         ]
