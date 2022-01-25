@@ -39,8 +39,12 @@ class General(Cog):
         await ctx.send(
             f"Use the buttons below to search for `{query}` on the internet.",
             view=discord.ui.View(
-                discord.ui.Button(label="Google", url=f"https://www.google.com/search?{param}"),
-                discord.ui.Button(label="DuckDuckGo", url=f"https://www.duckduckgo.com/?{param}"),
+                discord.ui.Button(
+                    label="Google", url=f"https://www.google.com/search?{param}"
+                ),
+                discord.ui.Button(
+                    label="DuckDuckGo", url=f"https://www.duckduckgo.com/?{param}"
+                ),
             ),
         )
 
@@ -86,9 +90,7 @@ class General(Cog):
         c = self.bot.get_command(command) or self.bot.get_application_command(command)
         if not c:
             return await ctx.send(f"Command {command} was not found")
-        callback = (
-            self.bot.help_command.__class__ if command == "help" else c.callback
-        )
+        callback = self.bot.help_command.__class__ if command == "help" else c.callback
         src = getsource(callback)
         buf = StringIO(src)
         file = discord.File(buf, getsourcefile(callback))

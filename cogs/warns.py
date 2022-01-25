@@ -14,7 +14,10 @@ class Warns(Cog):
     async def warn(self, ctx: Context, member: discord.Member, *, reason: str):
         """Warn a member."""
         await WarnModel.create(
-            mod_id=ctx.author.id, target_id=member.id, guild_id=ctx.guild.id, reason=reason
+            mod_id=ctx.author.id,
+            target_id=member.id,
+            guild_id=ctx.guild.id,
+            reason=reason,
         )
         await ctx.send(f"Warned `{member}`.")
 
@@ -25,10 +28,12 @@ class Warns(Cog):
             await warn.delete()
             return await ctx.send("Warn deleted.")
         await ctx.send(f"Couldn't find a warn in this guild with the id `{id}`.")
-    
+
     @command()
     async def warns(self, ctx: Context, member: discord.Member):
-        if warns := await WarnModel().filter(target_id=member.id, guild_id=ctx.guild.id):
+        if warns := await WarnModel().filter(
+            target_id=member.id, guild_id=ctx.guild.id
+        ):
             return await ctx.send(
                 embed=discord.Embed(
                     title=f"Warns | {member.display_name}",

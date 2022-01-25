@@ -8,6 +8,7 @@ import discord
 from discord.ext import commands
 from tortoise import Tortoise
 
+
 class PycordManager(commands.Bot):
     def __init__(self):
         config = self.load_config()
@@ -80,7 +81,9 @@ class PycordManager(commands.Bot):
 
         self.pycord = self.get_guild(881207955029110855)
         self.log_error = discord.Webhook.from_url(
-            getenv("ERRORS_WEBHOOK"), session=self.http._HTTPClient__session, bot_token=self.http.token
+            getenv("ERRORS_WEBHOOK"),
+            session=self.http._HTTPClient__session,
+            bot_token=self.http.token,
         ).send
         environ.setdefault("JISHAKU_HIDE", "1")
         environ.setdefault("JISHAKU_NO_UNDERSCORE", "1")
@@ -98,10 +101,10 @@ class PycordManager(commands.Bot):
         self, ctx: commands.Context, error: commands.CommandError
     ):
         if isinstance(error, commands.CommandInvokeError):
-            await ctx.send("An unexpected error has occured, I've notified my developer.")
-            text = "".join(
-                format_exception(type(error), error, error.__traceback__)
+            await ctx.send(
+                "An unexpected error has occured, I've notified my developer."
             )
+            text = "".join(format_exception(type(error), error, error.__traceback__))
             return await self.log_error(f"```\n{text}```")
         if isinstance(error, commands.CheckFailure) and await self.is_owner(ctx.author):
             return await ctx.reinvoke()
