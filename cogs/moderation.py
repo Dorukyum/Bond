@@ -43,7 +43,7 @@ class Moderation(Cog):
         self,
         mod: discord.Member,
         target: discord.User,
-        reason: str,
+        reason: Optional[str],
         action: ModAction,
     ) -> None:
         await self.mod_log_channel.send(
@@ -77,13 +77,14 @@ class Moderation(Cog):
     @command()
     @has_permissions(ban_members=True)
     @guild_only()
-    async def ban(self, ctx: Context, members: Greedy[discord.Member], *, reason):
+    async def ban(self, ctx: Context, members: Greedy[discord.Member], *, reason: Optional[str] = None):
         """Ban the supplied members from the guild. Limited to 10 at a time."""
+        reason = reason or "No reason provided"
         if len(members) > 10:
             return await ctx.send("Banning multiple members is limited to 10 at a time.")
 
         for member in members:
-            await ctx.guild.ban(member, reason=reason)
+            await ctx.guild.ban(member, reason=f"{ctx.author} ({ctx.author.id}): {reason}")
         await ctx.send(f"Banned **{len(members)}** member{s(members)}.")
 
     @command()
@@ -104,7 +105,7 @@ class Moderation(Cog):
     @has_permissions(manage_messages=True)
     @guild_only()
     async def _mute(
-        self, ctx: Context, member: discord.Member, duration: Optional[int], *, reason
+        self, ctx: Context, member: discord.Member, duration: Optional[int], *, reason: str
     ):
         if member.top_role.position >= ctx.author.top_role.position:
             return await ctx.send("You cant mute someone with the same or higher top role.")
@@ -140,18 +141,22 @@ class Moderation(Cog):
 
     @command()
     @has_permissions(ban_members=True)
-    async def lock(self, ctx: Context):
+    async def lock(self, ctx: Context, *, reason: Optional[str] = None):
+        """Lock the current channel, disabling send messages permissions for the default role."""
+        reason = reason or "No reason provided"
         if not ctx.channel.permissions_for(ctx.guild.default_role).send_messages:
             return await ctx.send("This channel is already locked.")
-        await ctx.channel.set_permissions(ctx.guild.default_role, send_messages=False)
+        await ctx.channel.set_permissions(ctx.guild.default_role, send_messages=False, reason=f"{ctx.author} ({ctx.author.id}): {reason}")
         await ctx.send("Locked this channel.")
 
     @command()
     @has_permissions(ban_members=True)
-    async def unlock(self, ctx: Context):
+    async def unlock(self, ctx: Context, *, reason: Optional[str] = None):
+        """Unlock the current channel, enabling send messages permissions for the default role."""
+        reason = reason or "No reason provided"
         if ctx.channel.permissions_for(ctx.guild.default_role).send_messages:
             return await ctx.send("This channel isn't locked.")
-        await ctx.channel.set_permissions(ctx.guild.default_role, send_messages=True)
+        await ctx.channel.set_permissions(ctx.guild.default_role, send_messages=True, reason=f"{ctx.author} ({ctx.author.id}): {reason}")
         await ctx.send("Unlocked this channel.")
 
     # automod
