@@ -142,7 +142,7 @@ class Moderation(Cog):
     @command()
     @has_permissions(ban_members=True)
     async def lock(self, ctx: Context, *, reason: Optional[str] = None):
-        """To lock the current channel"""
+        """Lock the current channel, disabling send messages permissions for the default role."""
         reason = reason or "No reason provided"
         if not ctx.channel.permissions_for(ctx.guild.default_role).send_messages:
             return await ctx.send("This channel is already locked.")
@@ -152,7 +152,7 @@ class Moderation(Cog):
     @command()
     @has_permissions(ban_members=True)
     async def unlock(self, ctx: Context, *, reason: Optional[str] = None):
-        """To unlock the current channel"""
+        """Unlock the current channel, enabling send messages permissions for the default role."""
         reason = reason or "No reason provided"
         if ctx.channel.permissions_for(ctx.guild.default_role).send_messages:
             return await ctx.send("This channel isn't locked.")
