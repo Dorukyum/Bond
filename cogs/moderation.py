@@ -43,7 +43,7 @@ class Moderation(Cog):
         self,
         mod: discord.Member,
         target: discord.User,
-        reason: str,
+        reason: Optional[str],
         action: ModAction,
     ) -> None:
         await self.mod_log_channel.send(
@@ -77,7 +77,7 @@ class Moderation(Cog):
     @command()
     @has_permissions(ban_members=True)
     @guild_only()
-    async def ban(self, ctx: Context, members: Greedy[discord.Member], *, reason: str=None):
+    async def ban(self, ctx: Context, members: Greedy[discord.Member], *, reason: Optional[str] = None):
         """Ban the supplied members from the guild. Limited to 10 at a time."""
         reason = reason or "No reason provided"
         if len(members) > 10:
@@ -141,7 +141,7 @@ class Moderation(Cog):
 
     @command()
     @has_permissions(ban_members=True)
-    async def lock(self, ctx: Context, *, reason: str=None):
+    async def lock(self, ctx: Context, *, reason: Optional[str] = None):
         """To lock the current channel"""
         reason = reason or "No reason provided"
         if not ctx.channel.permissions_for(ctx.guild.default_role).send_messages:
@@ -151,7 +151,7 @@ class Moderation(Cog):
 
     @command()
     @has_permissions(ban_members=True)
-    async def unlock(self, ctx: Context, *, reason: str=None):
+    async def unlock(self, ctx: Context, *, reason: Optional[str] = None):
         """To unlock the current channel"""
         reason = reason or "No reason provided"
         if ctx.channel.permissions_for(ctx.guild.default_role).send_messages:
