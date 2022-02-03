@@ -61,6 +61,9 @@ class General(Cog):
     async def on_message(self, message: discord.Message):
         if message.author.bot:
             return
+        if "lookin' lovely today" and "pycord manager" in message.content.lower():
+            if message.author.id == 571638000661037056:         
+                await message.add_reaction("😊")
 
         # AFK
         if message.author.id in self.bot.cache["afk"].keys():
