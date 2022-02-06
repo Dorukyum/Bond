@@ -1,7 +1,7 @@
 from re import findall
 
 import discord
-from discord.ext.commands import Context, group
+from discord.ext.commands import command, Context, group
 
 from utils import Cog
 
@@ -9,21 +9,15 @@ from utils import Cog
 class Fun(Cog):
     """A cog for fun commands"""
 
-    @group(invoke_without_command=True)
+    @command()
     async def how_many(self, ctx: Context, *, text):
         """Shows the amount of people that has the supplied text in their display name."""
         text = text.strip().lower()
         if text == "asked":
             return await ctx.send("Nobody.")
+        count = sum(text in member.display_name.lower() for member in ctx.guild.members)
         await ctx.send(
-            f"{sum((text in member.display_name.lower()) for member in ctx.guild.members)} people have `{text}` (any case) in their display name."
-        )
-
-    @how_many.command()
-    async def regex(self, ctx: Context, *, regex):
-        """Shows the amount of people that has the supplied regex in their display name."""
-        await ctx.send(
-            f"{sum(bool(findall(regex, x.display_name)) for x in ctx.guild.members)} people have `{regex}` in their display name."
+            f"{count} people have `{text}` (any case) in their display name."
         )
 
     @group(invoke_without_command=True)

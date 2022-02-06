@@ -62,7 +62,9 @@ class Tags(Cog):
             await ctx.reply("A tag with this name doesn't exist.")
 
     @tag.command()
-    async def transfer(self, ctx: Context, name: Lowercase, member: discord.Member = None):
+    async def transfer(
+        self, ctx: Context, name: Lowercase, member: discord.Member = None
+    ):
         """Transfer a tag's ownership."""
         if tag := await TagModel.filter(name=name, guild_id=ctx.guild.id).first():
             if tag.author_id == ctx.author.id:
@@ -152,7 +154,9 @@ class Tags(Cog):
         """View the guild's tags.
         Shows the tags of a member if supplied."""
         if member:
-            if tags := await TagModel.filter(guild_id=ctx.guild.id, author_id=member.id):
+            if tags := await TagModel.filter(
+                guild_id=ctx.guild.id, author_id=member.id
+            ):
                 await ctx.send(
                     embed=discord.Embed(
                         title=f"{member.display_name}'{s(member.display_name)} Tags",

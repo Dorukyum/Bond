@@ -29,9 +29,9 @@ class Developer(Cog, command_attrs={"hidden": True}):
         await self.bot.close()
 
     @command()
-    async def pull(self, ctx):
-        cog = self.bot.get_cog("Jishaku")
-        await cog.jsk_git(ctx, argument="pull")
+    async def pull(self, ctx, *to_load: ExtensionConverter):
+        await self.jishaku.jsk_git(ctx, argument=codeblock_converter("pull"))
+        await self.jishaku.jsk_load(ctx, *to_load)
 
     @group(invoke_without_command=True)
     async def owners(self, ctx):

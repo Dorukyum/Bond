@@ -4,9 +4,9 @@ from contextlib import suppress
 from urllib import parse
 
 import discord
-from discord.ext.commands import Context, command, guild_only
+from discord.ext.commands import Context, command
 
-from utils import Cog, pycord_only
+from utils import Cog
 
 
 class General(Cog):
@@ -34,39 +34,28 @@ class General(Cog):
 
     @command()
     async def search(self, ctx: Context, *, query):
-        """Get a search url from DuckDuckGo and Google.
-        NOTE: limited to 100 characters."""
-        query = parse.urlencode({"q": query[:100]})
-        await ctx.reply(
-            f"DuckDuckGo: <https://www.duckduckgo.com/?{query}>\nGoogle: <https://www.google.com/search?{query}>"
+        """Get a search url from DuckDuckGo and Google."""
+        param = parse.urlencode({"q": query})
+        await ctx.send(
+            f"Use the buttons below to search for `{query}` on the internet.",
+            view=discord.ui.View(
+                discord.ui.Button(
+                    label="Google", url=f"https://www.google.com/search?{param}"
+                ),
+                discord.ui.Button(
+                    label="DuckDuckGo", url=f"https://www.duckduckgo.com/?{param}"
+                ),
+            ),
         )
-
-    @command()
-    @pycord_only
-    @guild_only()
-    async def suggest(self, ctx: Context, *, text):
-        """Suggest something related to library design."""
-        await ctx.message.delete()
-        msg = await self.suggestions_channel.send(
-            embed=discord.Embed(
-                description=text,
-                colour=discord.Color.blurple(),
-            )
-            .set_author(
-                name=str(ctx.author), icon_url=ctx.author.display_avatar.url
-            )
-            .set_footer(text=f"ID: {ctx.author.id}")
-        )
-        await msg.add_reaction("<:upvote:881521766231584848>")
-        await msg.add_reaction("<:downvote:904068725475508274>")
 
     @command()
     async def afk(self, ctx: Context, *, message="_No reason specified._"):
         """Become AFK."""
         await ctx.send(f"Set your AFK: {message}")
         self.bot.cache["afk"][ctx.author.id] = message
-        with suppress(discord.Forbidden):
-            await ctx.author.edit(nick=f"[AFK] {ctx.author.display_name}")
+        if not ctx.author.display_name.startswith("[AFK] "):
+            with suppress(discord.HTTPException):
+                await ctx.author.edit(nick=f"[AFK] {ctx.author.display_name}")
 
     @Cog.listener()
     async def on_message(self, message: discord.Message):
@@ -77,8 +66,9 @@ class General(Cog):
         if message.author.id in self.bot.cache["afk"].keys():
             del self.bot.cache["afk"][message.author.id]
             await message.add_reaction("\U0001f44b")
-            with suppress(discord.Forbidden):
-                await message.author.edit(nick=message.author.display_name[6:])
+            if message.author.nick and message.author.nick.startswith("[AFK] "):
+                with suppress(discord.HTTPException):
+                    await message.author.edit(nick=message.author.nick[6:])
         for mention in message.mentions:
             if msg := self.bot.cache["afk"].get(mention.id):
                 await message.channel.send(f"{mention.display_name} is AFK: {msg}")
@@ -97,12 +87,10 @@ class General(Cog):
         """See the source code of the bot."""
         if not command:
             return await ctx.send("https://github.com/Dorukyum/Pycord-Manager")
-        c = self.bot.get_command(command)
+        c = self.bot.get_command(command) or self.bot.get_application_command(command)
         if not c:
             return await ctx.send(f"Command {command} was not found")
-        callback = (
-            self.bot.help_command.__class__ if command == "help" else c.callback
-        )
+        callback = self.bot.help_command.__class__ if command == "help" else c.callback
         src = getsource(callback)
         buf = StringIO(src)
         file = discord.File(buf, getsourcefile(callback))

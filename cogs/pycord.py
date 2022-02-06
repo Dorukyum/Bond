@@ -1,7 +1,8 @@
 from inspect import cleandoc
-from utils import Cog
+from utils import Cog, pycord_only
 
 import discord
+from discord.ext.commands import command, Context, has_permissions, guild_only
 
 async def getattrs(ctx):
     try:
@@ -20,6 +21,12 @@ async def getattrs(ctx):
 class Pycord(Cog):
     """A cog for Pycord-related commands."""
 
+    def __init__(self, bot):
+        super().__init__(bot)
+        self.staff_list = None
+        self.staff_list_channel = None
+        self.suggestions_channel = None
+
     async def convert_attr(self, path):
         thing = discord
         for attr in path.split("."):
@@ -31,7 +38,7 @@ class Pycord(Cog):
                 return None, None
         return thing, path
 
-    @discord.slash_command(name="doc")
+    @discord.slash_command(name="doc", guild_ids=[881207955029110855])
     @discord.option("thing", autocomplete=getattrs)
     async def _get_doc(self, ctx, thing):
         """View the docstring of an attribute of the discord module."""
