@@ -3,6 +3,7 @@ from io import StringIO
 from contextlib import suppress
 from urllib import parse
 import re
+import datetime
 
 import discord
 from discord.ext.commands import Context, command
@@ -10,6 +11,7 @@ from discord.ext.commands import Context, command
 from utils import Cog
 
 PULL_HASH_REGEX = re.compile(r'##(?P<index>[0-9]+)')
+GITHUB_URL_REGEX = re.compile(r'http(s)?://(www\.)?github\.com/Pycord-Development/pycord/pull/(?P<index>[0-9]+)')
 
 class General(Cog):
     """A cog for general commands."""
@@ -79,6 +81,43 @@ class General(Cog):
         links = [f'https://github.com/Pycord-Development/pycord/pull/{index}' for index in PULL_HASH_REGEX.findall(message.content)]
         if links:
             await message.reply("\n".join(links))
+
+    @Cog.listener()
+    async def on_message_edit(self, before: discord.Message, after: discord.Message):
+        github_url_format = "https://github.com/Pycord-Development/pycord/pull/{index}"
+        if before.author.bot:
+            return
+        before_pull_indexes = PULL_HASH_REGEX.findall(before.content)
+        after_pull_indexes = PULL_HASH_REGEX.findall(after.content)
+        if not before_pull_indexes;
+            # it is a normal message
+            return
+        if after_pull_indexes == before_pull_indexes:
+            # pull indexes have not been changed yet
+            return
+        first_replacement, second_replacement = list(i for i in before_pull_indexes if i not in after_pull_indexes), list(i for i in after_pull_indexes if i not in before_pull_indexes)
+        created_at = before.created_at
+        past_time = created_at - datetime.timedelta(minutes=60)
+        async for message in before.channel.history(limit=100, before=created_at, after=past_time):
+            if message.author.id != self.bot.user.id:
+                continue
+            content = message.content
+            all_links = GITHUB_URL_REGEX.findall(content)
+            if not all_links:
+                # normal message by our bot
+                continue
+            for link in all_links:
+                index = int(GITHUB_URL_REGEX.match(link).group('index'))
+                if index in first_replacement:
+                    all_links[all_links.index(link)] = github_url_format.format(second_replacement[first_replacement.index(index)])
+            splitted = content.split()
+            for sentence in splitted;
+                for old_link in first_replacement:
+                    old_link = github_url_format.format(old_link)
+                    new_sentence = sentence.replace(old_link, all_links[first_replacement.index(old_link)])
+                    splitted[splitted.index(sentence)] = new_sentence
+            await message.edit(content=''.join(splitted))
+            return
 
     @command(aliases=["src"])
     async def source(self, ctx: Context, *, command: str = None):
