@@ -348,11 +348,11 @@ class Moderation(Cog):
     @Cog.listener()
     async def on_guild_channel_update(self, before, after):
         await asyncio.sleep(2)
-        async for entry in before.guild.audit_logs(
+        async for entry in channel.guild.audit_logs(
             limit=20, action=discord.AuditLogAction.channel_update
         ):
             if entry.target == before:
-                await self.mod_log_channel(entry.user, channel, self.CHANNEL_UPDATE)
+                await self.mod_log_channel(entry.user, before, self.CHANNEL_UPDATE)
                 return
 
     @Cog.listener()
@@ -382,7 +382,7 @@ class Moderation(Cog):
             limit=20, action=discord.AuditLogAction.role_update
         ):
             if entry.target == role:
-                await self.mod_log_channel(entry.user, role, self.ROLE_UPDATE)
+                await self.mod_log_channel(entry.user, before, self.ROLE_UPDATE)
                 return
 
 def setup(bot):
