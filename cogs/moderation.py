@@ -328,7 +328,7 @@ class Moderation(Cog):
     @Cog.listener()
     async def on_guild_channel_create(self, channel):
         await asyncio.sleep(2)
-        async for entry in member.guild.audit_logs(
+        async for entry in channel.guild.audit_logs(
             limit=20, action=discord.AuditLogAction.channel_create
         ):
             if entry.target == channel:
@@ -338,7 +338,7 @@ class Moderation(Cog):
     @Cog.listener()
     async def on_guild_channel_delete(self, channel):
         await asyncio.sleep(2)
-        async for entry in member.guild.audit_logs(
+        async for entry in channel.guild.audit_logs(
             limit=20, action=discord.AuditLogAction.channel_delete
         ):
             if entry.target == channel:
@@ -348,7 +348,7 @@ class Moderation(Cog):
     @Cog.listener()
     async def on_guild_channel_update(self, before, after):
         await asyncio.sleep(2)
-        async for entry in member.guild.audit_logs(
+        async for entry in before.guild.audit_logs(
             limit=20, action=discord.AuditLogAction.channel_update
         ):
             if entry.target == before:
@@ -358,7 +358,7 @@ class Moderation(Cog):
     @Cog.listener()
     async def on_guild_role_create(self, role):
         await asyncio.sleep(2)
-        async for entry in member.guild.audit_logs(
+        async for entry in role.guild.audit_logs(
             limit=20, action=discord.AuditLogAction.role_create
         ):
             if entry.target == role:
@@ -368,7 +368,7 @@ class Moderation(Cog):
     @Cog.listener()
     async def on_guild_role_delete(self, role):
         await asyncio.sleep(2)
-        async for entry in member.guild.audit_logs(
+        async for entry in role.guild.audit_logs(
             limit=20, action=discord.AuditLogAction.role_delete
         ):
             if entry.target == role:
@@ -378,7 +378,7 @@ class Moderation(Cog):
     @Cog.listener()
     async def on_guild_role_update(self, before, after):
         await asyncio.sleep(2)
-        async for entry in member.guild.audit_logs(
+        async for entry in before.guild.audit_logs(
             limit=20, action=discord.AuditLogAction.role_update
         ):
             if entry.target == role:
