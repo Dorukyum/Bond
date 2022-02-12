@@ -1,3 +1,4 @@
+from collections import namedtuple
 from typing import Literal
 
 from discord.ext import commands
@@ -21,6 +22,8 @@ __all__ = (
     "s",
     "TagModel",
     "WarnModel",
+    "ModAction",
+    "ModActions",
 )
 
 
@@ -46,3 +49,14 @@ def s(data) -> Literal["", "s"]:
         data = len(data)
     check = data != 1
     return "s" if check else ""
+
+
+ModAction = namedtuple("LogData", ("color", "emoji", "text"))
+
+
+class ModActions:
+    BAN = ModAction("brand_red", ":hammer:", "Banned")
+    UNBAN = ModAction("brand_green", ":unlock:", "Unbanned")
+    KICK = ModAction("brand_red", ":hammer:", "Kicked")
+    MUTE = ModAction("dark_grey", ":mute:", "Muted")
+    UNMUTE = ModAction("brand_green", ":loud_sound:", "Unmuted")

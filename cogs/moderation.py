@@ -1,5 +1,4 @@
 import asyncio
-from collections import namedtuple
 from contextlib import suppress
 from typing import Optional
 
@@ -14,39 +13,14 @@ from discord.ext.commands import (
 
 from utils import Cog, s
 
-ModAction = namedtuple("LogData", ("color", "emoji", "text"))
-
 
 class Moderation(Cog):
     """A cog for moderation commands"""
-
-    BAN = ModAction("brand_red", ":hammer:", "Banned")
-    UNBAN = ModAction("brand_green", ":unlock:", "Unbanned")
-    KICK = ModAction("brand_red", ":hammer:", "Kicked")
-    MUTE = ModAction("dark_grey", ":mute:", "Muted")
-    UNMUTE = ModAction("brand_green", ":loud_sound:", "Unmuted")
 
     def __init__(self, bot) -> None:
         super().__init__(bot)
         guild = bot.get_guild(881207955029110855)
         self.muted_role = guild.get_role(881532095661494313)
-        self.mod_log_channel = bot.get_channel(884992286826577940)
-
-    async def mod_log(
-        self,
-        mod: discord.Member,
-        target: discord.User,
-        reason: Optional[str],
-        action: ModAction,
-    ) -> None:
-        await self.mod_log_channel.send(
-            embed=discord.Embed(
-                description=f"**{action.emoji} {action.text} {target.name}**#{target.discriminator} *(ID {target.id})*\n:page_facing_up: **Reason:** {reason}",
-                color=getattr(discord.Color, action.color)(),
-            )
-            .set_author(name=f"{mod} (ID {mod.id})", icon_url=mod.display_avatar)
-            .set_thumbnail(url=target.display_avatar)
-        )
 
     async def mute(
         self, member: discord.Member, reason: str, duration: Optional[float] = None
@@ -121,7 +95,7 @@ class Moderation(Cog):
             )
         await self.mute(member, reason, duration)
         await ctx.send(f"Muted {member.mention} for `{reason}`.")
-        await self.mod_log(ctx.author, member, reason, self.MUTE)
+        # await self.mod_log(ctx.author, member, reason, self.MUTE)
 
     @command(name="unmute")
     @has_permissions(manage_messages=True)
@@ -133,7 +107,7 @@ class Moderation(Cog):
                 task.cancel()
 
             await ctx.send(f"Unmuted {member.mention}")
-            await self.mod_log(ctx.author, member, "Unknown", self.UNMUTE)
+            # await self.mod_log(ctx.author, member, "Unknown", self.UNMUTE)
         else:
             await ctx.send("This member is not muted.")
 
@@ -164,37 +138,6 @@ class Moderation(Cog):
             reason=f"{ctx.author} ({ctx.author.id}): {reason}",
         )
         await ctx.send("Unlocked this channel.")
-
-    # mod logs
-    @Cog.listener()
-    async def on_member_ban(self, guild: discord.Guild, user):
-        await asyncio.sleep(2)
-        async for entry in guild.audit_logs(
-            limit=20, action=discord.AuditLogAction.ban
-        ):
-            if entry.target == user:
-                await self.mod_log(entry.user, user, entry.reason, self.BAN)
-                return
-
-    @Cog.listener()
-    async def on_member_ban(self, guild: discord.Guild, user):
-        await asyncio.sleep(2)
-        async for entry in guild.audit_logs(
-            limit=20, action=discord.AuditLogAction.unban
-        ):
-            if entry.target == user:
-                await self.mod_log(entry.user, user, entry.reason, self.UNBAN)
-                return
-
-    @Cog.listener()
-    async def on_member_remove(self, member: discord.Member):
-        await asyncio.sleep(2)
-        async for entry in member.guild.audit_logs(
-            limit=20, action=discord.AuditLogAction.kick
-        ):
-            if entry.target == member:
-                await self.mod_log(entry.user, member, entry.reason, self.KICK)
-                return
 
 
 def setup(bot):
