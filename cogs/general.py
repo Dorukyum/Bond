@@ -3,7 +3,6 @@ from io import StringIO
 from contextlib import suppress
 from urllib import parse
 import re
-import datetime
 
 import discord
 from discord.ext.commands import Context, command
