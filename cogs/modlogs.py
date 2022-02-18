@@ -11,9 +11,9 @@ class ModLogs(Cog):
     """A cog for moderation action logging."""
 
     async def mod_log_channel(self, guild: discord.Guild) -> Optional[discord.TextChannel]:
-        id, _ = (await GuildModel.get_or_create(id=guild.id)).mod_log
-        if id:
-            return guild.get_channel(id)
+        guild_data, _ = await GuildModel.get_or_create(id=guild.id)
+        if guild_data.mod_log:
+            return guild.get_channel(guild_data.mod_log)
 
     async def mod_log(
         self,
@@ -55,7 +55,7 @@ class ModLogs(Cog):
                 limit=20, action=discord.AuditLogAction.ban
             ):
                 if entry.target == user:
-                    await self.mod_log(
+                    return await self.mod_log(
                         entry.user, user, entry.reason, ModActions.BAN, channel
                     )
 
@@ -67,7 +67,7 @@ class ModLogs(Cog):
                 limit=20, action=discord.AuditLogAction.unban
             ):
                 if entry.target == user:
-                    await self.mod_log(
+                    return await self.mod_log(
                         entry.user, user, entry.reason, ModActions.UNBAN, channel
                     )
 
@@ -79,10 +79,24 @@ class ModLogs(Cog):
                 limit=20, action=discord.AuditLogAction.kick
             ):
                 if entry.target == member:
-                    await self.mod_log(
+                    return await self.mod_log(
                         entry.user, member, entry.reason, ModActions.KICK, channel
                     )
-                    return
+
+    @Cog.listener()
+    async def on_member_update(self, before: discord.Member, after: discord.Member):
+        if before.communication_disabled_until == after.communication_disabled_until or not after.timed_out:
+            return
+        if channel := await self.mod_log_channel(after.guild):
+            await asyncio.sleep(2)
+            async for entry in after.guild.audit_logs(
+                limit=20, action=discord.AuditLogAction.member_update
+            ):
+                if entry.target == after and entry.user != after:
+                    # duration = discord.utils.now() - after.communication_disabled_until
+                    return await self.mod_log(
+                        entry.user, after, entry.reason, ModActions.TIMEOUT, channel
+                    )
 
 
 def setup(bot):

@@ -60,3 +60,4 @@ class ModActions:
     KICK = ModAction("brand_red", ":hammer:", "Kicked")
     MUTE = ModAction("dark_grey", ":mute:", "Muted")
     UNMUTE = ModAction("brand_green", ":loud_sound:", "Unmuted")
+    TIMEOUT = ModAction("brand_red", ":stopwatch:", "Timed out")
