@@ -69,9 +69,10 @@ class Pycord(Cog):
         for input_name, results in results.items():
             embed.description += f"""
 **{input_name}**:
-{textwrap.indent('\n'.join(f'[{ex_url}](`{ex_name}`)' for ex_name, ex_url in results.items()))}
+{indent('\n'.join(f'[{ex_url}](`{ex_name}`)' for ex_name, ex_url in results.items()), '  ')}
 
 """
+        embed.description = embed.description.strip("\n") # remove extra spaces
         await ctx.respond(embed=embed)
 
 def setup(bot):
