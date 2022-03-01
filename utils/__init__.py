@@ -1,4 +1,5 @@
 from collections import namedtuple
+from datetime import timedelta
 from typing import Literal
 
 from discord.ext import commands
@@ -24,6 +25,7 @@ __all__ = (
     "WarnModel",
     "ModAction",
     "ModActions",
+    "humanize_time",
 )
 
 
@@ -61,3 +63,16 @@ class ModActions:
     MUTE = ModAction("dark_grey", ":mute:", "Muted")
     UNMUTE = ModAction("brand_green", ":loud_sound:", "Unmuted")
     TIMEOUT = ModAction("brand_red", ":stopwatch:", "Timed out")
+
+
+def humanize_time(time: timedelta) -> str:
+    if time.days > 365:
+        years, days = divmod(time.days, 365)
+        return f"{years} year{s(years)} and {days} day{s(days)}"
+    if time.days > 1:
+        return f"{time.days} day{s(time.days)}, {humanize_time(timedelta(seconds=time.seconds))}"
+    hours, seconds = divmod(time.seconds, 3600)
+    minutes = seconds // 60
+    if hours > 0:
+        return f"{hours} hour{s(hours)} and {minutes} minute{s(minutes)}"
+    return f"{minutes} minute{s(minutes)}"
