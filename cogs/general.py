@@ -3,18 +3,14 @@ from io import StringIO
 from contextlib import suppress
 from urllib import parse
 
-import discord
+from discord import File, HTTPException, Member, ui, user_command, utils
 from discord.ext.commands import Context, command
 
-from utils import Cog
+from utils import Cog, humanize_time
 
 
 class General(Cog):
     """A cog for general commands."""
-
-    def __init__(self, bot) -> None:
-        super().__init__(bot)
-        self.suggestions_channel = bot.get_channel(881735375947722753)
 
     @command()
     async def ping(self, ctx: Context):
@@ -29,7 +25,7 @@ class General(Cog):
             return await ctx.send("Invalid style. Valid styles are `f|F|d|D|t|T|R`.")
         time = ctx.message.created_at
         await ctx.send(
-            f"{discord.utils.format_dt(time, style=style)} (`{time.timestamp()}`)"
+            f"{utils.format_dt(time, style=style)} (`{time.timestamp()}`)"
         )
 
     @command()
@@ -38,11 +34,11 @@ class General(Cog):
         param = parse.urlencode({"q": query})
         await ctx.send(
             f"Use the buttons below to search for `{query}` on the internet.",
-            view=discord.ui.View(
-                discord.ui.Button(
+            view=ui.View(
+                ui.Button(
                     label="Google", url=f"https://www.google.com/search?{param}"
                 ),
-                discord.ui.Button(
+                ui.Button(
                     label="DuckDuckGo", url=f"https://www.duckduckgo.com/?{param}"
                 ),
             ),
@@ -54,11 +50,11 @@ class General(Cog):
         await ctx.send(f"Set your AFK: {message}")
         self.bot.cache["afk"][ctx.author.id] = message
         if not ctx.author.display_name.startswith("[AFK] "):
-            with suppress(discord.HTTPException):
+            with suppress(HTTPException):
                 await ctx.author.edit(nick=f"[AFK] {ctx.author.display_name}")
 
     @Cog.listener()
-    async def on_message(self, message: discord.Message):
+    async def on_message(self, message):
         if message.author.bot:
             return
 
@@ -67,7 +63,7 @@ class General(Cog):
             del self.bot.cache["afk"][message.author.id]
             await message.add_reaction("\U0001f44b")
             if message.author.nick and message.author.nick.startswith("[AFK] "):
-                with suppress(discord.HTTPException):
+                with suppress(HTTPException):
                     await message.author.edit(nick=message.author.nick[6:])
         for mention in message.mentions:
             if msg := self.bot.cache["afk"].get(mention.id):
@@ -93,8 +89,13 @@ class General(Cog):
         callback = self.bot.help_command.__class__ if command == "help" else c.callback
         src = getsource(callback)
         buf = StringIO(src)
-        file = discord.File(buf, getsourcefile(callback))
+        file = File(buf, getsourcefile(callback))
         await ctx.send(file=file)
+
+    @user_command(name="View Account Age")
+    async def account_age(self, ctx, member: Member):
+        age = utils.utcnow() - member.created_at
+        await ctx.respond(f"{member.mention} is {humanize_time(age)} old.", ephemeral=True)
 
 
 def setup(bot):
