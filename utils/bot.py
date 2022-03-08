@@ -17,7 +17,11 @@ class PycordManager(commands.Bot):
         super().__init__(
             command_prefix=prefix,
             intents=discord.Intents(
-                members=True, messages=True, guilds=True, bans=True
+                members=True,
+                messages=True,
+                message_content=True,
+                guilds=True,
+                bans=True,
             ),
             owner_ids=config["owner_ids"],
             help_command=commands.MinimalHelpCommand(),
