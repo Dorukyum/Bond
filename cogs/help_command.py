@@ -4,7 +4,7 @@ from discord.ext import commands
 COLOR = discord.Color.blurple()
 
 
-async def get_cog_help(cog: commands.Cog, ctx):
+async def get_cog_help(cog: commands.Cog, ctx: commands.Context) -> discord.Embed:
     cog = ctx.bot.get_cog(cog)
     embed = discord.Embed(color=COLOR)
     embed.title = cog.__cog_name__ + " Commands"
