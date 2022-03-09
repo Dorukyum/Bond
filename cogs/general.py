@@ -79,7 +79,7 @@ class General(Cog):
 
     @command()
     async def search(self, ctx: Context, *, query):
-        """Get a search url from Bing, DuckDuckGo, and Google."""
+        """Get a search url from Bing, DuckDuckGo and Google."""
         param = parse.urlencode({"q": query})
         await ctx.send(
             f"Use the buttons below to search for `{query}` on the internet.",
