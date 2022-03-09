@@ -79,13 +79,16 @@ class General(Cog):
 
     @command()
     async def search(self, ctx: Context, *, query):
-        """Get a search url from DuckDuckGo and Google."""
+        """Get a search url from Bing, DuckDuckGo and Google."""
         param = parse.urlencode({"q": query})
         await ctx.send(
             f"Use the buttons below to search for `{query}` on the internet.",
             view=discord.ui.View(
                 discord.ui.Button(
                     label="Google", url=f"https://www.google.com/search?{param}"
+                ),
+                discord.ui.Button(
+                    label="Bing", url=f"https://www.bing.com/search?q={param}"
                 ),
                 discord.ui.Button(
                     label="DuckDuckGo", url=f"https://www.duckduckgo.com/?{param}"
