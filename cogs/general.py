@@ -88,7 +88,7 @@ class General(Cog):
                     label="Google", url=f"https://www.google.com/search?{param}"
                 ),
                 discord.ui.Button(
-                    label="Bing", url=f"https://www.bing.com/search?q={param}"
+                    label="Bing", url=f"https://www.bing.com/search?{param}"
                 ),
                 discord.ui.Button(
                     label="DuckDuckGo", url=f"https://www.duckduckgo.com/?{param}"
