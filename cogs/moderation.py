@@ -15,7 +15,7 @@ from utils import Cog, s
 
 
 class Moderation(Cog):
-    """A cog for moderation commands"""
+    """A cog for moderation commands."""
 
     def __init__(self, bot) -> None:
         super().__init__(bot)

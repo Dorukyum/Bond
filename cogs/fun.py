@@ -7,7 +7,7 @@ from utils import Cog
 
 
 class Fun(Cog):
-    """A cog for fun commands"""
+    """A cog for fun commands."""
 
     @command()
     async def how_many(self, ctx: Context, *, text):
