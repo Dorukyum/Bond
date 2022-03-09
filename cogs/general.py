@@ -143,6 +143,7 @@ class General(Cog):
 
     @discord.user_command(name="View Account Age")
     async def account_age(self, ctx, member: discord.Member):
+        """View the age of an account."""
         age = discord.utils.utcnow() - member.created_at
         await ctx.respond(
             f"{member.mention} is {humanize_time(age)} old.", ephemeral=True

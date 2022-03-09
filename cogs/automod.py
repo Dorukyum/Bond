@@ -22,6 +22,7 @@ class Automod(Cog):
     @command(name="automod")
     @has_permissions(manage_guild=True)
     async def _automod(self, ctx: Context, status: bool):
+        """Set the status of automoderation for this server."""
         guild, _ = await GuildModel.get_or_create(id=ctx.guild.id)
         as_text = {True: "on", False: "off"}[status]
         if guild.automod == status:

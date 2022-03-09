@@ -89,6 +89,7 @@ class Moderation(Cog):
         *,
         reason: str,
     ):
+        """Mute a member."""
         if member.top_role.position >= ctx.author.top_role.position:
             return await ctx.send(
                 "You cant mute someone with the same or higher top role."
@@ -101,6 +102,7 @@ class Moderation(Cog):
     @has_permissions(manage_messages=True)
     @guild_only()
     async def _unmute(self, ctx: Context, member: discord.Member):
+        """Unmute a member."""
         if self.muted_role in member.roles:
             await member.remove_roles(self.muted_role)
             if task := self.bot.cache["unmute_task"].pop(member.id):
