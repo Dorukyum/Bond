@@ -1,16 +1,57 @@
 from inspect import getsource, getsourcefile
 from io import StringIO
 from contextlib import suppress
+from typing import Optional
 from urllib import parse
 
-from discord import File, HTTPException, Member, ui, user_command, utils
-from discord.ext.commands import Context, command
+import discord
+from discord.ext.commands import Context, command, guild_only, has_permissions
 
-from utils import Cog, humanize_time
+from utils import Cog, GuildModel, humanize_time
 
 
 class General(Cog):
     """A cog for general commands."""
+
+    async def suggestions_channel(self, guild: discord.Guild) -> Optional[discord.TextChannel]:
+        guild_data, _ = await GuildModel.get_or_create(id=guild.id)
+        if guild_data.suggestions:
+            return guild.get_channel(guild_data.suggestions)
+
+    @command()
+    @guild_only()
+    async def suggest(self, ctx: Context, *, suggestion: str):
+        """Make a suggestion for the server. This will be sent to the channel set by the server managers."""
+        if not (channel := await self.suggestions_channel(ctx.guild)):
+            return await ctx.send("This server doesn't have a suggestions channel.")
+
+        await ctx.message.delete()
+        msg = await channel.send(
+            embed=discord.Embed(
+                description=suggestion,
+                colour=discord.Color.blurple(),
+            )
+            .set_author(name=str(ctx.author), icon_url=ctx.author.display_avatar.url)
+            .set_footer(text=f"ID: {ctx.author.id}")
+        )
+        await msg.add_reaction("<:upvote:881521766231584848>")
+        await msg.add_reaction("<:downvote:904068725475508274>")
+
+    @command()
+    @has_permissions(manage_guild=True)
+    @guild_only()
+    async def suggestions(self, ctx: Context, channel_id: int):
+        """Set the channel for suggestions. Use `0` as channel_id to disable suggestions.
+        Members can use `p.suggest` to make a suggestion."""
+        channel = ctx.guild.get_channel(channel_id)
+        if channel_id != 0 and (channel is None or not isinstance(channel, discord.TextChannel)):
+            return await ctx.send("A text channel in this guild with the given ID wasn't found.")
+        guild, _ = await GuildModel.get_or_create(id=ctx.guild.id)
+        await guild.update_from_dict({"suggestions": channel_id})
+        await guild.save()
+        if channel_id == 0:
+            return await ctx.send("Suggestions been disabled for this server.")
+        await ctx.send(f"The suggestions channel for this server is now {channel.mention}.")
 
     @command()
     async def ping(self, ctx: Context):
@@ -25,7 +66,7 @@ class General(Cog):
             return await ctx.send("Invalid style. Valid styles are `f|F|d|D|t|T|R`.")
         time = ctx.message.created_at
         await ctx.send(
-            f"{utils.format_dt(time, style=style)} (`{time.timestamp()}`)"
+            f"{discord.utils.format_dt(time, style=style)} (`{time.timestamp()}`)"
         )
 
     @command()
@@ -34,11 +75,11 @@ class General(Cog):
         param = parse.urlencode({"q": query})
         await ctx.send(
             f"Use the buttons below to search for `{query}` on the internet.",
-            view=ui.View(
-                ui.Button(
+            view=discord.ui.View(
+                discord.ui.Button(
                     label="Google", url=f"https://www.google.com/search?{param}"
                 ),
-                ui.Button(
+                discord.ui.Button(
                     label="DuckDuckGo", url=f"https://www.duckduckgo.com/?{param}"
                 ),
             ),
@@ -50,7 +91,7 @@ class General(Cog):
         await ctx.send(f"Set your AFK: {message}")
         self.bot.cache["afk"][ctx.author.id] = message
         if not ctx.author.display_name.startswith("[AFK] "):
-            with suppress(HTTPException):
+            with suppress(discord.HTTPException):
                 await ctx.author.edit(nick=f"[AFK] {ctx.author.display_name}")
 
     @Cog.listener()
@@ -63,7 +104,7 @@ class General(Cog):
             del self.bot.cache["afk"][message.author.id]
             await message.add_reaction("\U0001f44b")
             if message.author.nick and message.author.nick.startswith("[AFK] "):
-                with suppress(HTTPException):
+                with suppress(discord.HTTPException):
                     await message.author.edit(nick=message.author.nick[6:])
         for mention in message.mentions:
             if msg := self.bot.cache["afk"].get(mention.id):
@@ -89,12 +130,12 @@ class General(Cog):
         callback = self.bot.help_command.__class__ if command == "help" else c.callback
         src = getsource(callback)
         buf = StringIO(src)
-        file = File(buf, getsourcefile(callback))
+        file = discord.File(buf, getsourcefile(callback))
         await ctx.send(file=file)
 
-    @user_command(name="View Account Age")
-    async def account_age(self, ctx, member: Member):
-        age = utils.utcnow() - member.created_at
+    @discord.user_command(name="View Account Age")
+    async def account_age(self, ctx, member: discord.Member):
+        age = discord.utils.utcnow() - member.created_at
         await ctx.respond(f"{member.mention} is {humanize_time(age)} old.", ephemeral=True)
 
 
