@@ -10,7 +10,9 @@ from utils import Cog, GuildModel, ModAction, ModActions
 class ModLogs(Cog):
     """A cog for moderation action logging."""
 
-    async def mod_log_channel(self, guild: discord.Guild) -> Optional[discord.TextChannel]:
+    async def mod_log_channel(
+        self, guild: discord.Guild
+    ) -> Optional[discord.TextChannel]:
         guild_data, _ = await GuildModel.get_or_create(id=guild.id)
         if guild_data.mod_log:
             return guild.get_channel(guild_data.mod_log)
@@ -38,8 +40,12 @@ class ModLogs(Cog):
     async def _modlog(self, ctx: Context, channel_id: int):
         """Set the channel for moderation logs. Use `0` as channel_id to disable mod logs."""
         channel = ctx.guild.get_channel(channel_id)
-        if channel_id != 0 and (channel is None or not isinstance(channel, discord.TextChannel)):
-            return await ctx.send("A text channel in this guild with the given ID wasn't found.")
+        if channel_id != 0 and (
+            channel is None or not isinstance(channel, discord.TextChannel)
+        ):
+            return await ctx.send(
+                "A text channel in this guild with the given ID wasn't found."
+            )
         guild, _ = await GuildModel.get_or_create(id=ctx.guild.id)
         await guild.update_from_dict({"mod_log": channel_id})
         await guild.save()
@@ -85,7 +91,10 @@ class ModLogs(Cog):
 
     @Cog.listener()
     async def on_member_update(self, before: discord.Member, after: discord.Member):
-        if before.communication_disabled_until == after.communication_disabled_until or not after.timed_out:
+        if (
+            before.communication_disabled_until == after.communication_disabled_until
+            or not after.timed_out
+        ):
             return
         if channel := await self.mod_log_channel(after.guild):
             await asyncio.sleep(2)

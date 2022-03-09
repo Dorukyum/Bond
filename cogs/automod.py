@@ -2,7 +2,7 @@ from contextlib import suppress
 from datetime import timedelta
 
 import discord
-from discord.ext.commands import command, Context, has_permissions
+from discord.ext.commands import Context, command, has_permissions
 
 from utils import Cog, GuildModel
 
@@ -64,6 +64,7 @@ class Automod(Cog):
                     await member.send(
                         f"You have been timed out for security reasons. You will be able to speak <t:{int(until.timestamp())}:R>."
                     )
+
 
 def setup(bot):
     bot.add_cog(Automod(bot))

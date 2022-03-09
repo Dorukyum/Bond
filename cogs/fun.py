@@ -1,7 +1,7 @@
 from re import findall
 
 import discord
-from discord.ext.commands import command, Context, group
+from discord.ext.commands import Context, command, group
 
 from utils import Cog
 

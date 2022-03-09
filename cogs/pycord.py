@@ -1,8 +1,9 @@
 from inspect import cleandoc
-from utils import Cog, pycord_only
 
 import discord
-from discord.ext.commands import command, Context, has_permissions
+from discord.ext.commands import Context, command, has_permissions
+
+from utils import Cog, pycord_only
 
 
 async def getattrs(ctx):

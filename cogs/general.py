@@ -1,6 +1,6 @@
+from contextlib import suppress
 from inspect import getsource, getsourcefile
 from io import StringIO
-from contextlib import suppress
 from typing import Optional
 from urllib import parse
 
@@ -13,7 +13,9 @@ from utils import Cog, GuildModel, humanize_time
 class General(Cog):
     """A cog for general commands."""
 
-    async def suggestions_channel(self, guild: discord.Guild) -> Optional[discord.TextChannel]:
+    async def suggestions_channel(
+        self, guild: discord.Guild
+    ) -> Optional[discord.TextChannel]:
         guild_data, _ = await GuildModel.get_or_create(id=guild.id)
         if guild_data.suggestions:
             return guild.get_channel(guild_data.suggestions)
@@ -44,14 +46,20 @@ class General(Cog):
         """Set the channel for suggestions. Use `0` as channel_id to disable suggestions.
         Members can use `p.suggest` to make a suggestion."""
         channel = ctx.guild.get_channel(channel_id)
-        if channel_id != 0 and (channel is None or not isinstance(channel, discord.TextChannel)):
-            return await ctx.send("A text channel in this guild with the given ID wasn't found.")
+        if channel_id != 0 and (
+            channel is None or not isinstance(channel, discord.TextChannel)
+        ):
+            return await ctx.send(
+                "A text channel in this guild with the given ID wasn't found."
+            )
         guild, _ = await GuildModel.get_or_create(id=ctx.guild.id)
         await guild.update_from_dict({"suggestions": channel_id})
         await guild.save()
         if channel_id == 0:
             return await ctx.send("Suggestions been disabled for this server.")
-        await ctx.send(f"The suggestions channel for this server is now {channel.mention}.")
+        await ctx.send(
+            f"The suggestions channel for this server is now {channel.mention}."
+        )
 
     @command()
     async def ping(self, ctx: Context):
@@ -136,7 +144,9 @@ class General(Cog):
     @discord.user_command(name="View Account Age")
     async def account_age(self, ctx, member: discord.Member):
         age = discord.utils.utcnow() - member.created_at
-        await ctx.respond(f"{member.mention} is {humanize_time(age)} old.", ephemeral=True)
+        await ctx.respond(
+            f"{member.mention} is {humanize_time(age)} old.", ephemeral=True
+        )
 
 
 def setup(bot):
