@@ -1,12 +1,12 @@
 from __future__ import annotations
 
-from discord.ext import commands
-import discord
-import textwrap
 import re
+import textwrap
 import typing as tp
-from aiohttp import ClientResponseError
 from urllib.parse import quote_plus
+
+import discord
+from aiohttp import ClientResponseError
 
 from utils import Cog
 
@@ -224,7 +224,7 @@ class GitLink(Cog):
 
     @Cog.listener()
     async def on_message(self, message: discord.Message):
-        if not message.guild:
+        if message.guild != self.bot.pycord:
             return
         if self.bot.user == message.author:
             return  # to prevent loops...

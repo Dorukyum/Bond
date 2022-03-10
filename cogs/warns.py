@@ -31,6 +31,7 @@ class Warns(Cog):
 
     @command()
     async def warns(self, ctx: Context, member: discord.Member):
+        """View the warns given to this member."""
         if warns := await WarnModel().filter(
             target_id=member.id, guild_id=ctx.guild.id
         ):

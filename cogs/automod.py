@@ -2,7 +2,7 @@ from contextlib import suppress
 from datetime import timedelta
 
 import discord
-from discord.ext.commands import command, Context, has_permissions
+from discord.ext.commands import Context, command, has_permissions
 
 from utils import Cog, GuildModel
 
@@ -22,6 +22,7 @@ class Automod(Cog):
     @command(name="automod")
     @has_permissions(manage_guild=True)
     async def _automod(self, ctx: Context, status: bool):
+        """Set the status of automoderation for this server."""
         guild, _ = await GuildModel.get_or_create(id=ctx.guild.id)
         as_text = {True: "on", False: "off"}[status]
         if guild.automod == status:
@@ -64,6 +65,7 @@ class Automod(Cog):
                     await member.send(
                         f"You have been timed out for security reasons. You will be able to speak <t:{int(until.timestamp())}:R>."
                     )
+
 
 def setup(bot):
     bot.add_cog(Automod(bot))
