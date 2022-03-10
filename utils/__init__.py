@@ -74,4 +74,6 @@ def humanize_time(time: timedelta) -> str:
     minutes = seconds // 60
     if hours > 0:
         return f"{hours} hour{s(hours)} and {minutes} minute{s(minutes)}"
-    return f"{minutes} minute{s(minutes)}"
+    if minutes > 1:
+        return f"{minutes} minute{s(minutes)} and {seconds} second{s(seconds)}"
+    return f"{seconds} second{s(seconds)}"
