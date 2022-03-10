@@ -71,9 +71,9 @@ def humanize_time(time: timedelta) -> str:
     if time.days > 1:
         return f"{time.days} day{s(time.days)}, {humanize_time(timedelta(seconds=time.seconds))}"
     hours, seconds = divmod(time.seconds, 3600)
-    minutes = seconds // 60
+    minutes, seconds = divmod(seconds, 60)
     if hours > 0:
         return f"{hours} hour{s(hours)} and {minutes} minute{s(minutes)}"
-    if minutes > 1:
+    if minutes > 0:
         return f"{minutes} minute{s(minutes)} and {seconds} second{s(seconds)}"
     return f"{seconds} second{s(seconds)}"
