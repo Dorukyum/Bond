@@ -85,14 +85,14 @@ class PycordManager(commands.Bot):
         def get_files(data, path = ""):
             return {{"name": f"{path}{d['name']}", "url": d["html_url"]} for d in data if d["type"] == "file"}
 
-        examples = {}
+        examples = []
         session = self.http._HTTPClient__session
         async with session.get("https://api.github.com/repos/Pycord-Development/pycord/contents/examples") as response:
-            examples = {**examples, **get_files(await response.json())}
+            examples = [*examples, **get_files(await response.json())]
         async with session.get("https://api.github.com/repos/Pycord-Development/pycord/contents/examples/views") as response:
-            examples = {**examples, **get_files(await response.json(), "views_")}
+            examples = [*examples, **get_files(await response.json(), "views_")]
         async with session.get("https://api.github.com/repos/Pycord-Development/pycord/contents/examples/app_commands") as response:
-            examples = {**examples, **get_files(await response.json(), "slash_")}
+            examples = [*examples, **get_files(await response.json(), "slash_")]
 
         self.pycord_examples = examples
         await super().on_connect()
