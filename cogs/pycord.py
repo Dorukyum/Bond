@@ -62,17 +62,17 @@ class Pycord(Cog):
         for example in examples:
             for pyc_ex in pycord_examples:
                 name = pyc_ex["name"]
-                url = pyc_ex["url"]
                 if do_check(example, name):
                     results[example].append(pyc_ex)
         embed = discord.Embed(colour=0xADD8E6)
-        embed.description = ""
+        description = ""
         for example, results in results.items():
-            embed.description += f"""
-{'\n'.join("[{result["url"]}](`{result["name"]}`)" for result in results)}
-
-"""
-        embed.description = embed.description.strip("\n") # remove extra spaces
+            for result in results:
+                name = result["name"]
+                url = result["url"]
+                description += f"({url})[`{name}`]\n"
+            description += "\n"
+        embed.description = description
         await ctx.respond(embed=embed)
 
 def setup(bot):
