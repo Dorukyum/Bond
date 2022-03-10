@@ -4,7 +4,7 @@ from typing import Optional
 import discord
 from discord.ext.commands import Context, command, guild_only, has_permissions
 
-from utils import Cog, GuildModel, ModAction, ModActions
+from utils import Cog, GuildModel, humanize_time, ModAction, ModActions
 
 
 class ModLogs(Cog):
@@ -102,9 +102,11 @@ class ModLogs(Cog):
                 limit=20, action=discord.AuditLogAction.member_update
             ):
                 if entry.target == after and entry.user != after:
-                    # duration = discord.utils.now() - after.communication_disabled_until
+                    timeout = ModActions.TIMEOUT
+                    duration = after.communication_disabled_until - discord.utils.utcnow()
+                    reason = f"{entry.reason}\n{timeout.emoji} **Duration:** {humanize_time(duration)}"
                     return await self.mod_log(
-                        entry.user, after, entry.reason, ModActions.TIMEOUT, channel
+                        entry.user, after, reason, timeout, channel
                     )
 
 
