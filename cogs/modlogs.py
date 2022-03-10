@@ -102,11 +102,10 @@ class ModLogs(Cog):
                 limit=20, action=discord.AuditLogAction.member_update
             ):
                 if entry.target == after and entry.user != after:
-                    timeout = ModActions.TIMEOUT
                     duration = after.communication_disabled_until - discord.utils.utcnow()
-                    reason = f"{entry.reason}\n{timeout.emoji} **Duration:** {humanize_time(duration)}"
+                    reason = f"{entry.reason}\n:hourglass_flowing_sand: **Duration:** {humanize_time(duration)}"
                     return await self.mod_log(
-                        entry.user, after, reason, timeout, channel
+                        entry.user, after, reason, ModActions.TIMEOUT, channel
                     )
 
 
