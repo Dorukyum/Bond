@@ -1,13 +1,13 @@
 from re import findall
 
 import discord
-from discord.ext.commands import command, Context, group
+from discord.ext.commands import Context, command, group
 
 from utils import Cog
 
 
 class Fun(Cog):
-    """A cog for fun commands"""
+    """A cog for fun commands."""
 
     @command()
     async def how_many(self, ctx: Context, *, text):

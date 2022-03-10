@@ -19,7 +19,11 @@ class PycordManager(commands.Bot):
         super().__init__(
             command_prefix=prefix,
             intents=discord.Intents(
-                members=True, messages=True, guilds=True, bans=True
+                members=True,
+                messages=True,
+                message_content=True,
+                guilds=True,
+                bans=True,
             ),
             owner_ids=config["owner_ids"],
             help_command=commands.MinimalHelpCommand(),
@@ -33,16 +37,18 @@ class PycordManager(commands.Bot):
         self.cache = {"afk": {}, "unmute_task": {}}
         self.to_load = [
             "jishaku",
+            "cogs.help_command",
             "cogs.developer",
             "cogs.fun",
-            "cogs.general",
             "cogs.moderation",
+            "cogs.modlogs",
+            "cogs.automod",
             "cogs.warns",
             "cogs.tags",
             "cogs.gitlink",
         ]
 
-        for cog in ["cogs.pycord"]:  # cogs with application commands
+        for cog in ["cogs.pycord", "cogs.general"]:  # cogs with application commands
             self.load_cog(cog)
 
     @property

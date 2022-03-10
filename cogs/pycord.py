@@ -1,9 +1,9 @@
 from inspect import cleandoc
-from utils import Cog, pycord_only
-from textwrap import indent
 
 import discord
-from discord.ext.commands import command, Context, has_permissions, guild_only
+from discord.ext.commands import Context, command, has_permissions
+
+from utils import Cog, pycord_only
 
 async def getattrs(ctx):
     try:
@@ -26,7 +26,6 @@ class Pycord(Cog):
         super().__init__(bot)
         self.staff_list = None
         self.staff_list_channel = None
-        self.suggestions_channel = None
 
     async def convert_attr(self, path):
         thing = discord
