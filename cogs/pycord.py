@@ -54,21 +54,22 @@ class Pycord(Cog):
     @discord.option("examples", description="Type examples to show, seperate examples by \",\"")
     async def example(self, ctx, examples):
         """Show examples from py-cord repository."""
-        examples = examples.split(",")
+        examples = examples.split(", ")
         pycord_examples = self.bot.pycord_examples
-        results = {example: [] for example in range(len(examples))}
+        results = {example: [] for example in examples}
         def do_check(a, b):
             return a in b
         for example in examples:
-            for pyc_example_name, example_url in pycord_examples.items():
-                if do_check(example, pyc_example_name):
-                    results[example].append({pyc_example_name: example_url})
+            for pyc_ex in pycord_examples:
+                name = pyc_ex["name"]
+                url = pyc_ex["url"]
+                if do_check(example, name):
+                    results[example].append(pyc_ex)
         embed = discord.Embed(colour=0xADD8E6)
         embed.description = ""
-        for input_name, results in results.items():
+        for example, results in results.items():
             embed.description += f"""
-**{input_name}**:
-{indent('\n'.join(f'[{ex_url}](`{ex_name}`)' for ex_name, ex_url in results.items()), '  ')}
+{'\n'.join("[{result["url"]}](`{result["name"]}`)" for result in results)}
 
 """
         embed.description = embed.description.strip("\n") # remove extra spaces
