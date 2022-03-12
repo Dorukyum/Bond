@@ -17,6 +17,13 @@ class ModLogs(Cog):
         if guild_data.mod_log:
             return guild.get_channel(guild_data.mod_log)
 
+    async def server_log_channel(
+        self, guild: discord.Guild
+    ) -> Optional[discord.TextChannel]:
+        guild_data, _ = await GuildModel.get_or_create(id=guild.id)
+        if guild_data.server_log:
+            return guild.get_channel(guild_data.server_log)
+
     async def mod_log(
         self,
         mod: discord.Member,
@@ -137,6 +144,25 @@ class ModLogs(Cog):
             return await ctx.send("Mod logs have been disabled for this server.")
         await ctx.send(f"The mod log channel for this server is now {channel.mention}.")
 
+    @command(name="server_log")
+    @has_permissions(manage_guild=True)
+    @guild_only()
+    async def _serverlog(self, ctx: Context, channel_id: int):
+        """Set the channel for server logs. Use `0` as channel_id to disable server logs."""
+        channel = ctx.guild.get_channel(channel_id)
+        if channel_id != 0 and (
+            channel is None or not isinstance(channel, discord.TextChannel)
+        ):
+            return await ctx.send(
+                "A text channel in this guild with the given ID wasn't found."
+            )
+        guild, _ = await GuildModel.get_or_create(id=ctx.guild.id)
+        await guild.update_from_dict({"server_log": channel_id})
+        await guild.save()
+        if channel_id == 0:
+            return await ctx.send("Server logs have been disabled for this server.")
+        await ctx.send(f"The server log channel for this server is now {channel.mention}.")
+
     @Cog.listener()
     async def on_member_ban(self, guild: discord.Guild, user):
         if channel := await self.mod_log_channel(guild):
@@ -195,7 +221,7 @@ class ModLogs(Cog):
     # server logs
     @Cog.listener()
     async def on_guild_channel_create(self, channel):
-        if mod_log := await self.mod_log_channel(channel.guild):
+        if mod_log := await self.server_log_channel(channel.guild):
             await asyncio.sleep(2)
             async for entry in channel.guild.audit_logs(
                 limit=20, action=discord.AuditLogAction.channel_create
@@ -206,7 +232,7 @@ class ModLogs(Cog):
 
     @Cog.listener()
     async def on_guild_channel_delete(self, channel):
-        if mod_log := await self.mod_log_channel(channel.guild):
+        if mod_log := await self.server_log_channel(channel.guild):
             await asyncio.sleep(2)
             async for entry in channel.guild.audit_logs(
                 limit=20, action=discord.AuditLogAction.channel_delete
@@ -217,7 +243,7 @@ class ModLogs(Cog):
 
     @Cog.listener()
     async def on_guild_channel_update(self, before, after):
-        if mod_log := await self.mod_log_channel(before.guild):
+        if mod_log := await self.server_log_channel(before.guild):
             await asyncio.sleep(2)
             async for entry in before.guild.audit_logs(
                 limit=20, action=discord.AuditLogAction.channel_update
@@ -228,7 +254,7 @@ class ModLogs(Cog):
 
     @Cog.listener()
     async def on_guild_role_create(self, role):
-        if mod_log := await self.mod_log_channel(role.guild):
+        if mod_log := await self.server_log_channel(role.guild):
             await asyncio.sleep(2)
             async for entry in role.guild.audit_logs(
                 limit=20, action=discord.AuditLogAction.role_create
@@ -239,7 +265,7 @@ class ModLogs(Cog):
 
     @Cog.listener()
     async def on_guild_role_delete(self, role):
-        if mod_log := await self.mod_log_channel(role.guild):
+        if mod_log := await self.server_log_channel(role.guild):
             await asyncio.sleep(2)
             async for entry in role.guild.audit_logs(
                 limit=20, action=discord.AuditLogAction.role_delete
@@ -250,7 +276,7 @@ class ModLogs(Cog):
 
     @Cog.listener()
     async def on_guild_role_update(self, before, after):
-        if mod_log := await self.mod_log_channel(before.guild):
+        if mod_log := await self.server_log_channel(before.guild):
             await asyncio.sleep(2)
             async for entry in before.guild.audit_logs(
                 limit=20, action=discord.AuditLogAction.role_update
