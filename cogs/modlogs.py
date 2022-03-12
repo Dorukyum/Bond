@@ -53,10 +53,11 @@ class ModLogs(Cog):
         if isinstance(target, discord.Role):
             # action target is a role
             if action is ModActions.ROLE_UPDATE:
-                # we will check the changes
                 changes_of_role = []
                 if target.name != after.name:
-                    changes_of_role.append(f"Name has been changed from {target.name} to {after.name}.")
+                    changes_of_role.append(
+                        f"Name has been changed from {target.name} to {after.name}."
+                    )
                 if target.hoist != after.hoist:
                     if after.hoist:
                         changes_of_role.append("Role has been hoisted.")
@@ -64,65 +65,74 @@ class ModLogs(Cog):
                         changes_of_role.append("Role has been non-hoisted.")
                 await channel.send(
                     embed=discord.Embed(
-                        description=f"**{action.emoji} {action.text} @**{target.name} *(ID {target.id})*\n:page_facing_up: **Reason:** {reason}",
+                        description=f"**{action.emoji} {action.text}** {after.mention} *(ID {target.id})*\n:page_facing_up: **Reason:** {reason}",
                         color=getattr(discord.Color, action.color)(),
                     )
                     .add_field(
                         name="Changes",
-                        value='\n'.join(changes_of_role),
+                        value="\n".join(changes_of_role),
                     )
                     .set_author(name=f"{mod} (ID {mod.id})")
                 )
                 return
             await channel.send(
                 embed=discord.Embed(
-                    description=f"**{action.emoji} {action.text} @**{target.name} *(ID {target.id})*\n:page_facing_up: **Reason:** {reason}",
+                    description=f"**{action.emoji} {action.text}** {after.mention} *(ID {target.id})*\n:page_facing_up: **Reason:** {reason}",
                     color=getattr(discord.Color, action.color)(),
-                )
-                .set_author(name=f"{mod} (ID {mod.id})")
+                ).set_author(name=f"{mod} (ID {mod.id})")
             )
         else:
             if action is ModActions.CHANNEL_UPDATE:
-                # we will check the changes
                 changes_of_channel = []
                 if target.name != after.name:
-                    changes_of_role.append(f"Name has been changed from #{target.name} to #{after.name}.")
+                    changes_of_channel.append(
+                        f"Name has been changed from **#{target.name}** to {after.mention}."
+                    )
                 if target.position != after.position:
-                    changes_of_channel.append(f"Position has been changed from {target.position+1} to {after.position+1}.")
+                    changes_of_channel.append(
+                        f"Position has been changed from {target.position+1} to {after.position+1}."
+                    )
 
                 if isinstance(target, discord.TextChannel):
                     if target.topic != after.topic:
                         if target.topic and after.topic:
-                            changes_of_channel.append("Topic has been changed from `{0.topic}` to `{1.topic}`.".format(target, after))
+                            changes_of_channel.append(
+                                "Topic has been changed from `{0.topic}` to `{1.topic}`.".format(
+                                    target, after
+                                )
+                            )
                         elif not target.topic:
                             changes_of_channel.append("Topic has been added.")
                         else:
                             changes_of_channel.append("Topic has been removed.")
                     if target.slowmode_delay != after.slowmode_delay:
-                        changes_of_channel.append(f"Slowmode has been changed from `{target.slowmode_delay}s` to `{after.slowmode_delay}s`.")
+                        changes_of_channel.append(
+                            f"Slowmode has been changed from `{target.slowmode_delay}s` to `{after.slowmode_delay}s`."
+                        )
 
                 elif isinstance(target, discord.VoiceChannel):
                     if target.user_limit != after.user_limit:
-                        changes_of_channel.append(f"Voice members limit has changed from `{target.user_limit}` to `{after.user_limit}`.")
+                        changes_of_channel.append(
+                            f"Voice members limit has changed from `{target.user_limit}` to `{after.user_limit}`."
+                        )
 
                 await channel.send(
                     embed=discord.Embed(
-                        description=f"**{action.emoji} {action.text} #**{target.name} *(ID {target.id})*\n:page_facing_up: **Reason:** {reason}",
+                        description=f"**{action.emoji} {action.text}** {target.mention} *(ID {target.id})*\n:page_facing_up: **Reason:** {reason}",
                         color=getattr(discord.Color, action.color)(),
                     )
                     .add_field(
                         name="Changes",
-                        value='\n'.join(changes_of_channel),
+                        value="\n".join(changes_of_channel),
                     )
                     .set_author(name=f"{mod} (ID {mod.id})")
                 )
                 return
             await channel.send(
                 embed=discord.Embed(
-                    description=f"**{action.emoji} {action.text} #**{target.name} *(ID {target.id})*\n:page_facing_up: **Reason:** {reason}",
+                    description=f"**{action.emoji} {action.text}** {target.mention} *(ID {target.id})*\n:page_facing_up: **Reason:** {reason}",
                     color=getattr(discord.Color, action.color)(),
-                )
-                .set_author(name=f"{mod} (ID {mod.id})")
+                ).set_author(name=f"{mod} (ID {mod.id})")
             )
 
     @command(name="mod_log")
@@ -161,7 +171,9 @@ class ModLogs(Cog):
         await guild.save()
         if channel_id == 0:
             return await ctx.send("Server logs have been disabled for this server.")
-        await ctx.send(f"The server log channel for this server is now {channel.mention}.")
+        await ctx.send(
+            f"The server log channel for this server is now {channel.mention}."
+        )
 
     @Cog.listener()
     async def on_member_ban(self, guild: discord.Guild, user):
@@ -212,7 +224,9 @@ class ModLogs(Cog):
                 limit=20, action=discord.AuditLogAction.member_update
             ):
                 if entry.target == after and entry.user != after:
-                    duration = after.communication_disabled_until - discord.utils.utcnow()
+                    duration = (
+                        after.communication_disabled_until - discord.utils.utcnow()
+                    )
                     reason = f"{entry.reason}\n:hourglass_flowing_sand: **Duration:** {humanize_time(duration)}"
                     return await self.mod_log(
                         entry.user, after, reason, ModActions.TIMEOUT, channel
@@ -227,8 +241,13 @@ class ModLogs(Cog):
                 limit=20, action=discord.AuditLogAction.channel_create
             ):
                 if entry.target == channel:
-                    await self.server_log(entry.user, channel, entry.reason, ModActions.CHANNEL_CREATE, mod_log)
-                    return
+                    return await self.server_log(
+                        entry.user,
+                        channel,
+                        entry.reason,
+                        ModActions.CHANNEL_CREATE,
+                        mod_log,
+                    )
 
     @Cog.listener()
     async def on_guild_channel_delete(self, channel):
@@ -238,8 +257,13 @@ class ModLogs(Cog):
                 limit=20, action=discord.AuditLogAction.channel_delete
             ):
                 if entry.target == channel:
-                    await self.server_log(entry.user, channel, entry.reason, ModActions.CHANNEL_DELETE, mod_log)
-                    return
+                    return await self.server_log(
+                        entry.user,
+                        channel,
+                        entry.reason,
+                        ModActions.CHANNEL_DELETE,
+                        mod_log,
+                    )
 
     @Cog.listener()
     async def on_guild_channel_update(self, before, after):
@@ -249,8 +273,14 @@ class ModLogs(Cog):
                 limit=20, action=discord.AuditLogAction.channel_update
             ):
                 if entry.target == before:
-                    await self.server_log(entry.user, before, entry.reason, ModActions.CHANNEL_UPDATE, mod_log, after)
-                    return
+                    return await self.server_log(
+                        entry.user,
+                        before,
+                        entry.reason,
+                        ModActions.CHANNEL_UPDATE,
+                        mod_log,
+                        after,
+                    )
 
     @Cog.listener()
     async def on_guild_role_create(self, role):
@@ -260,8 +290,9 @@ class ModLogs(Cog):
                 limit=20, action=discord.AuditLogAction.role_create
             ):
                 if entry.target == role:
-                    await self.server_log(entry.user, role, entry.reason, ModActions.ROLE_CREATE, mod_log)
-                    return
+                    return await self.server_log(
+                        entry.user, role, entry.reason, ModActions.ROLE_CREATE, mod_log
+                    )
 
     @Cog.listener()
     async def on_guild_role_delete(self, role):
@@ -271,8 +302,9 @@ class ModLogs(Cog):
                 limit=20, action=discord.AuditLogAction.role_delete
             ):
                 if entry.target == role:
-                    await self.server_log(entry.user, role, entry.reason, ModActions.ROLE_DELETE, mod_log)
-                    return
+                    return await self.server_log(
+                        entry.user, role, entry.reason, ModActions.ROLE_DELETE, mod_log
+                    )
 
     @Cog.listener()
     async def on_guild_role_update(self, before, after):
@@ -282,8 +314,15 @@ class ModLogs(Cog):
                 limit=20, action=discord.AuditLogAction.role_update
             ):
                 if entry.target == before:
-                    await self.server_log(entry.user, before, entry.reason, ModActions.ROLE_UPDATE, mod_log, after)
-                    return
+                    return await self.server_log(
+                        entry.user,
+                        before,
+                        entry.reason,
+                        ModActions.ROLE_UPDATE,
+                        mod_log,
+                        after,
+                    )
+
 
 def setup(bot):
     bot.add_cog(ModLogs(bot))
