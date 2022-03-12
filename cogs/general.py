@@ -81,42 +81,6 @@ class General(Cog):
         if links:
             await message.reply("\n".join(links))
 
-    @Cog.listener()
-    async def on_message_edit(self, before: discord.Message, after: discord.Message):
-        github_url_format = "https://github.com/Pycord-Development/pycord/pull/{index}" # a template for shorter code
-        if before.author.bot:
-            return
-        before_pull_indexes = PULL_HASH_REGEX.findall(before.content)
-        after_pull_indexes = PULL_HASH_REGEX.findall(after.content)
-        if not before_pull_indexes:
-            # it is a normal message
-            return
-        if after_pull_indexes == before_pull_indexes:
-            # pull indexes have not been changed yet
-            return
-        created_at = before.created_at
-        async for message in before.channel.history(limit=5, after=created_at):
-            if message.author.id != self.bot.user.id:
-                continue
-            content = message.content
-            all_links = list(link[2] for link in GITHUB_URL_REGEX.findall(content))
-            # we will modify the message content
-            # so it matches the new  pull indexes
-            splitted = content.split()
-            new_list = []
-            for word in splitted:
-                for link in all_links:
-                    try:
-                        link = github_url_format.format(index=after_pull_indexes[before_pull_indexes.index(link)])
-                    except IndexError:
-                        # new pull index added
-                        new_list.append(link)
-                    else:
-                        if link not in new_list:
-                            new_list.append(link)
-            await message.edit(content='\n'.join(new_list))
-            return
-
     @command(aliases=["src"])
     async def source(self, ctx: Context, *, command: str = None):
         """See the source code of the bot."""
