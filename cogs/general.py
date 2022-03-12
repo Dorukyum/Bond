@@ -10,7 +10,6 @@ from discord.ext.commands import Context, command
 from utils import Cog
 
 PULL_HASH_REGEX = re.compile(r'##(?P<index>[0-9]+)')
-GITHUB_URL_REGEX = re.compile(r'http(s)?://(www\.)?github\.com/Pycord-Development/pycord/pull/(?P<index>[0-9]+)')
 
 class General(Cog):
     """A cog for general commands."""
