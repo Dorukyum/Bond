@@ -5,6 +5,9 @@ from discord.ext.commands import Context, command, has_permissions
 
 from utils import Cog, pycord_only
 
+import re
+
+PASTEBIN_RE = re.compile(r"(http(?:s?)://pastebin.com)(?:/)(\w+?)(?!/\w+)\W")
 
 async def getattrs(ctx):
     try:
@@ -103,6 +106,14 @@ class Pycord(Cog):
             await self.staff_list_channel.purge(limit=1)
             self.staff_list = await self.staff_list_channel.send(embed=embed)
         await ctx.send("Done!")
+
+    @Cog.listener()
+    async def on_message(self, message: discord.Message):
+        matches = re.findall(PASTEBIN_RE, message.content)
+        for match in matches:
+            base_url = match[0]
+            paste_id = match[1]
+            await message.channel.send(f"{base_url}/raw/{paste_id}")
 
 
 def setup(bot):
