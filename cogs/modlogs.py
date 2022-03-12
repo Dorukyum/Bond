@@ -41,17 +41,17 @@ class ModLogs(Cog):
         reason: Optional[str],
         action: ModAction,
         channel: discord.TextChannel,
+        after: Optional[Union[discord.Role, discord.TextChannel]] = None,
     ) -> None:
         if isinstance(target, discord.Role):
             # action target is a role
             if action is ModActions.ROLE_UPDATE:
                 # we will check the changes
-                after_role = await target.guild.fetch_role(target.id)
                 changes_of_role = []
-                if target.name != after_role.name:
-                    changes_of_role.append(f"Name has been changed from {target.name} to {after_role.name}.")
-                if target.hoist != after_role.hoist:
-                    if after_role.hoist:
+                if target.name != after.name:
+                    changes_of_role.append(f"Name has been changed from {target.name} to {after.name}.")
+                if target.hoist != after.hoist:
+                    if after.hoist:
                         changes_of_role.append("Role has been hoisted.")
                     else:
                         changes_of_role.append("Role has been non-hoisted.")
@@ -77,27 +77,26 @@ class ModLogs(Cog):
         else:
             if action is ModActions.CHANNEL_UPDATE:
                 # we will check the changes
-                after_channel = await target.guild.fetch_channel(target.id)
                 changes_of_channel = []
-                if target.name != after_channel.name:
-                    changes_of_role.append(f"Name has been changed from #{target.name} to #{after_channel.name}.")
-                if target.position != after_channel.position:
-                    changes_of_channel.append(f"Position has been changed from {target.position+1} to {after_channel.position+1}.")
+                if target.name != after.name:
+                    changes_of_role.append(f"Name has been changed from #{target.name} to #{after.name}.")
+                if target.position != after.position:
+                    changes_of_channel.append(f"Position has been changed from {target.position+1} to {after.position+1}.")
 
                 if isinstance(target, discord.TextChannel):
-                    if target.topic != after_channel.topic:
-                        if target.topic and after_channel.topic:
-                            changes_of_channel.append("Topic has been changed from `{0.topic}` to `{1.topic}`.".format(target, after_channel))
+                    if target.topic != after.topic:
+                        if target.topic and after.topic:
+                            changes_of_channel.append("Topic has been changed from `{0.topic}` to `{1.topic}`.".format(target, after))
                         elif not target.topic:
                             changes_of_channel.append("Topic has been added.")
                         else:
                             changes_of_channel.append("Topic has been removed.")
-                    if target.slowmode_delay != after_channel.slowmode_delay:
-                        changes_of_channel.append(f"Slowmode has been changed from `{target.slowmode_delay}s` to `{after_channel.slowmode_delay}s`.")
+                    if target.slowmode_delay != after.slowmode_delay:
+                        changes_of_channel.append(f"Slowmode has been changed from `{target.slowmode_delay}s` to `{after.slowmode_delay}s`.")
 
                 elif isinstance(target, discord.VoiceChannel):
-                    if target.user_limit != after_channel.user_limit:
-                        changes_of_channel.append(f"Voice members limit has changed from `{target.user_limit}` to `{after_channel.user_limit}`.")
+                    if target.user_limit != after.user_limit:
+                        changes_of_channel.append(f"Voice members limit has changed from `{target.user_limit}` to `{after.user_limit}`.")
 
                 await channel.send(
                     embed=discord.Embed(
@@ -224,7 +223,7 @@ class ModLogs(Cog):
                 limit=20, action=discord.AuditLogAction.channel_update
             ):
                 if entry.target == before:
-                    await self.server_log(entry.user, before, entry.reason, ModActions.CHANNEL_UPDATE, mod_log)
+                    await self.server_log(entry.user, before, entry.reason, ModActions.CHANNEL_UPDATE, mod_log, after)
                     return
 
     @Cog.listener()
@@ -257,7 +256,7 @@ class ModLogs(Cog):
                 limit=20, action=discord.AuditLogAction.role_update
             ):
                 if entry.target == before:
-                    await self.server_log(entry.user, before, entry.reason, ModActions.ROLE_UPDATE, mod_log)
+                    await self.server_log(entry.user, before, entry.reason, ModActions.ROLE_UPDATE, mod_log, after)
                     return
 
 def setup(bot):
