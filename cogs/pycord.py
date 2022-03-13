@@ -109,11 +109,15 @@ class Pycord(Cog):
 
     @Cog.listener()
     async def on_message(self, message: discord.Message):
-        matches = re.findall(PASTEBIN_RE, message.content)
-        for match in matches:
-            base_url = match[0]
-            paste_id = match[1]
-            await message.channel.send(f"{base_url}/raw/{paste_id}")
+        if message.guild == self.bot.pycord:
+            messages = []
+            matches = re.findall(PASTEBIN_RE, message.content)
+            for match in matches:
+                base_url = match[0]
+                paste_id = match[1]
+                messages.append(f"{base_url}/raw/{paste_id}")
+            if messages:
+                await message.channel.send("\n".join(messages))
 
 
 def setup(bot):
