@@ -119,6 +119,5 @@ class Pycord(Cog):
             if messages:
                 await message.channel.send("\n".join(messages))
 
-
 def setup(bot):
     bot.add_cog(Pycord(bot))
