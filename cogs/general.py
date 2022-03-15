@@ -94,6 +94,5 @@ class General(Cog):
         file = discord.File(buf, getsourcefile(callback))
         await ctx.send(file=file)
 
-
 def setup(bot):
     bot.add_cog(General(bot))
