@@ -3,14 +3,14 @@ from inspect import getsource, getsourcefile
 from io import StringIO
 from typing import Optional
 from urllib import parse
-import re
+from re import compile
 
 import discord
 from discord.ext.commands import Context, command, guild_only, has_permissions
 
 from utils import Cog, GuildModel, humanize_time
 
-PULL_HASH_REGEX = re.compile(r'##(?P<index>[0-9]+)')
+PULL_HASH_REGEX = compile(r'##(?P<index>[0-9]+)')
 
 class General(Cog):
     """A cog for general commands."""
@@ -124,7 +124,7 @@ class General(Cog):
                 await message.channel.send(f"{mention.display_name} is AFK: {msg}")
 
         # Pull requests and issues
-        links = list(set([f'https://github.com/Pycord-Development/pycord/pull/{index}' for index in PULL_HASH_REGEX.findall(message.content)]))
+        links = list(set([f'https://github.com/Pycord-Development/pycord/pull/{index}' for index in PULL_HASH_REGEX.findall(message.content)]))[:4]
         if links:
             await message.reply("\n".join(links))
 
@@ -141,6 +141,15 @@ class General(Cog):
         buf = StringIO(src)
         file = discord.File(buf, getsourcefile(callback))
         await ctx.send(file=file)
+
+    @discord.user_command(name="View Account Age")
+    async def account_age(self, ctx, member: discord.Member):
+        """View the age of an account."""
+        age = discord.utils.utcnow() - member.created_at
+        await ctx.respond(
+            f"{member.mention} is {humanize_time(age)} old.", ephemeral=True
+        )
+
 
 def setup(bot):
     bot.add_cog(General(bot))
