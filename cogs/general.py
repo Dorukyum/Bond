@@ -99,7 +99,7 @@ class General(Cog):
     async def suggestion_set(self, ctx: Context, channel: Optional[discord.TextChannel]=None):
         """Set the channel for suggestions. Use `0` as channel_id to disable suggestions.
         Members can use `p.suggest` to make a suggestion."""
-        channel = ctx.guild.get_channel(channel.id)
+        # channel = ctx.guild.get_channel(channel.id)
 
         guild, _ = await GuildModel.get_or_create(id=ctx.guild.id)
         await guild.update_from_dict({"suggestions": channel.id if channel else 0})
