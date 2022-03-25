@@ -1,8 +1,9 @@
 from __future__ import annotations
 
+from contextlib import suppress
 import re
 import textwrap
-import typing as tp
+from typing import Any
 from urllib.parse import quote_plus
 
 import discord
@@ -34,6 +35,29 @@ BITBUCKET_RE = re.compile(
 )
 
 
+class Delete(discord.ui.View):
+    """Delete View for git-codeblock"""
+    def __init__(self, user: discord.User) -> None:
+        super().__init__(timeout=120.0)
+        self.user = user
+
+    async def interaction_check(self, interaction: discord.Interaction) -> bool:
+        if self.user.bot:
+            # since, we aren't blacklisting the bot, L#252
+            # so Delete view works globally
+            return True
+        if self.user.id != interaction.user.id:  # type: ignore
+            return False
+        return True
+
+    @discord.ui.button(label="Delete", style=discord.ButtonStyle.red)
+    async def delete(
+        self, button: discord.ui.Button, interaction: discord.Interaction
+    ) -> None:
+        await interaction.message.delete()  # type: ignore
+        self.stop()
+
+        
 class GitLink(Cog):
     def __init__(self, bot):
         super().__init__(bot)
@@ -44,7 +68,7 @@ class GitLink(Cog):
             (BITBUCKET_RE, self._fetch_bitbucket_snippet),
         ]
 
-    async def _fetch_response(self, url: str, response_format: str, **kwargs) -> tp.Any:
+    async def _fetch_response(self, url: str, response_format: str, **kwargs) -> Any:
         """Makes http requests using aiohttp."""
         async with self.bot.http_session.get(
             url, raise_for_status=True, **kwargs
@@ -169,23 +193,23 @@ class GitLink(Cog):
         """
         # Parse start_line and end_line into integers
         if end_line is None:
-            start_line = end_line = int(start_line)
+            start = end = int(start_line)
         else:
-            start_line = int(start_line)
-            end_line = int(end_line)
+            start = int(start_line)
+            end = int(end_line)
 
         split_file_contents = file_contents.splitlines()
 
         # Make sure that the specified lines are in range
-        if start_line > end_line:
-            start_line, end_line = end_line, start_line
-        if start_line > len(split_file_contents) or end_line < 1:
+        if start > end:
+            start, end = end, start
+        if start > len(split_file_contents) or end < 1:
             return ""
-        start_line = max(1, start_line)
-        end_line = min(len(split_file_contents), end_line)
+        start = max(1, start)
+        end = min(len(split_file_contents), end)
 
         # Gets the code lines, dedents them, and inserts zero-width spaces to prevent Markdown injection
-        required = "\n".join(split_file_contents[start_line - 1 : end_line])
+        required = "\n".join(split_file_contents[start - 1 : end])
         required = textwrap.dedent(required).rstrip().replace("`", "`\u200b")
 
         # Extracts the code language and checks whether it's a "valid" language
@@ -196,10 +220,10 @@ class GitLink(Cog):
             language = ""
 
         # Adds a label showing the file path to the snippet
-        if start_line == end_line:
-            ret = f"`{file_path}` line {start_line}\n"
+        if start == end:
+            ret = f"`{file_path}` line {start}\n"
         else:
-            ret = f"`{file_path}` lines {start_line} to {end_line}\n"
+            ret = f"`{file_path}` lines {start} to {end}\n"
 
         if len(required) != 0:
             return f"{ret}```{language}\n{required}```"
@@ -232,13 +256,9 @@ class GitLink(Cog):
 
         if 0 < len(message_to_send) <= 1990:
             # TODO: Text Pagination
-            await message.channel.send(message_to_send)
-            try:
+            await message.channel.send(message_to_send, view=Delete(message.author))
+            with suppress(discord.HTTPException):
                 await message.edit(suppress=True)
-            except discord.NotFound:
-                pass  # message deleted
-            except discord.Forbidden:
-                pass  # bot doesnt have permissions
 
 
 def setup(bot):
