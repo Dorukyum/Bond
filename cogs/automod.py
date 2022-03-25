@@ -56,10 +56,8 @@ class Automod(Cog):
     async def on_member_join(self, member: discord.Member):
         if await self.automod_on(member):
             age = member.joined_at - member.created_at
-            if age.days < 56:
-                until = (
-                    timedelta(minutes=5) if age.days < 28 else timedelta(minutes=3)
-                ) + member.joined_at
+            if age.days < 28:
+                until = timedelta(minutes=5) + member.joined_at
                 await member.timeout(until, reason=f"Young account ({age.days} days)")
                 with suppress(discord.HTTPException):
                     await member.send(
