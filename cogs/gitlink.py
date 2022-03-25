@@ -34,6 +34,29 @@ BITBUCKET_RE = re.compile(
 )
 
 
+class Delete(discord.ui.View):
+    """Delete View for git-codeblock"""
+    def __init__(self, user: tp.Union[discord.User, discord.Member]) -> None:
+        super().__init__(timeout=120.0)
+        self.user = user
+
+    async def interaction_check(self, interaction: discord.Interaction) -> bool:
+        if self.user.bot:
+            # since, we aren't blacklisting the bot, L#252
+            # so Delete view works globally
+            return True
+        if self.user.id != interaction.user.id:
+            return False
+        return True
+
+    @discord.ui.button(label="Delete", style=discord.ButtonStyle.red)
+    async def confirm(
+        self, button: discord.ui.Button, interaction: discord.Interaction
+    ) -> None:
+        await interaction.message.delete()
+        self.stop()
+
+        
 class GitLink(Cog):
     def __init__(self, bot):
         super().__init__(bot)
@@ -232,7 +255,7 @@ class GitLink(Cog):
 
         if 0 < len(message_to_send) <= 1990:
             # TODO: Text Pagination
-            await message.channel.send(message_to_send)
+            await message.channel.send(message_to_send, view=Delete(message.author))
             try:
                 await message.edit(suppress=True)
             except discord.NotFound:
