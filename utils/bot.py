@@ -16,30 +16,42 @@ class PycordManager(commands.Bot):
 
         super().__init__(
             command_prefix=prefix,
-            intents=discord.Intents(members=True, messages=True, guilds=True),
+            intents=discord.Intents(
+                members=True,
+                messages=True,
+                message_content=True,
+                guilds=True,
+                bans=True,
+            ),
             owner_ids=config["owner_ids"],
             help_command=commands.MinimalHelpCommand(),
             allowed_mentions=discord.AllowedMentions.none(),
             activity=discord.Activity(
                 type=discord.ActivityType.listening, name=f"{config['prefix']}help"
             ),
-            debug_guilds=config["debug_guilds"],
         )
 
         self.on_ready_fired = False
         self.cache = {"afk": {}, "unmute_task": {}}
         self.to_load = [
             "jishaku",
+            "cogs.help_command",
             "cogs.developer",
             "cogs.fun",
-            "cogs.general",
             "cogs.moderation",
-            "cogs.server",
+            "cogs.modlogs",
+            "cogs.automod",
+            "cogs.warns",
             "cogs.tags",
+            "cogs.gitlink",
         ]
 
-        for cog in ["cogs.pycord"]:  # cogs with application commands
+        for cog in ["cogs.pycord", "cogs.general"]:  # cogs with application commands
             self.load_cog(cog)
+
+    @property
+    def http_session(self):
+        return self.http._HTTPClient__session
 
     def load_cog(self, cog: str) -> None:
         try:
@@ -75,7 +87,9 @@ class PycordManager(commands.Bot):
 
         self.pycord = self.get_guild(881207955029110855)
         self.log_error = discord.Webhook.from_url(
-            getenv("ERRORS_WEBHOOK"), session=self.http._HTTPClient__session, bot_token=self.http.token
+            getenv("ERRORS_WEBHOOK"),
+            session=self.http._HTTPClient__session,
+            bot_token=self.http.token,
         ).send
         environ.setdefault("JISHAKU_HIDE", "1")
         environ.setdefault("JISHAKU_NO_UNDERSCORE", "1")
@@ -93,11 +107,13 @@ class PycordManager(commands.Bot):
         self, ctx: commands.Context, error: commands.CommandError
     ):
         if isinstance(error, commands.CommandInvokeError):
-            await ctx.send("An unexpected error has occured, I've notified my developer.")
-            text = "".join(
-                format_exception(type(error), error, error.__traceback__)
+            await ctx.send(
+                "An unexpected error has occured, I've notified my developer."
             )
+            text = "".join(format_exception(type(error), error, error.__traceback__))
             return await self.log_error(f"```\n{text}```")
+        if isinstance(error, commands.CheckFailure) and await self.is_owner(ctx.author):
+            return await ctx.reinvoke()
 
         await ctx.send(
             embed=discord.Embed(

@@ -1,7 +1,9 @@
 from inspect import cleandoc
-from utils import Cog
 
 import discord
+from discord.ext.commands import Context, command, has_permissions
+
+from utils import Cog, pycord_only
 
 
 async def getattrs(ctx):
@@ -22,6 +24,11 @@ async def getattrs(ctx):
 class Pycord(Cog):
     """A cog for Pycord-related commands."""
 
+    def __init__(self, bot):
+        super().__init__(bot)
+        self.staff_list = None
+        self.staff_list_channel = None
+
     async def convert_attr(self, path):
         thing = discord
         for attr in path.split("."):
@@ -33,7 +40,7 @@ class Pycord(Cog):
                 return None, None
         return thing, path
 
-    @discord.slash_command(name="doc")
+    @discord.slash_command(name="doc", guild_ids=[881207955029110855])
     @discord.option("thing", autocomplete=getattrs)
     async def _get_doc(self, ctx, thing):
         """View the docstring of an attribute of the discord module."""
@@ -45,7 +52,7 @@ class Pycord(Cog):
 
         await ctx.respond(f"```\n{cleandoc(thing.__doc__)[:1993]}```")
 
-    @discord.slash_command()
+    @discord.slash_command(guild_ids=[881207955029110855])
     async def example(self, ctx, name: str = ""):
         """Get the link of an example from the Pycord repository."""
 
@@ -64,6 +71,38 @@ class Pycord(Cog):
                 )
             ),
         )
+
+    @command()
+    @pycord_only
+    @has_permissions(manage_guild=True)
+    async def update_staff_list(self, ctx: Context):
+        staff_roles = [
+            929080208148017242,  # PA
+            881223820059504691,  # Core Developer
+            881411529415729173,  # Server Manager
+            881407111211384902,  # Moderator
+            882105157536591932,  # Trainee Moderator
+            881519419375910932,  # Helper
+        ]
+        embed = discord.Embed(title="**Staff List**", color=0x2F3136)
+        embed.description = ""
+        for role in staff_roles:
+            role = self.bot.pycord.get_role(role)
+            embed.description += f"{role.mention} | **{len(role.members)}** \n"
+
+            for member in role.members:
+                embed.description += f"> `{member.id}` {member.mention}\n"
+            embed.description += "\n"
+
+        if self.staff_list is not None:
+            await self.staff_list.edit(embed=embed)
+        else:
+            self.staff_list_channel = self.staff_list_channel or self.bot.get_channel(
+                884730803588829206
+            )
+            await self.staff_list_channel.purge(limit=1)
+            self.staff_list = await self.staff_list_channel.send(embed=embed)
+        await ctx.send("Done!")
 
 
 def setup(bot):
