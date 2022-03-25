@@ -1,7 +1,7 @@
 from re import findall
 
 import discord
-from discord.ext.commands import Context, command, group
+from discord.ext.commands import Context, command, group, cooldown, BucketType
 
 from utils import Cog
 
@@ -21,6 +21,7 @@ class Fun(Cog):
         )
 
     @group(invoke_without_command=True)
+    @cooldown(1, 60, BucketType.channel)
     async def poll(self, ctx: Context, question: str, *choices: str):
         """Create a poll."""
         def to_emoji(c):
