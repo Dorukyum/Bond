@@ -10,7 +10,7 @@ from discord.ext.commands import Context, command, guild_only, has_permissions
 
 from utils import Cog, GuildModel, humanize_time
 
-PULL_HASH_REGEX = compile(r'##(?P<index>[0-9]+)')
+PULL_HASH_REGEX = compile(r'(?:(?P<org>(?:[A-Za-z]|\d|-)+)/)?(?P<repo>(?:[A-Za-z]|\d|-)+)?(?:##)(?P<index>[0-9]+)')
 
 class General(Cog):
     """A cog for general commands."""
@@ -124,7 +124,13 @@ class General(Cog):
                 await message.channel.send(f"{mention.display_name} is AFK: {msg}")
 
         # Pull requests and issues
-        links = list(set([f'https://github.com/Pycord-Development/pycord/pull/{index}' for index in PULL_HASH_REGEX.findall(message.content)]))[:4]
+        def make_link(index, org=None, repo=None):
+            org = org or "Pycord-Development"
+            repo = repo or "pycord"
+            return f"https://github.com/{org}/{repo}/pull/{index}"
+        links = list(set([make_link(index, org, repo) for org, repo, index in PULL_HASH_REGEX.findall(message.content)]))[:15]
+        if len(links) > 2:
+            links = [f"<{link}>" for link in links]
         if links:
             await message.reply("\n".join(links))
 
