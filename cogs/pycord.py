@@ -7,7 +7,7 @@ from utils import Cog, pycord_only
 
 import re
 
-PASTEBIN_RE = re.compile(r"(http(?:s?)://pastebin.com)(?:/)(\w+?)(?!/\w+)\W")
+PASTEBIN_RE = re.compile(r"(https?://pastebin.com)/([a-zA-Z0-9]{8})")
 
 async def getattrs(ctx):
     try:
