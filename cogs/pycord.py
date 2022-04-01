@@ -113,8 +113,7 @@ class Pycord(Cog):
             messages = []
             matches = re.findall(PASTEBIN_RE, message.content)
             for match in matches:
-                base_url = match[0]
-                paste_id = match[1]
+                base_url, paste_id = match
                 messages.append(f"{base_url}/raw/{paste_id}")
             if messages:
                 await message.channel.send("\n".join(messages))
