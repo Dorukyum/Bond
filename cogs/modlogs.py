@@ -224,6 +224,9 @@ class ModLogs(Cog):
                 limit=20, action=discord.AuditLogAction.member_update
             ):
                 if entry.target == after and entry.user != after:
+                    if entry.reason and entry.reason.startswith("Automod:"):
+                        return  # don't log auto-timeouts
+
                     duration = (
                         after.communication_disabled_until - discord.utils.utcnow()
                     )
