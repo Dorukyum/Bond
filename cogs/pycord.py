@@ -1,3 +1,4 @@
+import re
 from inspect import cleandoc
 
 import discord
@@ -5,9 +6,8 @@ from discord.ext.commands import Context, command, has_permissions
 
 from utils import Cog, pycord_only
 
-import re
-
 PASTEBIN_RE = re.compile(r"(https?://pastebin.com)/([a-zA-Z0-9]{8})")
+
 
 async def getattrs(ctx):
     try:
@@ -55,10 +55,20 @@ class Pycord(Cog):
 
         await ctx.respond(f"```\n{cleandoc(thing.__doc__)[:1993]}```")
 
-    @discord.slash_command(guild_ids=[881207955029110855])
-    async def example(self, ctx, name: str = ""):
-        """Get the link of an example from the Pycord repository."""
+    async def get_example_list(self, ctx: discord.AutocompleteContext):
+        """Gets the latest list of example files found in the Pycord repository."""
+        file_url = "https://api.github.com/repos/Pycord-Development/pycord/git/trees/master?recursive=1"
+        async with self.bot.http_session.get(file_url, raise_for_status=True) as response:
+            file_list = await response.json()
+            return [
+                file["path"].partition("examples/")[2]
+                for file in file_list["tree"]
+                if "examples" in file["path"] and file["path"].endswith(".py") and ctx.value in file["path"]
+            ]
 
+    @discord.slash_command(guild_ids=[881207955029110855])
+    async def example(self, ctx, name: discord.Option(str, description="name of example to search for", autocomplete=get_example_list)):
+        """Get the link of an example from the Pycord repository."""
         if not name.endswith(".py"):
             name = f"{name}.py"
         if name.startswith("slash_"):
@@ -100,9 +110,7 @@ class Pycord(Cog):
         if self.staff_list is not None:
             await self.staff_list.edit(embed=embed)
         else:
-            self.staff_list_channel = self.staff_list_channel or self.bot.get_channel(
-                884730803588829206
-            )
+            self.staff_list_channel = self.staff_list_channel or self.bot.get_channel(884730803588829206)
             await self.staff_list_channel.purge(limit=1)
             self.staff_list = await self.staff_list_channel.send(embed=embed)
         await ctx.send("Done!")
@@ -117,6 +125,7 @@ class Pycord(Cog):
                 messages.append(f"{base_url}/raw/{paste_id}")
             if messages:
                 await message.channel.send("\n".join(messages))
+
 
 def setup(bot):
     bot.add_cog(Pycord(bot))
