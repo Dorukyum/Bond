@@ -55,16 +55,21 @@ class Pycord(Cog):
 
         await ctx.respond(f"```\n{cleandoc(thing.__doc__)[:1993]}```")
 
-    async def get_example_list(self, ctx: discord.AutocompleteContext):
-        """Gets the latest list of example files found in the Pycord repository."""
+    async def update_example_cache(self):
+        """Updates the cached example list with the latest contents from the repo."""
         file_url = "https://api.github.com/repos/Pycord-Development/pycord/git/trees/master?recursive=1"
         async with self.bot.http_session.get(file_url, raise_for_status=True) as response:
-            file_list = await response.json()
-            return [
-                file["path"].partition("examples/")[2]
-                for file in file_list["tree"]
-                if "examples" in file["path"] and file["path"].endswith(".py") and ctx.value in file["path"]
-            ]
+            self.bot.cache["example_list"] = await response.json()
+
+    async def get_example_list(self, ctx: discord.AutocompleteContext):
+        """Gets the latest list of example files found in the Pycord repository."""
+        if not self.bot.cache.get("example_list"):
+            await self.update_example_cache()
+        return [
+            file["path"].partition("examples/")[2]
+            for file in self.bot.cache["example_list"]["tree"]
+            if "examples" in file["path"] and file["path"].endswith(".py") and ctx.value in file["path"]
+        ]
 
     @discord.slash_command(guild_ids=[881207955029110855])
     async def example(self, ctx, name: discord.Option(str, description="name of example to search for", autocomplete=get_example_list)):
