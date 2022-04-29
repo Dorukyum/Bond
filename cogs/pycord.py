@@ -64,7 +64,7 @@ class Pycord(Cog):
 
     async def get_example_list(self, ctx: discord.AutocompleteContext):
         """Gets the latest list of example files found in the Pycord repository."""
-        if not examples := self.bot.cache.get("example_list"):
+        if not (examples := self.bot.cache.get("example_list")):
             examples = await self.update_example_cache()
         return [
             file["path"].partition("examples/")[2]
