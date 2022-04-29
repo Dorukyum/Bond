@@ -73,7 +73,7 @@ class Pycord(Cog):
         ]
 
     @discord.slash_command(guild_ids=[881207955029110855])
-    async def example(self, ctx, name: discord.Option(str, description="name of example to search for", autocomplete=get_example_list)):
+    async def example(self, ctx, name: discord.Option(str, description="The name of example to search for", autocomplete=get_example_list)):
         """Get the link of an example from the Pycord repository."""
         if not name.endswith(".py"):
             name = f"{name}.py"
