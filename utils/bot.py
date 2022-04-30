@@ -32,7 +32,7 @@ class PycordManager(commands.Bot):
         )
 
         self.on_ready_fired = False
-        self.cache = {"afk": {}, "unmute_task": {}}
+        self.cache = {"afk": {}, "unmute_task": {}, "example_list": {}}
         self.to_load = [
             "jishaku",
             "cogs.help_command",
