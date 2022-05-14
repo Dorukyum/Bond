@@ -21,6 +21,7 @@ __all__ = (
     "ModAction",
     "ModActions",
     "humanize_time",
+    "TextChannelID",
 )
 
 
@@ -79,3 +80,15 @@ def humanize_time(time: timedelta) -> str:
     if minutes > 0:
         return f"{minutes} minute{s(minutes)} and {seconds} second{s(seconds)}"
     return f"{seconds} second{s(seconds)}"
+
+
+class TextChannelID(commands.TextChannelConverter):
+    async def convert(self, ctx: commands.Context, argument: str) -> int:
+        if argument == "0":
+            return 0
+        try:
+            return (await super().convert(ctx, argument)).id
+        except commands.ChannelNotFound:
+            raise Exception(
+                "A text channel in this guild with the given ID wasn't found."
+            )

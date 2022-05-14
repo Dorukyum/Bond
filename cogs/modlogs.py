@@ -4,7 +4,14 @@ from typing import Optional, Union
 import discord
 from discord.ext.commands import Context, command, guild_only, has_permissions
 
-from utils import Cog, GuildModel, humanize_time, ModAction, ModActions
+from utils import (
+    Cog,
+    GuildModel,
+    ModAction,
+    ModActions,
+    TextChannelID,
+    humanize_time,
+)
 
 
 class ModLogs(Cog):
@@ -138,34 +145,22 @@ class ModLogs(Cog):
     @command(name="mod_log")
     @has_permissions(manage_guild=True)
     @guild_only()
-    async def _modlog(self, ctx: Context, channel_id: int):
+    async def _modlog(self, ctx: Context, channel_id: TextChannelID):
         """Set the channel for moderation logs. Use `0` as channel_id to disable mod logs."""
-        channel = ctx.guild.get_channel(channel_id)
-        if channel_id != 0 and (
-            channel is None or not isinstance(channel, discord.TextChannel)
-        ):
-            return await ctx.send(
-                "A text channel in this guild with the given ID wasn't found."
-            )
         if await GuildModel.update("mod_log", ctx.guild.id, channel_id):
-            return await ctx.send(f"The mod log channel for this server is now {channel.mention}.")
+            return await ctx.send(
+                f"The mod log channel for this server is now <#{channel_id}>."
+            )
         await ctx.send("Mod logs have been disabled for this server.")
 
     @command(name="server_log")
     @has_permissions(manage_guild=True)
     @guild_only()
-    async def _serverlog(self, ctx: Context, channel_id: int):
+    async def _serverlog(self, ctx: Context, channel_id: TextChannelID):
         """Set the channel for server logs. Use `0` as channel_id to disable server logs."""
-        channel = ctx.guild.get_channel(channel_id)
-        if channel_id != 0 and (
-            channel is None or not isinstance(channel, discord.TextChannel)
-        ):
-            return await ctx.send(
-                "A text channel in this guild with the given ID wasn't found."
-            )
         if await GuildModel.update("server_log", ctx.guild.id, channel_id):
             return await ctx.send(
-                f"The server log channel for this server is now {channel.mention}."
+                f"The server log channel for this server is now <#{channel_id}>."
             )
         await ctx.send("Server logs have been disabled for this server.")
 
