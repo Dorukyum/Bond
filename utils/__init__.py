@@ -8,10 +8,6 @@ from .bot import PycordManager
 from .checks import pycord_only
 from .models import GuildModel, TagModel, WarnModel
 
-PycordManager.Guild = GuildModel
-PycordManager.Tag = TagModel
-PycordManager.Warn = WarnModel
-
 
 __all__ = (
     "PycordManager",

@@ -147,12 +147,9 @@ class ModLogs(Cog):
             return await ctx.send(
                 "A text channel in this guild with the given ID wasn't found."
             )
-        guild, _ = await GuildModel.get_or_create(id=ctx.guild.id)
-        await guild.update_from_dict({"mod_log": channel_id})
-        await guild.save()
-        if channel_id == 0:
-            return await ctx.send("Mod logs have been disabled for this server.")
-        await ctx.send(f"The mod log channel for this server is now {channel.mention}.")
+        if await GuildModel.update("mod_log", ctx.guild.id, channel_id):
+            return await ctx.send(f"The mod log channel for this server is now {channel.mention}.")
+        await ctx.send("Mod logs have been disabled for this server.")
 
     @command(name="server_log")
     @has_permissions(manage_guild=True)
@@ -166,14 +163,11 @@ class ModLogs(Cog):
             return await ctx.send(
                 "A text channel in this guild with the given ID wasn't found."
             )
-        guild, _ = await GuildModel.get_or_create(id=ctx.guild.id)
-        await guild.update_from_dict({"server_log": channel_id})
-        await guild.save()
-        if channel_id == 0:
-            return await ctx.send("Server logs have been disabled for this server.")
-        await ctx.send(
-            f"The server log channel for this server is now {channel.mention}."
-        )
+        if await GuildModel.update("server_log", ctx.guild.id, channel_id):
+            return await ctx.send(
+                f"The server log channel for this server is now {channel.mention}."
+            )
+        await ctx.send("Server logs have been disabled for this server.")
 
     @Cog.listener()
     async def on_member_ban(self, guild: discord.Guild, user):
