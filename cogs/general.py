@@ -8,7 +8,7 @@ from re import compile
 import discord
 from discord.ext.commands import Context, command, guild_only, has_permissions
 
-from utils import Cog, GuildModel, humanize_time
+from utils import Cog, GuildModel, humanize_time, TextChannelID
 
 PULL_HASH_REGEX = compile(r'(?:(?P<org>(?:[A-Za-z]|\d|-)+)/)?(?P<repo>(?:[A-Za-z]|\d|-)+)?(?:##)(?P<index>[0-9]+)')
 
@@ -44,23 +44,14 @@ class General(Cog):
     @command()
     @has_permissions(manage_guild=True)
     @guild_only()
-    async def suggestions(self, ctx: Context, channel_id: int):
+    async def suggestions(self, ctx: Context, channel_id: TextChannelID):
         """Set the channel for suggestions. Use `0` as channel_id to disable suggestions.
         Members can use `p.suggest` to make a suggestion."""
-        channel = ctx.guild.get_channel(channel_id)
-        if channel_id != 0 and (
-            channel is None or not isinstance(channel, discord.TextChannel)
-        ):
-            return await ctx.send(
-                "A text channel in this guild with the given ID wasn't found."
-            )
-        guild, _ = await GuildModel.get_or_create(id=ctx.guild.id)
-        await guild.update_from_dict({"suggestions": channel_id})
-        await guild.save()
+        await GuildModel.update("suggestions", ctx.guild.id, channel_id)
         if channel_id == 0:
             return await ctx.send("Suggestions been disabled for this server.")
         await ctx.send(
-            f"The suggestions channel for this server is now {channel.mention}."
+            f"The suggestions channel for this server is now <#{channel_id}>."
         )
 
     @command()
