@@ -96,7 +96,8 @@ class Pycord(Cog):
     @has_permissions(manage_guild=True)
     async def update_staff_list(self, ctx: Context):
         staff_roles = [
-            929080208148017242,  # PA
+            881247351937855549,  # Project Lead
+            929080208148017242,  # Project Advisor
             881223820059504691,  # Core Developer
             881411529415729173,  # Server Manager
             881407111211384902,  # Moderator
