@@ -140,39 +140,6 @@ class Moderation(Cog):
             reason=f"{ctx.author} ({ctx.author.id}): {reason}",
         )
         await ctx.send("Unlocked this channel.")
-        
-    @discord.slash_command()
-    async def close(ctx, lock: bool=False):
-    """Allows a staff member or the user that opened the Thread to close the Thread"""
-    
-    # Check If The Channel Is A Thread
-    if type(ctx.channel) != discord.Thread:
-        return await ctx.respond("This Command Can Only Be Used In Threads", ephemeral=True)
-
-    if ctx.channel.permissions_for(ctx.author).manage_threads:
-        if lock:
-            embed = discord.Embed(description="This Thread Was Archived And Locked By A Staff Member. Please Create "
-                                              "Another Thread For More Help.",
-                                  color=0xff0000,
-                                  )
-        else:
-            embed = discord.Embed(description="This Thread Was Archived By A Staff Member, If You Have A Different "
-                                              "Problem Please Create Another Thread. If It Is The Same Problem Send "
-                                              "Another Message",
-                                  color=0xffff00,
-                                  )
-        await ctx.respond(embed=embed)
-        return await ctx.channel.archive(locked=lock)
-    elif ctx.author.id == ctx.channel.owner_id:
-        embed = discord.Embed(description="This Thread Was Archived By The User That Opened It. If You Have A "
-                                          "Question Please Open A New Thread.",
-                              color=0xffff00,
-                              )
-        await ctx.respond(embed=embed)
-        return await ctx.channel.archive(locked=False)
-    else:
-        return await ctx.respond("This Command Can Only Be Used By The Author Of The Thread Or Staff Member", 
-                                 ephemeral=True)
 
 def setup(bot):
     bot.add_cog(Moderation(bot))
