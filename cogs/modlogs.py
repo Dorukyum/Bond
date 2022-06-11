@@ -4,7 +4,14 @@ from typing import Optional, Union
 import discord
 from discord.ext.commands import Context, command, guild_only, has_permissions
 
-from utils import Cog, GuildModel, humanize_time, ModAction, ModActions
+from utils import (
+    Cog,
+    GuildModel,
+    ModAction,
+    ModActions,
+    TextChannelID,
+    humanize_time,
+)
 
 
 class ModLogs(Cog):
@@ -138,42 +145,24 @@ class ModLogs(Cog):
     @command(name="mod_log")
     @has_permissions(manage_guild=True)
     @guild_only()
-    async def _modlog(self, ctx: Context, channel_id: int):
+    async def _modlog(self, ctx: Context, channel_id: TextChannelID):
         """Set the channel for moderation logs. Use `0` as channel_id to disable mod logs."""
-        channel = ctx.guild.get_channel(channel_id)
-        if channel_id != 0 and (
-            channel is None or not isinstance(channel, discord.TextChannel)
-        ):
+        if await GuildModel.update("mod_log", ctx.guild.id, channel_id):
             return await ctx.send(
-                "A text channel in this guild with the given ID wasn't found."
+                f"The mod log channel for this server is now <#{channel_id}>."
             )
-        guild, _ = await GuildModel.get_or_create(id=ctx.guild.id)
-        await guild.update_from_dict({"mod_log": channel_id})
-        await guild.save()
-        if channel_id == 0:
-            return await ctx.send("Mod logs have been disabled for this server.")
-        await ctx.send(f"The mod log channel for this server is now {channel.mention}.")
+        await ctx.send("Mod logs have been disabled for this server.")
 
     @command(name="server_log")
     @has_permissions(manage_guild=True)
     @guild_only()
-    async def _serverlog(self, ctx: Context, channel_id: int):
+    async def _serverlog(self, ctx: Context, channel_id: TextChannelID):
         """Set the channel for server logs. Use `0` as channel_id to disable server logs."""
-        channel = ctx.guild.get_channel(channel_id)
-        if channel_id != 0 and (
-            channel is None or not isinstance(channel, discord.TextChannel)
-        ):
+        if await GuildModel.update("server_log", ctx.guild.id, channel_id):
             return await ctx.send(
-                "A text channel in this guild with the given ID wasn't found."
+                f"The server log channel for this server is now <#{channel_id}>."
             )
-        guild, _ = await GuildModel.get_or_create(id=ctx.guild.id)
-        await guild.update_from_dict({"server_log": channel_id})
-        await guild.save()
-        if channel_id == 0:
-            return await ctx.send("Server logs have been disabled for this server.")
-        await ctx.send(
-            f"The server log channel for this server is now {channel.mention}."
-        )
+        await ctx.send("Server logs have been disabled for this server.")
 
     @Cog.listener()
     async def on_member_ban(self, guild: discord.Guild, user):
@@ -224,6 +213,9 @@ class ModLogs(Cog):
                 limit=20, action=discord.AuditLogAction.member_update
             ):
                 if entry.target == after and entry.user != after:
+                    if entry.reason and entry.reason.startswith("Automod:"):
+                        return  # don't log auto-timeouts
+
                     duration = (
                         after.communication_disabled_until - discord.utils.utcnow()
                     )

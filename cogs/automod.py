@@ -58,7 +58,7 @@ class Automod(Cog):
             age = member.joined_at - member.created_at
             if age.days < 28:
                 until = timedelta(minutes=5) + member.joined_at
-                await member.timeout(until, reason=f"Young account ({age.days} days)")
+                await member.timeout(until, reason=f"Automod: Young account ({age.days} days)")
                 with suppress(discord.HTTPException):
                     await member.send(
                         f"You have been timed out for security reasons. You will be able to speak <t:{int(until.timestamp())}:R>."

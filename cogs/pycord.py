@@ -1,9 +1,12 @@
+import re
 from inspect import cleandoc
 
 import discord
 from discord.ext.commands import Context, command, has_permissions
 
 from utils import Cog, pycord_only
+
+PASTEBIN_RE = re.compile(r"(https?://pastebin.com)/([a-zA-Z0-9]{8})")
 
 
 async def getattrs(ctx):
@@ -52,10 +55,26 @@ class Pycord(Cog):
 
         await ctx.respond(f"```\n{cleandoc(thing.__doc__)[:1993]}```")
 
-    @discord.slash_command(guild_ids=[881207955029110855])
-    async def example(self, ctx, name: str = ""):
-        """Get the link of an example from the Pycord repository."""
+    async def update_example_cache(self):
+        """Updates the cached example list with the latest contents from the repo."""
+        file_url = "https://api.github.com/repos/Pycord-Development/pycord/git/trees/master?recursive=1"
+        async with self.bot.http_session.get(file_url, raise_for_status=True) as response:
+            self.bot.cache["example_list"] = examples = await response.json()
+            return examples
 
+    async def get_example_list(self, ctx: discord.AutocompleteContext):
+        """Gets the latest list of example files found in the Pycord repository."""
+        if not (examples := self.bot.cache.get("example_list")):
+            examples = await self.update_example_cache()
+        return [
+            file["path"].partition("examples/")[2]
+            for file in examples["tree"]
+            if "examples" in file["path"] and file["path"].endswith(".py") and ctx.value in file["path"]
+        ]
+
+    @discord.slash_command(guild_ids=[881207955029110855])
+    async def example(self, ctx, name: discord.Option(str, description="The name of example to search for", autocomplete=get_example_list)):
+        """Get the link of an example from the Pycord repository."""
         if not name.endswith(".py"):
             name = f"{name}.py"
         if name.startswith("slash_"):
@@ -77,7 +96,8 @@ class Pycord(Cog):
     @has_permissions(manage_guild=True)
     async def update_staff_list(self, ctx: Context):
         staff_roles = [
-            929080208148017242,  # PA
+            881247351937855549,  # Project Lead
+            929080208148017242,  # Project Advisor
             881223820059504691,  # Core Developer
             881411529415729173,  # Server Manager
             881407111211384902,  # Moderator
@@ -97,12 +117,21 @@ class Pycord(Cog):
         if self.staff_list is not None:
             await self.staff_list.edit(embed=embed)
         else:
-            self.staff_list_channel = self.staff_list_channel or self.bot.get_channel(
-                884730803588829206
-            )
+            self.staff_list_channel = self.staff_list_channel or self.bot.get_channel(884730803588829206)
             await self.staff_list_channel.purge(limit=1)
             self.staff_list = await self.staff_list_channel.send(embed=embed)
         await ctx.send("Done!")
+
+    @Cog.listener()
+    async def on_message(self, message: discord.Message):
+        if message.guild == self.bot.pycord:
+            messages = []
+            matches = re.findall(PASTEBIN_RE, message.content)
+            for match in matches:
+                base_url, paste_id = match
+                messages.append(f"{base_url}/raw/{paste_id}")
+            if messages:
+                await message.channel.send("\n".join(messages))
 
 
 def setup(bot):
