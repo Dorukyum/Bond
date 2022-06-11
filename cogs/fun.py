@@ -24,16 +24,13 @@ class Fun(Cog):
     @cooldown(1, 60, BucketType.channel)
     async def poll(self, ctx: Context, question: str, *choices: str):
         """Create a poll."""
-        def to_emoji(c):
-            base = 0x1F1E6
-            return chr(base + c)
-        choices = [(to_emoji(e), v) for e, v in enumerate(choices[:28])]
-        body = "\n".join(f"{key}: {c}" for key, c in choices)
+        to_emoji = lambda key: chr(0x1F1E6 + key)
+        body = "\n".join(f"{to_emoji(i)}: {choice}" for i, choice in enumerate(choices[:5]))
 
         message = await ctx.send(
             embed=discord.Embed(
-                title=f"Poll | {question}",
-                description=f"{body}",
+                title=f"Poll: {question}",
+                description=body,
                 color=discord.Color.brand_red(),
             ).set_author(
                 name=ctx.author.display_name, icon_url=ctx.author.display_avatar
