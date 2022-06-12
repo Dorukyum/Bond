@@ -30,7 +30,7 @@ class General(Cog):
     """A cog for general commands."""
     def __init__(self, bot):
         super().__init__(bot)
-        self.message: Dict[int, Any] = {}
+        self.message: Dict[int, discord.Message] = {}
         # *thinks* should be using LRU cache st., only thing scare me is that the dictionary will keep growing
 
     async def suggestions_channel(
@@ -70,7 +70,6 @@ class General(Cog):
             if msg:
                 self.message[msg.id] = msg
                 return msg
-        
 
     @group(name="suggestions", aliases=["suggest"], invoke_without_command=True)
     @guild_only()
@@ -110,7 +109,7 @@ class General(Cog):
     async def suggest_delete(self, ctx: Context, message_id: int):
         """Delete the suggestion you suggest. Member with manage_messages permissions can delete any suggestion"""
         msg = await self.get_or_fetch_message(message_id, guild=ctx.guild)
-        if msg.author is not self.bot.user:
+        if msg.author is not ctx.guild.me:
             # to make sure that, its bot's message
             return await ctx.send("Invalid message.")
 
@@ -123,7 +122,7 @@ class General(Cog):
             return await ctx.send("This message is not a suggestion.")
 
         if ctx.author.guild_permissions.manage_messages:
-            await msg.delete()
+            await msg.delete(delay=0)
             return await ctx.send("Message deleted.")
 
         if int(msg.embeds[0].footer.text.split(":")[1]) != ctx.author.id:
@@ -141,7 +140,7 @@ class General(Cog):
     async def suggest_note(self, ctx: Context, message_id: int, *, note: str):
         """Add a note to the suggestion."""
         msg = await self.get_or_fetch_message(message_id, guild=ctx.guild)
-        if msg.author is not self.bot.user:
+        if msg.author is not ctx.guild.me:
             # to make sure that, its bot's message
             return await ctx.send("Invalid message.")
 
@@ -171,7 +170,7 @@ class General(Cog):
         """
         # This is very similar to github issue flags
         msg = await self.get_or_fetch_message(message_id, guild=ctx.guild)
-        if msg.author is not self.bot.user:
+        if msg.author is not ctx.guild.me:
             # to make sure that, its bot's message
             return await ctx.send("Invalid message.")
         flag = flag.upper()
