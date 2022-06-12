@@ -36,8 +36,8 @@ class Fun(Cog):
                 name=ctx.author.display_name, icon_url=ctx.author.display_avatar
             )
         )
-        for reaction in choices:
-            await message.add_reaction(reaction)
+        for i, _ in enumerate(choices[:5]):
+            await message.add_reaction(to_emoji(i))
 
     @poll.command()
     async def yesno(self, ctx: Context, *, question):
