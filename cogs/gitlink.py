@@ -47,6 +47,7 @@ class Delete(discord.ui.View):
             # so Delete view works globally
             return True
         if self.user.id != interaction.user.id:  # type: ignore
+            await interaction.response.send_message("You cannot delete this!", ephemeral=True)
             return False
         return True
 
