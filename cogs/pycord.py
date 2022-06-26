@@ -90,6 +90,41 @@ class Pycord(Cog):
                 )
             ),
         )
+        
+    @discord.slash_command(guild_ids=[881207955029110855])
+    async def close(self, ctx: discord.ApplicationContext, lock: bool = False):
+        """Allows a staff member or the owner of the thread to close the thread"""
+
+        if not isinstance(ctx.channel, discord.Thread):
+            return await ctx.respond(
+                "This command can only be used in threads.", ephemeral=True
+            )
+
+        if ctx.channel.permissions_for(ctx.author).manage_threads:
+            if lock:
+                embed = discord.Embed(
+                    description="This thread was archived and locked by a staff member.",
+                    color=0xFF0000,
+                )
+            else:
+                embed = discord.Embed(
+                    description="This thread was archived by a staff member.",
+                    color=0xFFFF00,
+                )
+            await ctx.respond(embed=embed)
+            await ctx.channel.archive(locked=lock)
+        elif ctx.author.id == ctx.channel.owner_id:
+            embed = discord.Embed(
+                description="This thread was archived by the user that opened it.",
+                color=0xFFFF00,
+            )
+            await ctx.respond(embed=embed)
+            await ctx.channel.archive()
+        else:
+            await ctx.respond(
+                "This command can only be used by the owner of the thread or a staff member.",
+                ephemeral=True,
+            )
 
     @command()
     @pycord_only
