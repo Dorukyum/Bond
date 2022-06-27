@@ -55,6 +55,10 @@ class HelpCommand(commands.HelpCommand):
 
         view = discord.ui.View()
         view.add_item(HelpSelect(options, self.context))
+        async def timeoutfunc(interaction):
+          view.disable_all_items() 
+        view.on_timeout = timeoutfunc
+
         await self.context.send(embed=embed, view=view)
 
     async def send_cog_help(self, cog: commands.Cog):
