@@ -42,11 +42,14 @@ class PycordManager(commands.Bot):
             "cogs.moderation",
             "cogs.modlogs",
             "cogs.automod",
-            "cogs.warns",
             "cogs.tags",
             "cogs.gitlink",
         ]
-        for cog in ["cogs.pycord", "cogs.general"]:  # cogs with application commands
+        for cog in [
+            "cogs.pycord",
+            "cogs.general",
+            "cogs.warnings",
+        ]:  # cogs with application commands
             self.load_cog(cog)
 
     @property
