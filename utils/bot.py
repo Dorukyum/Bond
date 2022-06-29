@@ -60,7 +60,7 @@ class PycordManager(commands.Bot):
         try:
             self.load_extension(cog)
         except Exception as e:
-            print(e)
+            print("".join(format_exception(e)))
 
     def load_config(self, update: bool = True) -> dict:
         if not path.exists("config.json"):
