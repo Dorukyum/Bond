@@ -17,20 +17,6 @@ from utils import (
 class ModLogs(Cog):
     """A cog for moderation action logging."""
 
-    async def mod_log_channel(
-        self, guild: discord.Guild
-    ) -> Optional[discord.TextChannel]:
-        guild_data, _ = await GuildModel.get_or_create(id=guild.id)
-        if guild_data.mod_log:
-            return guild.get_channel(guild_data.mod_log)
-
-    async def server_log_channel(
-        self, guild: discord.Guild
-    ) -> Optional[discord.TextChannel]:
-        guild_data, _ = await GuildModel.get_or_create(id=guild.id)
-        if guild_data.server_log:
-            return guild.get_channel(guild_data.server_log)
-
     async def mod_log(
         self,
         mod: discord.Member,
@@ -166,7 +152,7 @@ class ModLogs(Cog):
 
     @Cog.listener()
     async def on_member_ban(self, guild: discord.Guild, user):
-        if channel := await self.mod_log_channel(guild):
+        if channel := await GuildModel.get_text_channel(guild, "mod_log"):
             await asyncio.sleep(2)
             async for entry in guild.audit_logs(
                 limit=20, action=discord.AuditLogAction.ban
@@ -178,7 +164,7 @@ class ModLogs(Cog):
 
     @Cog.listener()
     async def on_member_unban(self, guild: discord.Guild, user):
-        if channel := await self.mod_log_channel(guild):
+        if channel := await GuildModel.get_text_channel(guild, "mod_log"):
             await asyncio.sleep(2)
             async for entry in guild.audit_logs(
                 limit=20, action=discord.AuditLogAction.unban
@@ -190,7 +176,7 @@ class ModLogs(Cog):
 
     @Cog.listener()
     async def on_member_remove(self, member: discord.Member):
-        if channel := await self.mod_log_channel(member.guild):
+        if channel := await GuildModel.get_text_channel(member.guild, "mod_log"):
             await asyncio.sleep(2)
             async for entry in member.guild.audit_logs(
                 limit=20, action=discord.AuditLogAction.kick
@@ -207,7 +193,7 @@ class ModLogs(Cog):
             or not after.timed_out
         ):
             return
-        if channel := await self.mod_log_channel(after.guild):
+        if channel := await GuildModel.get_text_channel(after.guild, "mod_log"):
             await asyncio.sleep(2)
             async for entry in after.guild.audit_logs(
                 limit=20, action=discord.AuditLogAction.member_update
@@ -227,7 +213,7 @@ class ModLogs(Cog):
     # server logs
     @Cog.listener()
     async def on_guild_channel_create(self, channel):
-        if mod_log := await self.server_log_channel(channel.guild):
+        if mod_log := await GuildModel.get_text_channel(channel.guild, "server_log"):
             await asyncio.sleep(2)
             async for entry in channel.guild.audit_logs(
                 limit=20, action=discord.AuditLogAction.channel_create
@@ -243,7 +229,7 @@ class ModLogs(Cog):
 
     @Cog.listener()
     async def on_guild_channel_delete(self, channel):
-        if mod_log := await self.server_log_channel(channel.guild):
+        if mod_log := await GuildModel.get_text_channel(channel.guild, "server_log"):
             await asyncio.sleep(2)
             async for entry in channel.guild.audit_logs(
                 limit=20, action=discord.AuditLogAction.channel_delete
@@ -259,7 +245,7 @@ class ModLogs(Cog):
 
     @Cog.listener()
     async def on_guild_channel_update(self, before, after):
-        if mod_log := await self.server_log_channel(before.guild):
+        if mod_log := await GuildModel.get_text_channel(after.guild, "server_log"):
             await asyncio.sleep(2)
             async for entry in before.guild.audit_logs(
                 limit=20, action=discord.AuditLogAction.channel_update
@@ -276,7 +262,7 @@ class ModLogs(Cog):
 
     @Cog.listener()
     async def on_guild_role_create(self, role):
-        if mod_log := await self.server_log_channel(role.guild):
+        if mod_log := await GuildModel.get_text_channel(role.guild, "server_log"):
             await asyncio.sleep(2)
             async for entry in role.guild.audit_logs(
                 limit=20, action=discord.AuditLogAction.role_create
@@ -288,7 +274,7 @@ class ModLogs(Cog):
 
     @Cog.listener()
     async def on_guild_role_delete(self, role):
-        if mod_log := await self.server_log_channel(role.guild):
+        if mod_log := await GuildModel.get_text_channel(role.guild, "server_log"):
             await asyncio.sleep(2)
             async for entry in role.guild.audit_logs(
                 limit=20, action=discord.AuditLogAction.role_delete
@@ -300,7 +286,7 @@ class ModLogs(Cog):
 
     @Cog.listener()
     async def on_guild_role_update(self, before, after):
-        if mod_log := await self.server_log_channel(before.guild):
+        if mod_log := await GuildModel.get_text_channel(after.guild, "server_log"):
             await asyncio.sleep(2)
             async for entry in before.guild.audit_logs(
                 limit=20, action=discord.AuditLogAction.role_update

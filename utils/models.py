@@ -1,4 +1,5 @@
-from typing import Any
+from typing import Any, Optional
+from discord import Guild, TextChannel
 
 from tortoise import fields
 from tortoise.models import Model
@@ -33,6 +34,16 @@ class GuildModel(BaseModel):
     mod_log = fields.IntField(default=0)
     server_log = fields.IntField(default=0)
     suggestions = fields.IntField(default=0)
+
+    @classmethod
+    async def get_text_channel(
+        cls, guild: Guild, field_name: str
+    ) -> Optional[TextChannel]:
+        """Return the text channel from a guild set to the given field."""
+        guild_data, _ = await cls.get_or_create(id=guild.id)
+        if channel_id := getattr(guild_data, field_name):
+            channel = guild.get_channel(channel_id)
+            return channel if isinstance(channel, TextChannel) else None
 
 
 class WarnModel(BaseModel):

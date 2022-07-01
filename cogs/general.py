@@ -18,20 +18,12 @@ PULL_HASH_REGEX = compile(
 class General(Cog):
     """A cog for general commands."""
 
-    async def suggestions_channel(
-        self, guild: discord.Guild
-    ) -> Optional[discord.TextChannel]:
-        guild_data, _ = await GuildModel.get_or_create(id=guild.id)
-        if guild_data.suggestions:
-            channel = guild.get_channel(guild_data.suggestions)
-            return channel if isinstance(channel, discord.TextChannel) else None
-
     @discord.slash_command()
     @discord.guild_only()
     @discord.option("suggestion", description="The suggestion.")
     async def suggest(self, ctx: ApplicationContext, *, suggestion: str):
         """Make a suggestion for the server. This will be sent to the channel set by the server managers."""
-        if not (channel := await self.suggestions_channel(ctx.guild)):
+        if not (channel := await GuildModel.get_text_channel(ctx.guild, "suggestions")):
             return await ctx.respond("This server doesn't have a suggestions channel.")
 
         msg = await channel.send(
