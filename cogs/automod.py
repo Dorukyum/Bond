@@ -5,7 +5,7 @@ from typing import Union
 import discord
 from discord import ApplicationContext
 
-from utils import Cog, GuildModel
+from utils import Cog, GuildModel, Lowercase
 
 
 class Automod(Cog):
@@ -24,17 +24,19 @@ class Automod(Cog):
     @discord.guild_only()
     @discord.default_permissions(manage_guild=True)
     @discord.option(
-        "status", description="Choose True to turn automoderation on or False to turn it off."
+        "status",
+        description="Turn automod on or off.",
+        choices=["On", "Off"],
     )
-    async def automod(self, ctx: ApplicationContext, status: bool):
-        """Set the status of automoderation for this server."""
+    async def automod(self, ctx: ApplicationContext, status: str):
+        """Toggle automoderation for this server."""
         guild, _ = await GuildModel.get_or_create(id=ctx.guild.id)
-        as_text = {True: "on", False: "off"}[status]
-        if guild.automod == status:
-            return await ctx.respond(f"Automod is already {as_text}.")
+        as_bool = status == "On"
+        if guild.automod == as_bool:
+            return await ctx.respond(f"Automod is already {status.lower()}.")
 
-        await guild.update_from_dict({"automod": status}).save()
-        await ctx.respond(f"Automod turned {as_text}.")
+        await guild.update_from_dict({"automod": as_bool}).save()
+        await ctx.respond(f"Automod is now {status.lower()}.")
 
     @Cog.listener()
     async def on_message(self, message: discord.Message):
