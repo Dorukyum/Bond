@@ -41,7 +41,6 @@ class PycordManager(commands.Bot):
             "cogs.developer",
             "cogs.fun",
             "cogs.modlogs",
-            "cogs.tags",
             "cogs.gitlink",
         ]
         for cog in [
@@ -49,6 +48,7 @@ class PycordManager(commands.Bot):
             "cogs.general",
             "cogs.moderation",
             "cogs.pycord",
+            "cogs.tags",
             "cogs.warnings",
         ]:  # cogs with application commands
             self.load_cog(cog)
