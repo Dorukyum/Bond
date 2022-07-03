@@ -40,13 +40,13 @@ class PycordManager(commands.Bot):
             "cogs.help_command",
             "cogs.developer",
             "cogs.fun",
-            "cogs.modlogs",
             "cogs.gitlink",
         ]
         for cog in [
             "cogs.automod",
             "cogs.general",
             "cogs.moderation",
+            "cogs.modlogs",
             "cogs.pycord",
             "cogs.tags",
             "cogs.warnings",

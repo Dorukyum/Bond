@@ -2,14 +2,13 @@ import asyncio
 from typing import Optional, Union
 
 import discord
-from discord.ext.commands import Context, command, guild_only, has_permissions
+from discord import ApplicationContext
 
 from utils import (
     Cog,
     GuildModel,
     ModAction,
     ModActions,
-    TextChannelID,
     humanize_time,
 )
 
@@ -128,27 +127,34 @@ class ModLogs(Cog):
                 ).set_author(name=f"{mod} (ID {mod.id})")
             )
 
-    @command(name="mod_log")
-    @has_permissions(manage_guild=True)
-    @guild_only()
-    async def _modlog(self, ctx: Context, channel_id: TextChannelID):
-        """Set the channel for moderation logs. Use `0` as channel_id to disable mod logs."""
-        if await GuildModel.update("mod_log", ctx.guild.id, channel_id):
-            return await ctx.send(
-                f"The mod log channel for this server is now <#{channel_id}>."
-            )
-        await ctx.send("Mod logs have been disabled for this server.")
+    logs = discord.SlashCommandGroup("logs", "Commands related to logs.")
 
-    @command(name="server_log")
-    @has_permissions(manage_guild=True)
-    @guild_only()
-    async def _serverlog(self, ctx: Context, channel_id: TextChannelID):
-        """Set the channel for server logs. Use `0` as channel_id to disable server logs."""
-        if await GuildModel.update("server_log", ctx.guild.id, channel_id):
-            return await ctx.send(
-                f"The server log channel for this server is now <#{channel_id}>."
-            )
-        await ctx.send("Server logs have been disabled for this server.")
+    @logs.command()
+    @discord.default_permissions(manage_guild=True)
+    @discord.guild_only()
+    @discord.option(
+        "category",
+        choices=["Moderation", "Server"],
+        description="The category of logs to set a channel for.",
+    )
+    @discord.option(
+        "channel",
+        discord.TextChannel,
+        description="The channel these logs will be sent to.",
+        default=None,
+    )
+    async def channel(
+        self,
+        ctx: ApplicationContext,
+        category: str,
+        channel: Optional[discord.TextChannel],
+    ):
+        """Set channels for logs. Don't choose a channel to disable logs for the chosen category."""
+        channel_id = channel.id if channel else 0
+        field = "mod_log" if category == "Moderation" else "server_log"
+        if await GuildModel.update(field, ctx.guild.id, channel_id):
+            return await ctx.respond(f"{category} logs will be sent to <#{channel_id}>.")
+        await ctx.respond(f"{category} logs have been disabled for this server.")
 
     @Cog.listener()
     async def on_member_ban(self, guild: discord.Guild, user):
