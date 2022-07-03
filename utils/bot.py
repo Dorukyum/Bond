@@ -85,6 +85,11 @@ class PycordManager(commands.Bot):
         with open("config.json", "w") as f:
             dump(self.config, f)
 
+    async def on_connect(self) -> None:
+        if "-s" in argv:
+            await self.sync_commands()
+            print("Synchronized commands.")
+
     async def on_ready(self):
         if self.on_ready_fired:
             return
