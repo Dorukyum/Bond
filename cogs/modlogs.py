@@ -127,11 +127,14 @@ class ModLogs(Cog):
                 ).set_author(name=f"{mod} (ID {mod.id})")
             )
 
-    logs = discord.SlashCommandGroup("logs", "Commands related to logs.")
+    logs = discord.SlashCommandGroup(
+        "logs",
+        "Commands related to logs.",
+        guild_only=True,
+        default_member_permissions=discord.Permissions(manage_guild=True),
+    )
 
     @logs.command()
-    @discord.default_permissions(manage_guild=True)
-    @discord.guild_only()
     @discord.option(
         "category",
         choices=["Moderation", "Server"],
@@ -153,7 +156,9 @@ class ModLogs(Cog):
         channel_id = channel.id if channel else 0
         field = "mod_log" if category == "Moderation" else "server_log"
         if await GuildModel.update(field, ctx.guild.id, channel_id):
-            return await ctx.respond(f"{category} logs will be sent to <#{channel_id}>.")
+            return await ctx.respond(
+                f"{category} logs will be sent to <#{channel_id}>."
+            )
         await ctx.respond(f"{category} logs have been disabled for this server.")
 
     @Cog.listener()

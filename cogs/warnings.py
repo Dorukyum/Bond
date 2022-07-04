@@ -11,6 +11,7 @@ class Warns(Cog):
         return f"#{warn.id} | <t:{int(warn.created_at.timestamp())}:R>:\n{warn.reason}\nBy **{self.bot.get_user(warn.mod_id)}**"
 
     @discord.slash_command()
+    @discord.guild_only()
     @discord.default_permissions(manage_messages=True)
     @discord.option("member", description="The member to warn.")
     @discord.option("reason", description="The reason of the warning.")
@@ -27,6 +28,7 @@ class Warns(Cog):
         await ctx.respond(f"Warned `{member}`.")
 
     @discord.slash_command()
+    @discord.guild_only()
     @discord.default_permissions(manage_messages=True)
     @discord.option(
         "id", description="The ID of the warning. Use `/warns` to view warn data."
@@ -39,6 +41,7 @@ class Warns(Cog):
         await ctx.respond(f"Couldn't find a warning in this guild with the id `{id}`.")
 
     @discord.slash_command()
+    @discord.guild_only()
     @discord.default_permissions(manage_messages=True)
     @discord.option("member", description="The member to view the warnings given to.")
     async def warns(self, ctx: ApplicationContext, member: discord.Member):
