@@ -1,7 +1,5 @@
-from re import findall
-
 import discord
-from discord.ext.commands import Context, command, group
+from discord import ApplicationContext
 
 from utils import Cog
 
@@ -9,36 +7,43 @@ from utils import Cog
 class Fun(Cog):
     """A cog for fun commands."""
 
-    @command()
-    async def how_many(self, ctx: Context, *, text):
-        """Shows the amount of people that has the supplied text in their display name."""
+    @discord.slash_command()
+    @discord.guild_only()
+    @discord.option("text", description="The text to check for in display names.")
+    async def how_many(self, ctx: ApplicationContext, *, text: str):
+        """Shows the amount of members that have the supplied text in their display name."""
         text = text.strip().lower()
-        if text == "asked":
-            return await ctx.send("Nobody.")
         count = sum(text in member.display_name.lower() for member in ctx.guild.members)
-        await ctx.send(
-            f"{count} people have `{text}` (any case) in their display name."
+        await ctx.respond(
+            f"{count} members have `{text}` (any case) in their display name."
         )
 
-    @group(invoke_without_command=True)
-    async def poll(self, ctx: Context, question, choice1, choice2):
+    @discord.slash_command()
+    @discord.option("question", description="The question of the poll.")
+    @discord.option("choice1", description="The first choice.")
+    @discord.option("choice2", description="The second choice.")
+    async def poll(
+        self, ctx: ApplicationContext, question: str, choice1: str, choice2: str
+    ):
         """Create a poll."""
-        message = await ctx.send(
+        interaction = await ctx.respond(
             embed=discord.Embed(
-                title=f"Poll | {question}",
+                title=f"Poll: {question}",
                 description=f":a: {choice1}\n:b: {choice2}",
                 color=discord.Color.brand_red(),
             ).set_author(
                 name=ctx.author.display_name, icon_url=ctx.author.display_avatar
             )
         )
+        message = await interaction.original_message()
         await message.add_reaction("🅰")
         await message.add_reaction("🅱")
 
-    @poll.command()
-    async def yesno(self, ctx: Context, *, question):
+    @discord.slash_command()
+    @discord.option("question", description="The question of the poll.")
+    async def poll_yesno(self, ctx: ApplicationContext, *, question: str):
         """Create a poll with the options being yes or no."""
-        message = await ctx.send(
+        interaction = await ctx.respond(
             embed=discord.Embed(
                 title="Yes/No Poll",
                 description=question,
@@ -47,6 +52,7 @@ class Fun(Cog):
                 name=ctx.author.display_name, icon_url=ctx.author.display_avatar
             )
         )
+        message = await interaction.original_message()
         await message.add_reaction("✅")
         await message.add_reaction("❎")
 

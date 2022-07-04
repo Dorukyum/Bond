@@ -39,11 +39,11 @@ class PycordManager(commands.Bot):
             "jishaku",
             "cogs.help_command",
             "cogs.developer",
-            "cogs.fun",
             "cogs.gitlink",
         ]
         for cog in [
             "cogs.automod",
+            "cogs.fun",
             "cogs.general",
             "cogs.moderation",
             "cogs.modlogs",
