@@ -5,13 +5,11 @@ from typing import Literal
 from discord.ext import commands
 
 from .bot import PycordManager
-from .checks import pycord_only
 from .models import GuildModel, TagModel, WarnModel
 
 
 __all__ = (
     "PycordManager",
-    "pycord_only",
     "Cog",
     "GuildModel",
     "Lowercase",

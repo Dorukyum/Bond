@@ -2,9 +2,9 @@ import re
 from inspect import cleandoc
 
 import discord
-from discord.ext.commands import Context, command, has_permissions
+from discord.commands.context import ApplicationContext
 
-from utils import Cog, pycord_only
+from utils import Cog
 
 PASTEBIN_RE = re.compile(r"(https?://pastebin.com)/([a-zA-Z0-9]{8})")
 
@@ -135,10 +135,9 @@ class Pycord(Cog):
                 ephemeral=True,
             )
 
-    @command()
-    @pycord_only
-    @has_permissions(manage_guild=True)
-    async def update_staff_list(self, ctx: Context):
+    @discord.slash_command(guild_ids=[881207955029110855])
+    @discord.default_permissions(manage_guild=True)
+    async def update_staff_list(self, ctx: ApplicationContext):
         staff_roles = [
             881247351937855549,  # Project Lead
             929080208148017242,  # Project Advisor
@@ -166,7 +165,7 @@ class Pycord(Cog):
             )
             await self.staff_list_channel.purge(limit=1)
             self.staff_list = await self.staff_list_channel.send(embed=embed)
-        await ctx.send("Done!")
+        await ctx.respond("Done!")
 
     @Cog.listener()
     async def on_message(self, message: discord.Message):
