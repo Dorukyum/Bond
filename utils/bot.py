@@ -113,19 +113,31 @@ class PycordManager(commands.Bot):
         await Tortoise.generate_schemas()
         print(self.user, "is ready")
 
-    async def on_command_error(
-        self, ctx: commands.Context, error: commands.CommandError
+    async def on_application_command_error(
+        self, ctx: discord.ApplicationContext, error: discord.ApplicationCommandError
     ):
-        if isinstance(error, commands.CommandInvokeError):
-            await ctx.send(
-                "An unexpected error has occured, I've notified my developer."
+        if isinstance(error, discord.ApplicationCommandInvokeError):
+            await ctx.respond(
+                "An unexpected error has occured and I've notified my developer. "
+                "In the meantime, consider joining my support server.",
+                view=discord.ui.View(
+                    discord.ui.Button(
+                        label="Support", url="https://discord.gg/8JsMVhBP4W"
+                    ),
+                    discord.ui.Button(
+                        label="GitHub Repo",
+                        url="https://github.com/Dorukyum/Pycord-Manager",
+                    ),
+                ),
             )
             text = "".join(format_exception(type(error), error, error.__traceback__))
-            return await self.errors_webhook.send(f"```\n{text}```")
-        if isinstance(error, commands.CheckFailure) and await self.is_owner(ctx.author):
-            return await ctx.reinvoke()
+            return await self.errors_webhook.send(
+                f"Command: `/{ctx.command.name}`"
+                f" | Guild: `{ctx.guild.name} ({ctx.guild.id})`" if ctx.guild else ""
+                f"\n```\n{text}```"
+            )
 
-        await ctx.send(
+        await ctx.respond(
             embed=discord.Embed(
                 title=error.__class__.__name__,
                 description=str(error),
