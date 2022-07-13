@@ -19,12 +19,19 @@ class Warns(Cog):
         self, ctx: ApplicationContext, member: discord.Member, *, reason: str
     ):
         """Warn a member."""
-        if member.top_role.position > ctx.author.top_role.position:
+        if member == ctx.author:
+            return await ctx.respond("You can't warn yourself.")
+        if (
+            member.top_role.position > ctx.author.top_role.position
+            and not ctx.guild.owner_id == ctx.author.id
+        ):
             return await ctx.respond(
                 "The member you're trying to warn has a higher top role than you."
             )
+        if ctx.guild.owner_id == member.id:
+            return await ctx.respond("You can't warn the owner of the server.")
         if member.bot:
-            return await ctx.respond("You cannot warn a bot.")
+            return await ctx.respond("You can't warn a bot.")
         await WarnModel.create(
             mod_id=ctx.author.id,
             target_id=member.id,
@@ -53,7 +60,7 @@ class Warns(Cog):
     async def warns(self, ctx: ApplicationContext, member: discord.Member):
         """View the warnings given to a member."""
         if member.bot:
-            return await ctx.respond("Bots cannot be warned.")
+            return await ctx.respond("Bots can't be warned.")
         if warns := await WarnModel().filter(
             target_id=member.id, guild_id=ctx.guild.id
         ):
