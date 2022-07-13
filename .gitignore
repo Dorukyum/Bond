@@ -2,4 +2,3 @@ __pycache__
 .env
 data/**
 venv/
-config.json

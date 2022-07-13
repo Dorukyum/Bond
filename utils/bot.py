@@ -1,8 +1,7 @@
-from os import environ, getenv, path
+from os import environ, getenv
 from sys import argv
-from json import load, dump
 from traceback import format_exception
-from typing import Dict, Optional
+from typing import Dict
 
 import discord
 from discord.errors import ExtensionFailed
@@ -15,8 +14,7 @@ class PycordManager(commands.Bot):
     cache: Dict[str, Dict] = {"afk": {}, "unmute_task": {}, "example_list": {}}
 
     def __init__(self):
-        config = self.load_config()
-        prefix = config["prefix"] if "-t" not in argv else "d."
+        prefix = "p." if "-t" not in argv else "d."
 
         super().__init__(
             command_prefix=prefix,
@@ -27,11 +25,11 @@ class PycordManager(commands.Bot):
                 guilds=True,
                 bans=True,
             ),
-            owner_ids=config["owner_ids"],
+            owner_ids=[543397958197182464],
             help_command=commands.MinimalHelpCommand(),
             allowed_mentions=discord.AllowedMentions.none(),
             activity=discord.Activity(
-                type=discord.ActivityType.listening, name=f"{config['prefix']}help"
+                type=discord.ActivityType.listening, name=f"p.help"
             ),
         )
 
@@ -64,26 +62,6 @@ class PycordManager(commands.Bot):
             print("".join(format_exception(e.original)))
         except Exception as e:
             print("".join(format_exception(e)))
-
-    def load_config(self, update: bool = True) -> dict:
-        if not path.exists("config.json"):
-            config = {}
-        else:
-            with open("config.json", "r") as f:
-                config: dict = load(f)
-
-        config.setdefault("debug_guilds", [881207955029110855])
-        config.setdefault("owner_ids", [543397958197182464])
-        config.setdefault("prefix", "p.")
-
-        if update:
-            self.config = config
-        return config
-
-    def dump_config(self, new_data: Optional[dict] = None) -> None:
-        self.config.update(new_data)
-        with open("config.json", "w") as f:
-            dump(self.config, f)
 
     async def on_connect(self) -> None:
         if "-s" in argv:
