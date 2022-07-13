@@ -30,7 +30,7 @@ class Automod(Cog):
     )
     async def automod(self, ctx: ApplicationContext, status: str):
         """Toggle automoderation for this server."""
-        guild, _ = await GuildModel.get_or_create(id=ctx.guild.id)
+        guild, _ = await GuildModel.get_or_create(id=ctx.guild_id)
         as_bool = status == "On"
         if guild.automod == as_bool:
             return await ctx.respond(f"Automod is already {status.lower()}.")

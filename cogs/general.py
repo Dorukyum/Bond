@@ -56,7 +56,7 @@ class General(Cog):
         if not channel:
             return await ctx.respond("Suggestions been disabled for this server.")
 
-        await GuildModel.update("suggestions", ctx.guild.id, channel.id)
+        await GuildModel.update("suggestions", ctx.guild_id, channel.id)
         await ctx.respond(
             f"The suggestions channel for this server is now {channel.mention}."
         )

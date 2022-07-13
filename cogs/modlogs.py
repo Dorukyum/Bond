@@ -155,7 +155,7 @@ class ModLogs(Cog):
         """Set channels for logs. Don't choose a channel to disable logs for the chosen category."""
         channel_id = channel.id if channel else 0
         field = "mod_log" if category == "Moderation" else "server_log"
-        if await GuildModel.update(field, ctx.guild.id, channel_id):
+        if await GuildModel.update(field, ctx.guild_id, channel_id):
             return await ctx.respond(
                 f"{category} logs will be sent to <#{channel_id}>."
             )

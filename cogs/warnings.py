@@ -35,7 +35,7 @@ class Warns(Cog):
         await WarnModel.create(
             mod_id=ctx.author.id,
             target_id=member.id,
-            guild_id=ctx.guild.id,
+            guild_id=ctx.guild_id,
             reason=reason,
         )
         await ctx.respond(f"Warned `{member}`.")
@@ -48,7 +48,7 @@ class Warns(Cog):
     )
     async def delwarn(self, ctx: ApplicationContext, id: int):
         """Delete a warning."""
-        if warn := await WarnModel.get_or_none(id=id, guild_id=ctx.guild.id):
+        if warn := await WarnModel.get_or_none(id=id, guild_id=ctx.guild_id):
             await warn.delete()
             return await ctx.respond("Warning deleted.")
         await ctx.respond(f"Couldn't find a warning in this guild with the id `{id}`.")
@@ -62,7 +62,7 @@ class Warns(Cog):
         if member.bot:
             return await ctx.respond("Bots can't be warned.")
         if warns := await WarnModel().filter(
-            target_id=member.id, guild_id=ctx.guild.id
+            target_id=member.id, guild_id=ctx.guild_id
         ):
             return await ctx.respond(
                 embed=discord.Embed(

@@ -133,7 +133,7 @@ class PycordManager(commands.Bot):
             text = "".join(format_exception(type(error), error, error.__traceback__))
             return await self.errors_webhook.send(
                 f"Command: `/{ctx.command.name}`"
-                f" | Guild: `{ctx.guild.name} ({ctx.guild.id})`" if ctx.guild else ""
+                f" | Guild: `{ctx.guild.name} ({ctx.guild_id})`" if ctx.guild else ""
                 f"\n```\n{text}```"
             )
 
