@@ -78,7 +78,7 @@ class General(Cog):
         """View the current timestamp."""
         time = discord.utils.utcnow()
         await ctx.respond(
-            f"{discord.utils.format_dt(time, style=style)} (`{time.timestamp()}`)"
+            f"{discord.utils.format_dt(time, style=style)} (`{round(time.timestamp())}`)"
         )
 
     @discord.slash_command()
