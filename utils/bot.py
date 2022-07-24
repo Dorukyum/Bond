@@ -1,3 +1,4 @@
+from aiohttp import ClientSession
 from os import environ, getenv
 from sys import argv
 from traceback import format_exception
@@ -52,7 +53,7 @@ class PycordManager(commands.Bot):
             self.load_cog(cog)
 
     @property
-    def http_session(self):
+    def http_session(self) -> ClientSession:
         return self.http._HTTPClient__session
 
     def load_cog(self, cog: str) -> None:

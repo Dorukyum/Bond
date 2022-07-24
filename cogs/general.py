@@ -1,6 +1,5 @@
 from contextlib import suppress
-from inspect import getsource, getsourcefile
-from io import StringIO
+from io import BytesIO
 from re import compile
 from typing import Optional
 from urllib import parse
@@ -8,7 +7,7 @@ from urllib import parse
 import discord
 from discord import ApplicationContext
 
-from utils import Cog, GuildModel, TextChannelID, humanize_time
+from utils import Cog, GuildModel, humanize_time
 
 PULL_HASH_REGEX = compile(
     r"(?:(?P<org>(?:[A-Za-z]|\d|-)+)/)?(?P<repo>(?:[A-Za-z]|\d|-)+)?(?:##)(?P<index>[0-9]+)"
@@ -100,6 +99,41 @@ class General(Cog):
                 ),
             ),
         )
+
+    emoji = discord.SlashCommandGroup(
+        "emoji", "Commands related to emojis.", guild_only=True
+    )
+
+    @emoji.command(name="add")
+    @discord.option("name", description="The name of the emoji.")
+    @discord.option("url", description="The image url of the emoji.")
+    async def emoji_add(self, ctx: ApplicationContext, name: str, url: str):
+        """Add a custom emoji to this guild."""
+        async with self.bot.http_session.get(url) as res:
+            if 300 > res.status >= 200:
+                emoji = await ctx.guild.create_custom_emoji(
+                    name=name, image=BytesIO(await res.read()).getvalue()
+                )
+                await ctx.respond(f"{emoji} Successfully created emoji.")
+            else:
+                await ctx.respond(
+                    f"An HTTP error has occured while fetching the image: {res.status} {res.reason}"
+                )
+
+    @emoji.command(name="delete")
+    @discord.option("name", description="The name of the emoji to delete.")
+    @discord.option(
+        "reason", description="The reason to delete the emoji.", default=None
+    )
+    async def emoji_delete(
+        self, ctx: ApplicationContext, name: str, reason: Optional[str]
+    ):
+        """Delete a custom emoji from this guild."""
+        for emoji in ctx.guild.emojis:
+            if emoji.name == name:
+                await emoji.delete(reason=reason)
+                return await ctx.respond(f"Successfully deleted `:{name}:`.")
+        await ctx.respond(f"No emoji named \"{name}\" found.")
 
     @discord.slash_command()
     @discord.option(
