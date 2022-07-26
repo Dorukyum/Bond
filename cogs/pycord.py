@@ -167,6 +167,22 @@ class Pycord(Cog):
             self.staff_list = await self.staff_list_channel.send(embed=embed)
         await ctx.respond("Done!")
 
+    @discord.slash_command(guild_ids=[881207955029110855])
+    @discord.option(
+        "role",
+        description="The role that will be added to or removed from you.",
+        choices=[
+            discord.OptionChoice("Events", "915701572003049482"),
+        ],
+    )
+    async def role(self, ctx: ApplicationContext, role: str):
+        """Choose a role to claim or get rid of."""
+        if int(role) in ctx.author._roles:
+            await ctx.author.remove_roles(discord.Object(role))
+            return await ctx.respond(f"The <@&{role}> role has been removed from you.")
+        await ctx.author.add_roles(discord.Object(role))
+        await ctx.respond(f"You have received the <@&{role}> role.")
+
     @Cog.listener()
     async def on_message(self, message: discord.Message):
         if message.guild == self.bot.pycord:
