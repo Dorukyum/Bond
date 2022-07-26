@@ -123,7 +123,7 @@ class General(Cog):
     @emoji.command(name="delete")
     @discord.option("name", description="The name of the emoji to delete.")
     @discord.option(
-        "reason", description="The reason to delete the emoji.", default=None
+        "reason", str, description="The reason to delete the emoji.", default=None
     )
     async def emoji_delete(
         self, ctx: ApplicationContext, name: str, reason: Optional[str]
@@ -133,7 +133,7 @@ class General(Cog):
             if emoji.name == name:
                 await emoji.delete(reason=reason)
                 return await ctx.respond(f"Successfully deleted `:{name}:`.")
-        await ctx.respond(f"No emoji named \"{name}\" found.")
+        await ctx.respond(f'No emoji named "{name}" found.')
 
     @discord.slash_command()
     @discord.option(
