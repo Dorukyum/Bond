@@ -87,7 +87,7 @@ class PycordManager(commands.Bot):
             self.load_cog(cog)
 
         await Tortoise.init(
-            db_url="sqlite://data/database.db", modules={"models": ["utils.models"]}
+            db_url="sqlite://data/database.db", modules={"models": ["core.models"]}
         )
         await Tortoise.generate_schemas()
         print(self.user, "is ready")
