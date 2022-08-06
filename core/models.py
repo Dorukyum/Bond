@@ -1,8 +1,10 @@
 from typing import Any, Optional
-from discord import Guild, TextChannel
 
+from discord import Guild, TextChannel
 from tortoise import fields
 from tortoise.models import Model
+
+__all__ = ("GuildModel", "TagModel", "WarnModel")
 
 
 class BaseModel(Model):
@@ -14,18 +16,6 @@ class BaseModel(Model):
 
     class Meta:
         abstract = True
-
-
-class TagModel(BaseModel):
-    name = fields.TextField()
-    created_at = fields.DatetimeField(null=True, auto_now_add=True)
-    author_id = fields.IntField()
-    guild_id = fields.IntField()
-    content = fields.TextField()
-    uses = fields.IntField()
-
-    def __str__(self):
-        return self.content
 
 
 class GuildModel(BaseModel):
@@ -44,6 +34,18 @@ class GuildModel(BaseModel):
         if channel_id := getattr(guild_data, field_name):
             channel = guild.get_channel(channel_id)
             return channel if isinstance(channel, TextChannel) else None
+
+
+class TagModel(BaseModel):
+    name = fields.TextField()
+    created_at = fields.DatetimeField(null=True, auto_now_add=True)
+    author_id = fields.IntField()
+    guild_id = fields.IntField()
+    content = fields.TextField()
+    uses = fields.IntField()
+
+    def __str__(self):
+        return self.content
 
 
 class WarnModel(BaseModel):

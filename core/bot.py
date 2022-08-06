@@ -1,10 +1,10 @@
-from aiohttp import ClientSession
 from os import environ, getenv
 from sys import argv
 from traceback import format_exception
 from typing import Dict
 
 import discord
+from aiohttp import ClientSession
 from discord.errors import ExtensionFailed
 from discord.ext import commands
 from tortoise import Tortoise
@@ -112,8 +112,9 @@ class PycordManager(commands.Bot):
             text = "".join(format_exception(type(error), error, error.__traceback__))
             return await self.errors_webhook.send(
                 f"Command: `/{ctx.command.name}`"
-                f" | Guild: `{ctx.guild.name} ({ctx.guild_id})`" if ctx.guild else ""
-                f"\n```\n{text}```"
+                f" | Guild: `{ctx.guild.name} ({ctx.guild_id})`"
+                if ctx.guild
+                else "" f"\n```\n{text}```"
             )
 
         await ctx.respond(

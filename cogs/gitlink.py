@@ -9,7 +9,7 @@ from urllib.parse import quote_plus
 import discord
 from aiohttp import ClientResponseError
 
-from utils import Cog
+from core import Cog
 
 GITHUB_RE = re.compile(
     r"https://github\.com/(?P<repo>[a-zA-Z0-9-]+/[\w.-]+)/blob/"

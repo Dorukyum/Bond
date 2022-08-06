@@ -7,7 +7,7 @@ from urllib import parse
 import discord
 from discord import ApplicationContext
 
-from utils import Cog, GuildModel, humanize_time
+from core import Cog, GuildModel, humanize_time
 
 PULL_HASH_REGEX = compile(
     r"(?:(?P<org>(?:[A-Za-z]|\d|-)+)/)?(?P<repo>(?:[A-Za-z]|\d|-)+)?(?:##)(?P<index>[0-9]+)"

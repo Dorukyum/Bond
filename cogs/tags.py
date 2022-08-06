@@ -2,7 +2,7 @@ from typing import Optional
 import discord
 from discord import ApplicationContext
 
-from utils import Cog, Lowercase, TagModel, s
+from core import Cog, Lowercase, TagModel, s
 
 
 class Tags(Cog):

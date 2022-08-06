@@ -4,11 +4,11 @@ from typing import Optional, Union
 import discord
 from discord import ApplicationContext
 
-from utils import (
+from core import (
     Cog,
     GuildModel,
-    ModAction,
-    ModActions,
+    LogAction,
+    LogActions,
     humanize_time,
 )
 
@@ -21,7 +21,7 @@ class ModLogs(Cog):
         mod: discord.Member,
         target: discord.User,
         reason: Optional[str],
-        action: ModAction,
+        action: LogAction,
         channel: discord.TextChannel,
     ) -> None:
         await channel.send(
@@ -38,13 +38,13 @@ class ModLogs(Cog):
         mod: discord.Member,
         target: Union[discord.Role, discord.TextChannel],
         reason: Optional[str],
-        action: ModAction,
+        action: LogAction,
         channel: discord.TextChannel,
         after: Optional[Union[discord.Role, discord.TextChannel]] = None,
     ) -> None:
         if isinstance(target, discord.Role):
             # action target is a role
-            if action is ModActions.ROLE_UPDATE:
+            if action is LogActions.ROLE_UPDATE:
                 changes_of_role = []
                 if target.name != after.name:
                     changes_of_role.append(
@@ -74,7 +74,7 @@ class ModLogs(Cog):
                 ).set_author(name=f"{mod} (ID {mod.id})")
             )
         else:
-            if action is ModActions.CHANNEL_UPDATE:
+            if action is LogActions.CHANNEL_UPDATE:
                 changes_of_channel = []
                 if target.name != after.name:
                     changes_of_channel.append(
@@ -170,7 +170,7 @@ class ModLogs(Cog):
             ):
                 if entry.target == user:
                     return await self.mod_log(
-                        entry.user, user, entry.reason, ModActions.BAN, channel
+                        entry.user, user, entry.reason, LogActions.BAN, channel
                     )
 
     @Cog.listener()
@@ -182,7 +182,7 @@ class ModLogs(Cog):
             ):
                 if entry.target == user:
                     return await self.mod_log(
-                        entry.user, user, entry.reason, ModActions.UNBAN, channel
+                        entry.user, user, entry.reason, LogActions.UNBAN, channel
                     )
 
     @Cog.listener()
@@ -194,7 +194,7 @@ class ModLogs(Cog):
             ):
                 if entry.target == member:
                     return await self.mod_log(
-                        entry.user, member, entry.reason, ModActions.KICK, channel
+                        entry.user, member, entry.reason, LogActions.KICK, channel
                     )
 
     @Cog.listener()
@@ -218,7 +218,7 @@ class ModLogs(Cog):
                     )
                     reason = f"{entry.reason}\n:hourglass_flowing_sand: **Duration:** {humanize_time(duration)}"
                     return await self.mod_log(
-                        entry.user, after, reason, ModActions.TIMEOUT, channel
+                        entry.user, after, reason, LogActions.TIMEOUT, channel
                     )
 
     # server logs
@@ -234,7 +234,7 @@ class ModLogs(Cog):
                         entry.user,
                         channel,
                         entry.reason,
-                        ModActions.CHANNEL_CREATE,
+                        LogActions.CHANNEL_CREATE,
                         mod_log,
                     )
 
@@ -250,7 +250,7 @@ class ModLogs(Cog):
                         entry.user,
                         channel,
                         entry.reason,
-                        ModActions.CHANNEL_DELETE,
+                        LogActions.CHANNEL_DELETE,
                         mod_log,
                     )
 
@@ -266,7 +266,7 @@ class ModLogs(Cog):
                         entry.user,
                         before,
                         entry.reason,
-                        ModActions.CHANNEL_UPDATE,
+                        LogActions.CHANNEL_UPDATE,
                         mod_log,
                         after,
                     )
@@ -280,7 +280,7 @@ class ModLogs(Cog):
             ):
                 if entry.target == role:
                     return await self.server_log(
-                        entry.user, role, entry.reason, ModActions.ROLE_CREATE, mod_log
+                        entry.user, role, entry.reason, LogActions.ROLE_CREATE, mod_log
                     )
 
     @Cog.listener()
@@ -292,7 +292,7 @@ class ModLogs(Cog):
             ):
                 if entry.target == role:
                     return await self.server_log(
-                        entry.user, role, entry.reason, ModActions.ROLE_DELETE, mod_log
+                        entry.user, role, entry.reason, LogActions.ROLE_DELETE, mod_log
                     )
 
     @Cog.listener()
@@ -307,7 +307,7 @@ class ModLogs(Cog):
                         entry.user,
                         before,
                         entry.reason,
-                        ModActions.ROLE_UPDATE,
+                        LogActions.ROLE_UPDATE,
                         mod_log,
                         after,
                     )

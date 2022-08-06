@@ -4,7 +4,7 @@ from inspect import cleandoc
 import discord
 from discord.commands.context import ApplicationContext
 
-from utils import Cog
+from core import Cog
 
 PASTEBIN_RE = re.compile(r"(https?://pastebin.com)/([a-zA-Z0-9]{8})")
 

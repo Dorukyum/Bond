@@ -2,7 +2,7 @@ from discord.ext.commands import command
 from jishaku.codeblocks import codeblock_converter
 from jishaku.modules import ExtensionConverter
 
-from utils import Cog
+from core import Cog
 
 
 class Developer(Cog, command_attrs={"hidden": True}):

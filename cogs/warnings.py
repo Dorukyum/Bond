@@ -1,7 +1,7 @@
 import discord
 from discord import ApplicationContext
 
-from utils import Cog, WarnModel
+from core import Cog, WarnModel
 
 
 class Warns(Cog):

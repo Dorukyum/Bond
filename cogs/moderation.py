@@ -2,7 +2,7 @@ import discord
 from discord import ApplicationContext
 from discord.ext.commands import MemberConverter
 
-from utils import Cog, s
+from core import Cog, s
 
 
 class Moderation(Cog):

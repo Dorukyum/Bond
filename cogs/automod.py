@@ -5,7 +5,7 @@ from typing import Union
 import discord
 from discord import ApplicationContext
 
-from utils import Cog, GuildModel, Lowercase
+from core import Cog, GuildModel, Lowercase
 
 
 class Automod(Cog):

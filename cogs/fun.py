@@ -1,7 +1,7 @@
 import discord
 from discord import ApplicationContext
 
-from utils import Cog
+from core import Cog
 
 
 class Fun(Cog):
