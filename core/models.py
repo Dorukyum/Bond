@@ -35,6 +35,9 @@ class GuildModel(BaseModel):
             channel = guild.get_channel(channel_id)
             return channel if isinstance(channel, TextChannel) else None
 
+    class Meta:
+        table = "guilds"
+
 
 class TagModel(BaseModel):
     name = fields.TextField()
@@ -47,6 +50,9 @@ class TagModel(BaseModel):
     def __str__(self):
         return self.content
 
+    class Meta:
+        table = "tags"
+
 
 class WarnModel(BaseModel):
     id = fields.IntField(pk=True)
@@ -55,3 +61,6 @@ class WarnModel(BaseModel):
     target_id = fields.IntField()
     guild_id = fields.IntField()
     reason = fields.TextField()
+
+    class Meta:
+        table = "warns"
