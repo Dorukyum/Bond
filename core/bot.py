@@ -12,7 +12,7 @@ from tortoise import Tortoise
 
 class PycordManager(commands.Bot):
     on_ready_fired: bool = False
-    cache: Dict[str, Dict] = {"afk": {}, "unmute_task": {}, "example_list": {}}
+    cache: Dict[str, Dict] = {"afk": {}, "example_list": {}}
 
     def __init__(self):
         prefix = "p." if "-t" not in argv else "d."

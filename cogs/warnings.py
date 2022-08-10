@@ -1,7 +1,8 @@
 import discord
 from discord import ApplicationContext
 
-from core import Cog, WarnModel
+from cogs.modlogs import ModLogs
+from core import Cog, GuildModel, LogActions, WarnModel
 
 
 class Warns(Cog):
@@ -21,6 +22,7 @@ class Warns(Cog):
         """Warn a member."""
         if member == ctx.author:
             return await ctx.respond("You can't warn yourself.")
+        assert ctx.guild and isinstance(ctx.author, discord.Member)
         if (
             member.top_role.position > ctx.author.top_role.position
             and not ctx.guild.owner_id == ctx.author.id
@@ -39,6 +41,9 @@ class Warns(Cog):
             reason=reason,
         )
         await ctx.respond(f"Warned `{member}`.")
+        if channel := await GuildModel.get_text_channel(ctx.guild, "mod_log"):
+            if isinstance((cog := self.bot.get_cog("ModLogs")), ModLogs):
+                await cog.mod_log(ctx.author, member, reason, LogActions.WARN, channel)
 
     @discord.slash_command()
     @discord.guild_only()
