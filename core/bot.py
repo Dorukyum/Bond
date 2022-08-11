@@ -74,7 +74,6 @@ class Toolkit(commands.Bot):
             return
         self.on_ready_fired = True
 
-        self.pycord = self.get_guild(881207955029110855)
         self.errors_webhook = discord.Webhook.from_url(
             getenv("ERRORS_WEBHOOK"),
             session=self.http_session,

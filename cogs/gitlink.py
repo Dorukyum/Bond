@@ -249,7 +249,7 @@ class GitLink(Cog):
 
     @Cog.listener()
     async def on_message(self, message: discord.Message):
-        if message.guild != self.bot.pycord:
+        if message.guild is not None and message.guild.id != 881207955029110855:
             return
         if self.bot.user == message.author:
             return  # to prevent loops...

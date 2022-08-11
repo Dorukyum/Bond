@@ -1,11 +1,12 @@
 from contextlib import suppress
 from datetime import timedelta
+from tortoise.exceptions import ConfigurationError
 from typing import Union
 
 import discord
 from discord import ApplicationContext
 
-from core import Cog, GuildModel, Lowercase
+from core import Cog, GuildModel
 
 
 class Automod(Cog):
@@ -13,12 +14,13 @@ class Automod(Cog):
 
     async def automod_on(self, target: Union[discord.Message, discord.Member]) -> bool:
         """Returns whether or not the target should be automodded."""
-        return bool(
-            not getattr(target, "bot", False)
-            and target.guild
-            and (guild := await GuildModel.get_or_none(id=target.guild.id))
-            and guild.automod
-        )
+        with suppress(ConfigurationError):
+            return bool(
+                not getattr(target, "bot", False)
+                and target.guild
+                and (guild := await GuildModel.get_or_none(id=target.guild.id))
+                and guild.automod
+            )
 
     @discord.slash_command()
     @discord.guild_only()
