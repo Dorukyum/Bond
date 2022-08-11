@@ -36,7 +36,6 @@ class PycordManager(commands.Bot):
 
         self.to_load = [
             "jishaku",
-            "cogs.help_command",
             "cogs.developer",
             "cogs.gitlink",
         ]
@@ -44,6 +43,7 @@ class PycordManager(commands.Bot):
             "cogs.automod",
             "cogs.fun",
             "cogs.general",
+            "cogs.help",
             "cogs.moderation",
             "cogs.modlogs",
             "cogs.pycord",
