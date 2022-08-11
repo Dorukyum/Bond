@@ -109,12 +109,11 @@ class Toolkit(commands.Bot):
                     ),
                 ),
             )
-            text = "".join(format_exception(type(error), error, error.__traceback__))
+            header = f"Command: `/{ctx.command.qualified_name}`"
+            if ctx.guild is not None:
+                header += f" | Guild: `{ctx.guild.name} ({ctx.guild_id})`"
             return await self.errors_webhook.send(
-                f"Command: `/{ctx.command.name}`"
-                f" | Guild: `{ctx.guild.name} ({ctx.guild_id})`"
-                if ctx.guild
-                else "" f"\n```\n{text}```"
+                f"{header}\n```\n{''.join(format_exception(type(error), error, error.__traceback__))}```"
             )
 
         await ctx.respond(
