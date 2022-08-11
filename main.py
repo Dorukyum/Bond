@@ -1,9 +1,9 @@
 from dotenv import load_dotenv
 
-from core import PycordManager
+from core import Toolkit
 
 load_dotenv(".env")
 
 if __name__ == "__main__":
-    bot = PycordManager()
+    bot = Toolkit()
     bot.run()

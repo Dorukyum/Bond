@@ -1,11 +1,11 @@
 from discord.ext import commands
 
-from .bot import PycordManager
+from .bot import Toolkit
 from .models import GuildModel, TagModel, WarnModel
 from .utils import LogAction, LogActions, Lowercase, humanize_time, s
 
 __all__ = (
-    "PycordManager",
+    "Toolkit",
     "Cog",
     "GuildModel",
     "Lowercase",
@@ -21,5 +21,5 @@ __all__ = (
 class Cog(commands.Cog):
     """Base class for all cogs"""
 
-    def __init__(self, bot: PycordManager) -> None:
+    def __init__(self, bot: Toolkit) -> None:
         self.bot = bot

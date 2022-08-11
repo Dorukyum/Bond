@@ -45,7 +45,10 @@ class Help(Cog):
         assert self.bot.user
         embed = discord.Embed(
             title=self.bot.user.name,
-            description="The ultimate open source server management bot. Use the menu below to navigate through the command list.",
+            description=(
+                "A bot built to help you manage your Discord server as easily as possible.\n"
+                "Use the menu below to view commands."
+            ),
             colour=0x0060FF,
         )
         embed.set_thumbnail(url=self.bot.user.display_avatar.url)

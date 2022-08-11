@@ -10,7 +10,7 @@ from discord.ext import commands
 from tortoise import Tortoise
 
 
-class PycordManager(commands.Bot):
+class Toolkit(commands.Bot):
     on_ready_fired: bool = False
     cache: Dict[str, Dict] = {"afk": {}, "example_list": {}}
 
@@ -105,7 +105,7 @@ class PycordManager(commands.Bot):
                     ),
                     discord.ui.Button(
                         label="GitHub Repo",
-                        url="https://github.com/Dorukyum/Pycord-Manager",
+                        url="https://github.com/Dorukyum/Toolkit",
                     ),
                 ),
             )
