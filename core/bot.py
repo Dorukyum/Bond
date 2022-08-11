@@ -15,10 +15,8 @@ class Toolkit(commands.Bot):
     cache: Dict[str, Dict] = {"afk": {}, "example_list": {}}
 
     def __init__(self):
-        prefix = "p." if "-t" not in argv else "d."
-
         super().__init__(
-            command_prefix=prefix,
+            command_prefix="t." if "-t" not in argv else "d.",
             intents=discord.Intents(
                 members=True,
                 messages=True,
@@ -27,10 +25,10 @@ class Toolkit(commands.Bot):
                 bans=True,
             ),
             owner_ids=[543397958197182464],
-            help_command=commands.MinimalHelpCommand(),
+            help_command=None,
             allowed_mentions=discord.AllowedMentions.none(),
             activity=discord.Activity(
-                type=discord.ActivityType.listening, name=f"p.help"
+                type=discord.ActivityType.listening, name=f"/help"
             ),
         )
 
