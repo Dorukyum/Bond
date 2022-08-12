@@ -99,6 +99,123 @@ class Moderation(Cog):
         )
         await ctx.respond("Unlocked this channel.")
 
+    async def purge_channel(self, ctx: ApplicationContext, **kwargs):
+        if purge := getattr(ctx.channel, "purge"):
+            count = len(await purge(**kwargs))
+            return await ctx.respond(f"Purged **{count}** messages.")
+        await ctx.respond("This channel cannot be purged.", ephemeral=True)
+
+    purge = discord.SlashCommandGroup(
+        "purge",
+        "Commands to purge messages.",
+        guild_only=True,
+        default_member_permissions=discord.Permissions(manage_messages=True),
+    )
+
+    @purge.command(name="all")
+    @discord.option(
+        "limit",
+        description="The amount of messages to search.",
+        min_value=1,
+        max_value=100,
+    )
+    @discord.option(
+        "reason",
+        description="The reason for purging this channel.",
+        default="No reason provided",
+    )
+    async def purge_all(
+        self,
+        ctx: ApplicationContext,
+        limit: int,
+        *,
+        reason: str,
+    ):
+        """Delete messages from this channel."""
+        await self.purge_channel(ctx, limit=limit, reason=reason)
+
+    @purge.command(name="member")
+    @discord.option(
+        "member",
+        description="The member whose messages will be deleted.",
+    )
+    @discord.option(
+        "limit",
+        description="The amount of messages to search.",
+        min_value=1,
+        max_value=100,
+    )
+    @discord.option(
+        "reason",
+        description="The reason for purging this channel.",
+        default="No reason provided",
+    )
+    async def purge_member(
+        self,
+        ctx: ApplicationContext,
+        member: discord.Member,
+        limit: int,
+        *,
+        reason: str,
+    ):
+        """Purge a member's messages from this channel."""
+        await self.purge_channel(
+            ctx, check=lambda m: m.author.id == member.id, limit=limit, reason=reason
+        )
+
+    @purge.command(name="bots")
+    @discord.option(
+        "limit",
+        description="The amount of messages to search.",
+        min_value=1,
+        max_value=100,
+    )
+    @discord.option(
+        "reason",
+        description="The reason for purging this channel.",
+        default="No reason provided",
+    )
+    async def purge_bots(
+        self,
+        ctx: ApplicationContext,
+        limit: int,
+        *,
+        reason: str,
+    ):
+        """Purge bot messages from this channel."""
+        await self.purge_channel(
+            ctx, check=lambda m: m.author.bot, limit=limit, reason=reason
+        )
+
+    @purge.command(name="containing")
+    @discord.option(
+        "phrase",
+        description="The phrase to delete messages containing it.",
+    )
+    @discord.option(
+        "limit",
+        description="The amount of messages to search.",
+        min_value=1,
+        max_value=100,
+    )
+    @discord.option(
+        "reason",
+        description="The reason for purging this channel.",
+        default="No reason provided",
+    )
+    async def purge_containing(
+        self,
+        ctx: ApplicationContext,
+        phrase: str,
+        limit: int,
+        *,
+        reason: str,
+    ):
+        """Purge messages containing a specific phrase from this channel."""
+        await self.purge_channel(
+            ctx, check=lambda m: phrase in m.content, limit=limit, reason=reason
+        )
+
 
 def setup(bot):
     bot.add_cog(Moderation(bot))
