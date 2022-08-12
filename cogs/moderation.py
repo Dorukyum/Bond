@@ -6,7 +6,7 @@ from core import Cog, s
 
 
 class Moderation(Cog):
-    """A cog for moderation commands."""
+    """Commands related to moderation."""
 
     @discord.slash_command()
     @discord.guild_only()

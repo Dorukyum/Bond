@@ -10,7 +10,7 @@ from core import Cog, GuildModel
 
 
 class Automod(Cog):
-    """A cog for the automoderation system."""
+    """Commands related to the automoderation system."""
 
     async def automod_on(self, target: Union[discord.Message, discord.Member]) -> bool:
         """Returns whether or not the target should be automodded."""

@@ -6,7 +6,7 @@ from core import Cog, GuildModel, LogActions, WarnModel
 
 
 class Warns(Cog):
-    """A cog for commands related to warnings."""
+    """Commands related to warnings."""
 
     def format_warn(self, warn: WarnModel) -> str:
         return f"#{warn.id} | <t:{int(warn.created_at.timestamp())}:R>:\n{warn.reason}\nBy **{self.bot.get_user(warn.mod_id)}**"

@@ -6,7 +6,7 @@ from core import Cog, Lowercase, TagModel, s
 
 
 class Tags(Cog):
-    """A cog for commands related to tags."""
+    """Commands related to tags."""
 
     tag = discord.SlashCommandGroup("tag", "Commands related to tags.", guild_only=True)
 

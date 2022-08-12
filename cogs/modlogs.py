@@ -14,7 +14,7 @@ from core import (
 
 
 class ModLogs(Cog):
-    """A cog for moderation action logging."""
+    """Commands related to logs."""
 
     async def mod_log(
         self,

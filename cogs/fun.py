@@ -5,7 +5,7 @@ from core import Cog
 
 
 class Fun(Cog):
-    """A cog for fun commands."""
+    """Fun commands."""
 
     @discord.slash_command()
     @discord.guild_only()

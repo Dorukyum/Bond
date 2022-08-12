@@ -15,7 +15,7 @@ PULL_HASH_REGEX = compile(
 
 
 class General(Cog):
-    """A cog for general commands."""
+    """General commands."""
 
     @discord.slash_command()
     @discord.guild_only()
