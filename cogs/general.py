@@ -39,26 +39,40 @@ class General(Cog):
             f"Your suggestion has been sent to {channel.mention}.", ephemeral=True
         )
 
-    @discord.slash_command()
-    @discord.default_permissions(manage_guild=True)
-    @discord.guild_only()
+    suggestions = discord.SlashCommandGroup(
+        "suggestions",
+        "Commands related to member suggestions.",
+        guild_only=True,
+        default_member_permissions=discord.Permissions(manage_guild=True),
+    )
+
+    @suggestions.command(name="set")
     @discord.option(
         "channel",
-        discord.TextChannel,
-        description="The channel new suggestions will be sent to.",
-        default=None,
+        description="The channel new member suggestions will be sent to.",
     )
-    async def suggestions(
-        self, ctx: ApplicationContext, channel: Optional[discord.TextChannel]
+    async def suggestions_set(
+        self, ctx: ApplicationContext, channel: discord.TextChannel
     ):
-        """Set the channel for suggestions. Don't choose a channel to disable suggestions."""
-        if not channel:
-            return await ctx.respond("Suggestions been disabled for this server.")
-
-        await GuildModel.update("suggestions", ctx.guild_id, channel.id)
-        await ctx.respond(
-            f"The suggestions channel for this server is now {channel.mention}."
+        """Set the channel for member suggestions."""
+        await GuildModel.update_or_create(
+            id=ctx.guild_id, defaults={"suggestions": channel.id}
         )
+        await ctx.respond(f"Member suggestions will now be sent to {channel.mention}.")
+
+    @suggestions.command(name="disable")
+    async def suggestions_disable(self, ctx: ApplicationContext):
+        """Disable member suggestions."""
+        if (
+            guild := await GuildModel.filter(id=ctx.guild_id)
+            .exclude(suggestions=0)
+            .first()
+        ):
+            await guild.update_from_dict({"suggestions": 0}).save()
+            return await ctx.respond(
+                "Member suggestions have been disabled for this server."
+            )
+        await ctx.respond("Member suggestions are already disabled for this server.")
 
     @discord.slash_command()
     async def ping(self, ctx: ApplicationContext):

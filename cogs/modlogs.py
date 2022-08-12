@@ -108,17 +108,18 @@ class ModLogs(Cog):
                             f"Voice members limit has changed from `{target.user_limit}` to `{after.user_limit}`."
                         )
 
-                await channel.send(
-                    embed=discord.Embed(
-                        description=f"**{action.emoji} {action.text}** {target.mention} *(ID {target.id})*\n:page_facing_up: **Reason:** {reason}",
-                        color=getattr(discord.Color, action.color)(),
+                if changes_of_channel:
+                    await channel.send(
+                        embed=discord.Embed(
+                            description=f"**{action.emoji} {action.text}** {target.mention} *(ID {target.id})*\n:page_facing_up: **Reason:** {reason}",
+                            color=getattr(discord.Color, action.color)(),
+                        )
+                        .add_field(
+                            name="Changes",
+                            value="\n".join(changes_of_channel),
+                        )
+                        .set_author(name=f"{mod} (ID {mod.id})")
                     )
-                    .add_field(
-                        name="Changes",
-                        value="\n".join(changes_of_channel),
-                    )
-                    .set_author(name=f"{mod} (ID {mod.id})")
-                )
                 return
             await channel.send(
                 embed=discord.Embed(
@@ -134,7 +135,7 @@ class ModLogs(Cog):
         default_member_permissions=discord.Permissions(manage_guild=True),
     )
 
-    @logs.command()
+    @logs.command(name="set")
     @discord.option(
         "category",
         choices=["Moderation", "Server"],
@@ -142,24 +143,37 @@ class ModLogs(Cog):
     )
     @discord.option(
         "channel",
-        discord.TextChannel,
         description="The channel these logs will be sent to.",
-        default=None,
     )
-    async def channel(
+    async def logs_set(
         self,
         ctx: ApplicationContext,
         category: str,
-        channel: Optional[discord.TextChannel],
+        channel: discord.TextChannel,
     ):
-        """Set channels for logs. Don't choose a channel to disable logs for the chosen category."""
-        channel_id = channel.id if channel else 0
+        """Set channels for logs."""
         field = "mod_log" if category == "Moderation" else "server_log"
-        if await GuildModel.update(field, ctx.guild_id, channel_id):
+        await GuildModel.update_or_create(id=ctx.guild_id, defaults={field: channel.id})
+        await ctx.respond(f"{category} logs will be sent to {channel.mention}.")
+
+    @logs.command(name="disable")
+    @discord.option(
+        "category",
+        choices=["Moderation", "Server"],
+        description="The category of logs to disable.",
+    )
+    async def logs_disable(self, ctx: ApplicationContext, category: str):
+        field = "mod_log" if category == "Moderation" else "server_log"
+        if (
+            guild := await GuildModel.filter(id=ctx.guild_id)
+            .exclude(**{field: 0})
+            .first()
+        ):
+            await guild.update_from_dict({field: 0}).save()
             return await ctx.respond(
-                f"{category} logs will be sent to <#{channel_id}>."
+                f"{category} logs have been disabled for this server."
             )
-        await ctx.respond(f"{category} logs have been disabled for this server.")
+        await ctx.respond(f"{category} logs are already disabled for this server.")
 
     @Cog.listener()
     async def on_member_ban(self, guild: discord.Guild, user):
