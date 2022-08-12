@@ -1,3 +1,6 @@
+from asyncio import sleep
+from random import choice
+
 import discord
 from discord import ApplicationContext
 
@@ -6,6 +9,44 @@ from core import Cog
 
 class Fun(Cog):
     """Fun commands."""
+
+    magic_8ball = discord.SlashCommandGroup(
+        "8ball", "Commands to ask a question to the magic 8 ball."
+    )
+
+    @magic_8ball.command(name="ask")
+    @discord.option(
+        "question",
+        description="The question to ask to the magic 8 ball.",
+    )
+    async def magic_8ball_ask(self, ctx: ApplicationContext, question: str):
+        """Ask a yes-or-no question to the magic 8 ball and get an answer."""
+        await ctx.defer()
+        answer = choice(
+            (
+                "Definitely.",
+                "Most probably.",
+                "I'm not sure.",
+                "Perhaps.",
+                "I don't think so.",
+                "There's a chance!",
+                "Under no circumstances.",
+            )
+        )
+        await sleep(2)
+        await ctx.respond(f"> {question}\n{answer}")
+
+    @magic_8ball.command(name="yes_or_no")
+    @discord.option(
+        "question",
+        description="The question to ask to the magic 8 ball.",
+    )
+    async def magic_8ball_yes_or_no(self, ctx: ApplicationContext, question: str):
+        """Ask a yes-or-no question to the magic 8 ball and get an answer (either yes or no)."""
+        await ctx.defer()
+        answer = choice(("Yes.", "No."))
+        await sleep(2)
+        await ctx.respond(f"> {question}\n{answer}")
 
     @discord.slash_command()
     @discord.guild_only()
