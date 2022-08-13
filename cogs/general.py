@@ -19,6 +19,59 @@ class General(Cog):
 
     @discord.slash_command()
     @discord.guild_only()
+    async def serverinfo(self, ctx: ApplicationContext):
+        """View information/statistics about the server."""
+        guild = ctx.guild
+        assert guild
+        creation = ((guild.id >> 22) + 1420070400000) // 1000
+        boost_emoji = (
+            "<:shiny_boost:1007971330332839996>"
+            if guild.premium_subscription_count > 0
+            else "<:boost:1007970712977420338>"
+        )
+
+        embed = (
+            discord.Embed(
+                title=guild.name,
+                description=f"**ID:** {guild.id}\n\n**Features:**\n"
+                + "\n".join(f"- {f.replace('_', ' ').title()}" for f in guild.features),
+                color=0x0060FF,
+            )
+            .add_field(
+                name="Members",
+                value=f"Total: {guild.member_count}\nBots: {sum(m.bot for m in guild.members)}",
+            )
+            .add_field(
+                name="Time of Creation",
+                value=f"<t:{creation}>\n<t:{creation}:R>",
+            )
+            .add_field(
+                name="Channels",
+                value=f"Text: {len(guild.text_channels)}\nVoice: {len(guild.voice_channels)}"
+                f"\nCategories: {len(guild.categories)}",
+            )
+            .add_field(
+                name="Roles",
+                value=f"{len(guild._roles)} roles\nHighest:\n{guild.roles[-1].mention}",
+            )
+            .add_field(
+                name="Boost Status",
+                value=f"Level {guild.premium_tier}\n"
+                f"{boost_emoji}{guild.premium_subscription_count} boosts",
+            )
+            .set_footer(
+                text=f"Requested by {ctx.author}",
+                icon_url=ctx.author.display_avatar.url,
+            )
+        )
+        if owner := guild.owner:
+            embed.insert_field_at(0, name="Owner", value=f"{owner}\n{owner.mention}")
+        if icon := guild.icon:
+            embed.set_thumbnail(url=icon.url)
+        await ctx.respond(embed=embed)
+
+    @discord.slash_command()
+    @discord.guild_only()
     @discord.option("suggestion", description="The suggestion.")
     async def suggest(self, ctx: ApplicationContext, *, suggestion: str):
         """Make a suggestion for the server. This will be sent to the channel set by the server managers."""
