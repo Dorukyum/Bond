@@ -1,11 +1,12 @@
 from contextlib import suppress
 from io import BytesIO
 from re import compile
-from typing import Optional
+from typing import Optional, Union
 from urllib import parse
 
 import discord
 from discord import ApplicationContext
+from discord.ext import commands
 
 from core import Cog, GuildModel, humanize_time
 
@@ -68,6 +69,74 @@ class General(Cog):
             embed.insert_field_at(0, name="Owner", value=f"{owner}\n{owner.mention}")
         if icon := guild.icon:
             embed.set_thumbnail(url=icon.url)
+        await ctx.respond(embed=embed)
+
+    def permissions(self, target: discord.Member, include: int = 0) -> str:
+        permissions = target.guild_permissions
+        if permissions.administrator:
+            return "- Administrator"
+        return "\n".join(
+            f"- {k.replace('_', ' ').title()}"
+            for k, v in target.guild_permissions
+            if v and (not include or getattr(discord.Permissions(include), k))
+        ) or "_No permissions_"
+
+    @discord.slash_command()
+    @discord.option(
+        "user",
+        discord.User,
+        description="The user to view information about.",
+        default=None,
+    )
+    async def userinfo(self, ctx: ApplicationContext, user: Optional[discord.User]):
+        """View information about a user."""
+        assert ctx.author
+        target = user or ctx.author
+        creation = ((target.id >> 22) + 1420070400000) // 1000
+        embed = (
+            discord.Embed(
+                title="User Information",
+                description=f"{target.mention}\n**ID:** {target.id}",
+                color=0x0060FF,
+            )
+            .set_author(name=str(target), icon_url=target.display_avatar.url)
+            .set_thumbnail(url=target.display_avatar.url)
+            .add_field(
+                name="Account Creation",
+                value=f"<t:{creation}>\n<t:{creation}:R>",
+            )
+            .set_footer(
+                text=f"Requested by {ctx.author}",
+                icon_url=ctx.author.display_avatar.url,
+            )
+        )
+        if isinstance(target, discord.Member):
+            embed.fields = [
+                discord.EmbedField(
+                    name="<:moderator:1008380045573767268> Staff Permissions",
+                    value=self.permissions(target, 27813093566),
+                    inline=True,
+                ),
+                discord.EmbedField(
+                    name="Member Permissions",
+                    value=self.permissions(target, 655052817217),
+                    inline=True,
+                ),
+                discord.EmbedField(
+                    name=f"Roles ({len(target._roles)})",
+                    value=", ".join(r.mention for r in target.roles[::-1][:-1]) or "_Member has no roles_",
+                ),
+                *embed.fields,
+            ]
+            joined = target.joined_at and int(target.joined_at.timestamp())
+            embed.add_field(name="Joined", value=f"<t:{joined}>\n<t:{joined}:R>")
+            if boost := target.premium_since:
+                timestamp = int(boost.timestamp())
+                embed.add_field(
+                    name="Boosting Since", value=f"<t:{timestamp}>\n<t:{timestamp}:R>"
+                )
+            else:
+                embed.add_field(name="Boosting Server?", value="No")
         await ctx.respond(embed=embed)
 
     @discord.slash_command()
