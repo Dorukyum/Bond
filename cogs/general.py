@@ -75,11 +75,14 @@ class General(Cog):
         permissions = target.guild_permissions
         if permissions.administrator:
             return "- Administrator"
-        return "\n".join(
-            f"- {k.replace('_', ' ').title()}"
-            for k, v in target.guild_permissions
-            if v and (not include or getattr(discord.Permissions(include), k))
-        ) or "_No permissions_"
+        return (
+            "\n".join(
+                f"- {k.replace('_', ' ').title()}"
+                for k, v in target.guild_permissions
+                if v and (not include or getattr(discord.Permissions(include), k))
+            )
+            or "_No permissions_"
+        )
 
     @discord.slash_command()
     @discord.option(
@@ -124,7 +127,8 @@ class General(Cog):
                 ),
                 discord.EmbedField(
                     name=f"Roles ({len(target._roles)})",
-                    value=", ".join(r.mention for r in target.roles[::-1][:-1]) or "_Member has no roles_",
+                    value=", ".join(r.mention for r in target.roles[::-1][:-1])
+                    or "_Member has no roles_",
                 ),
                 *embed.fields,
             ]
@@ -237,7 +241,10 @@ class General(Cog):
         )
 
     emoji = discord.SlashCommandGroup(
-        "emoji", "Commands related to emojis.", guild_only=True
+        "emoji",
+        "Commands related to emojis.",
+        guild_only=True,
+        default_member_permissions=discord.Permissions(manage_guild=True),
     )
 
     @emoji.command(name="add")
