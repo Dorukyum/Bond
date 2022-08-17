@@ -90,28 +90,37 @@ class Toolkit(commands.Bot):
         print(self.user, "is ready")
 
     async def on_application_command_error(
-        self, ctx: discord.ApplicationContext, error: discord.ApplicationCommandError
+        self, ctx: discord.ApplicationContext, error: Exception
     ):
         if isinstance(error, discord.ApplicationCommandInvokeError):
-            await ctx.respond(
-                "An unexpected error has occured and I've notified my developer. "
-                "In the meantime, consider joining my support server.",
-                view=discord.ui.View(
-                    discord.ui.Button(
-                        label="Support", url="https://discord.gg/8JsMVhBP4W"
+            if isinstance((error := error.original), discord.HTTPException):
+                message = (
+                    "An HTTP exception has occured: "
+                    f"{error.status} {error.__class__.__name__}"
+                )
+                if error.text:
+                    message += f": {error.text}"
+                return await ctx.respond(message)
+            if not isinstance(error, discord.DiscordException):
+                await ctx.respond(
+                    "An unexpected error has occured and I've notified my developer. "
+                    "In the meantime, consider joining my support server.",
+                    view=discord.ui.View(
+                        discord.ui.Button(
+                            label="Support", url="https://discord.gg/8JsMVhBP4W"
+                        ),
+                        discord.ui.Button(
+                            label="GitHub Repo",
+                            url="https://github.com/Dorukyum/Toolkit",
+                        ),
                     ),
-                    discord.ui.Button(
-                        label="GitHub Repo",
-                        url="https://github.com/Dorukyum/Toolkit",
-                    ),
-                ),
-            )
-            header = f"Command: `/{ctx.command.qualified_name}`"
-            if ctx.guild is not None:
-                header += f" | Guild: `{ctx.guild.name} ({ctx.guild_id})`"
-            return await self.errors_webhook.send(
-                f"{header}\n```\n{''.join(format_exception(type(error), error, error.__traceback__))}```"
-            )
+                )
+                header = f"Command: `/{ctx.command.qualified_name}`"
+                if ctx.guild is not None:
+                    header += f" | Guild: `{ctx.guild.name} ({ctx.guild_id})`"
+                return await self.errors_webhook.send(
+                    f"{header}\n```\n{''.join(format_exception(type(error), error, error.__traceback__))}```"
+                )
 
         await ctx.respond(
             embed=discord.Embed(
