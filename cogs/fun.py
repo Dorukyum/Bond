@@ -2,9 +2,8 @@ from asyncio import sleep
 from random import choice
 
 import discord
-from discord import ApplicationContext
 
-from core import Cog
+from core import Cog, Context
 
 
 class Fun(Cog):
@@ -19,7 +18,7 @@ class Fun(Cog):
         "question",
         description="The question to ask to the magic 8 ball.",
     )
-    async def magic_8ball_ask(self, ctx: ApplicationContext, question: str):
+    async def magic_8ball_ask(self, ctx: Context, question: str):
         """Ask a yes-or-no question to the magic 8 ball and get an answer."""
         await ctx.defer()
         answer = choice(
@@ -41,7 +40,7 @@ class Fun(Cog):
         "question",
         description="The question to ask to the magic 8 ball.",
     )
-    async def magic_8ball_yes_or_no(self, ctx: ApplicationContext, question: str):
+    async def magic_8ball_yes_or_no(self, ctx: Context, question: str):
         """Ask a yes-or-no question to the magic 8 ball and get an answer (either yes or no)."""
         await ctx.defer()
         answer = choice(("Yes.", "No."))
@@ -51,7 +50,7 @@ class Fun(Cog):
     @discord.slash_command()
     @discord.guild_only()
     @discord.option("text", description="The text to check for in display names.")
-    async def how_many(self, ctx: ApplicationContext, *, text: str):
+    async def how_many(self, ctx: Context, *, text: str):
         """Shows the amount of members that have the supplied text in their display name."""
         text = text.strip().lower()
         count = sum(text in member.display_name.lower() for member in ctx.guild.members)
@@ -64,7 +63,7 @@ class Fun(Cog):
     @discord.option("choice1", description="The first choice.")
     @discord.option("choice2", description="The second choice.")
     async def poll(
-        self, ctx: ApplicationContext, question: str, choice1: str, choice2: str
+        self, ctx: Context, question: str, choice1: str, choice2: str
     ):
         """Create a poll."""
         interaction = await ctx.respond(
@@ -82,7 +81,7 @@ class Fun(Cog):
 
     @discord.slash_command()
     @discord.option("question", description="The question of the poll.")
-    async def poll_yesno(self, ctx: ApplicationContext, *, question: str):
+    async def poll_yesno(self, ctx: Context, *, question: str):
         """Create a poll with the options being yes or no."""
         interaction = await ctx.respond(
             embed=discord.Embed(

@@ -1,7 +1,6 @@
 import discord
-from discord import ApplicationContext
 
-from core import Cog
+from core import Cog, Context
 
 
 class HelpSelect(discord.ui.Select):
@@ -40,7 +39,7 @@ class HelpSelect(discord.ui.Select):
 
 class Help(Cog):
     @discord.slash_command(name="help")
-    async def help_command(self, ctx: ApplicationContext):
+    async def help_command(self, ctx: Context):
         """Get help about the bot, a command or a command category."""
         assert self.bot.user
         embed = discord.Embed(

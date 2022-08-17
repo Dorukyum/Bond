@@ -2,10 +2,10 @@ import asyncio
 from typing import Optional, Union
 
 import discord
-from discord import ApplicationContext
 
 from core import (
     Cog,
+    Context,
     GuildModel,
     LogAction,
     LogActions,
@@ -147,7 +147,7 @@ class ModLogs(Cog):
     )
     async def logs_set(
         self,
-        ctx: ApplicationContext,
+        ctx: Context,
         category: str,
         channel: discord.TextChannel,
     ):
@@ -162,7 +162,7 @@ class ModLogs(Cog):
         choices=["Moderation", "Server"],
         description="The category of logs to disable.",
     )
-    async def logs_disable(self, ctx: ApplicationContext, category: str):
+    async def logs_disable(self, ctx: Context, category: str):
         field = "mod_log" if category == "Moderation" else "server_log"
         if (
             guild := await GuildModel.filter(id=ctx.guild_id)

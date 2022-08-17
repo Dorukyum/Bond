@@ -2,9 +2,8 @@ import re
 from inspect import cleandoc
 
 import discord
-from discord.commands.context import ApplicationContext
 
-from core import Cog
+from core import Cog, Context
 
 PASTEBIN_RE = re.compile(r"(https?://pastebin.com)/([a-zA-Z0-9]{8})")
 
@@ -106,7 +105,7 @@ class Pycord(Cog):
         )
 
     @discord.slash_command(guild_ids=[881207955029110855])
-    async def close(self, ctx: discord.ApplicationContext, lock: bool = False):
+    async def close(self, ctx: discord.Context, lock: bool = False):
         """Allows a staff member or the owner of the thread to close the thread"""
 
         if not isinstance(ctx.channel, discord.Thread):
@@ -142,7 +141,7 @@ class Pycord(Cog):
 
     @discord.slash_command(guild_ids=[881207955029110855])
     @discord.default_permissions(manage_guild=True)
-    async def update_staff_list(self, ctx: ApplicationContext):
+    async def update_staff_list(self, ctx: Context):
         staff_roles = [
             881247351937855549,  # Project Lead
             929080208148017242,  # Project Advisor
@@ -181,7 +180,7 @@ class Pycord(Cog):
             discord.OptionChoice("Events", "915701572003049482"),
         ],
     )
-    async def role(self, ctx: ApplicationContext, role: str):
+    async def role(self, ctx: Context, role: str):
         """Choose a role to claim or get rid of."""
         if int(role) in ctx.author._roles:
             await ctx.author.remove_roles(discord.Object(role))

@@ -1,14 +1,12 @@
 from contextlib import suppress
 from io import BytesIO
 from re import compile
-from typing import Optional, Union
+from typing import Optional
 from urllib import parse
 
 import discord
-from discord import ApplicationContext
-from discord.ext import commands
 
-from core import Cog, GuildModel, humanize_time
+from core import Cog, Context, GuildModel, humanize_time
 
 PULL_HASH_REGEX = compile(
     r"(?:(?P<org>(?:[A-Za-z]|\d|-)+)/)?(?P<repo>(?:[A-Za-z]|\d|-)+)?(?:##)(?P<index>[0-9]+)"
@@ -20,7 +18,7 @@ class General(Cog):
 
     @discord.slash_command()
     @discord.guild_only()
-    async def serverinfo(self, ctx: ApplicationContext):
+    async def serverinfo(self, ctx: Context):
         """View information/statistics about the server."""
         guild = ctx.guild
         assert guild
@@ -91,7 +89,7 @@ class General(Cog):
         description="The user to view information about.",
         default=None,
     )
-    async def userinfo(self, ctx: ApplicationContext, user: Optional[discord.User]):
+    async def userinfo(self, ctx: Context, user: Optional[discord.User]):
         """View information about a user."""
         assert ctx.author
         target = user or ctx.author
@@ -146,8 +144,9 @@ class General(Cog):
     @discord.slash_command()
     @discord.guild_only()
     @discord.option("suggestion", description="The suggestion.")
-    async def suggest(self, ctx: ApplicationContext, *, suggestion: str):
+    async def suggest(self, ctx: Context, *, suggestion: str):
         """Make a suggestion for the server. This will be sent to the channel set by the server managers."""
+        await ctx.assert_permissions(external_emojis=True)
         if not (channel := await GuildModel.get_text_channel(ctx.guild, "suggestions")):
             return await ctx.respond("This server doesn't have a suggestions channel.")
 
@@ -178,7 +177,7 @@ class General(Cog):
         description="The channel new member suggestions will be sent to.",
     )
     async def suggestions_set(
-        self, ctx: ApplicationContext, channel: discord.TextChannel
+        self, ctx: Context, channel: discord.TextChannel
     ):
         """Set the channel for member suggestions."""
         await GuildModel.update_or_create(
@@ -187,7 +186,7 @@ class General(Cog):
         await ctx.respond(f"Member suggestions will now be sent to {channel.mention}.")
 
     @suggestions.command(name="disable")
-    async def suggestions_disable(self, ctx: ApplicationContext):
+    async def suggestions_disable(self, ctx: Context):
         """Disable member suggestions."""
         if (
             guild := await GuildModel.filter(id=ctx.guild_id)
@@ -201,7 +200,7 @@ class General(Cog):
         await ctx.respond("Member suggestions are already disabled for this server.")
 
     @discord.slash_command()
-    async def ping(self, ctx: ApplicationContext):
+    async def ping(self, ctx: Context):
         """View the websocket latency of the bot."""
         await ctx.respond(f"Pong! `{self.bot.latency*1000:.2f}ms`")
 
@@ -213,7 +212,7 @@ class General(Cog):
         choices=["f", "F", "d", "D", "t", "T", "R"],
         default=None,
     )
-    async def timestamp(self, ctx: ApplicationContext, style: Optional[str]):
+    async def timestamp(self, ctx: Context, style: Optional[str]):
         """View the current timestamp."""
         time = discord.utils.utcnow()
         await ctx.respond(
@@ -222,7 +221,7 @@ class General(Cog):
 
     @discord.slash_command()
     @discord.option("query", description="The query to make.")
-    async def search(self, ctx: ApplicationContext, *, query: str):
+    async def search(self, ctx: Context, *, query: str):
         """Get a search url from Bing, DuckDuckGo and Google."""
         param = parse.urlencode({"q": query})
         await ctx.respond(
@@ -250,8 +249,9 @@ class General(Cog):
     @emoji.command(name="add")
     @discord.option("name", description="The name of the emoji.")
     @discord.option("url", description="The image url of the emoji.")
-    async def emoji_add(self, ctx: ApplicationContext, name: str, url: str):
+    async def emoji_add(self, ctx: Context, name: str, url: str):
         """Add a custom emoji to this guild."""
+        await ctx.assert_permissions(manage_emojis=True)
         async with self.bot.http_session.get(url) as res:
             if 300 > res.status >= 200:
                 emoji = await ctx.guild.create_custom_emoji(
@@ -269,9 +269,10 @@ class General(Cog):
         "reason", str, description="The reason to delete the emoji.", default=None
     )
     async def emoji_delete(
-        self, ctx: ApplicationContext, name: str, reason: Optional[str]
+        self, ctx: Context, name: str, reason: Optional[str]
     ):
         """Delete a custom emoji from this guild."""
+        await ctx.assert_permissions(manage_emojis=True)
         for emoji in ctx.guild.emojis:
             if emoji.name == name:
                 await emoji.delete(reason=reason)
@@ -289,7 +290,7 @@ class General(Cog):
         description="If True, your nickname will be prefixed with [AFK].",
         default=True,
     )
-    async def afk(self, ctx: ApplicationContext, *, reason: str, change_nick: bool):
+    async def afk(self, ctx: Context, *, reason: str, change_nick: bool):
         """Become AFK."""
         await ctx.respond(f"Set your AFK: {reason}")
         self.bot.cache["afk"][ctx.author.id] = reason

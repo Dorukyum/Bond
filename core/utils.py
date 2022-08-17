@@ -2,9 +2,17 @@ from collections import namedtuple
 from datetime import timedelta
 from typing import Any, Literal
 
+from discord import DiscordException
 from discord.ext import commands
 
-__all__ = ("s", "humanize_time", "Lowercase", "LogAction", "LogActions")
+__all__ = (
+    "s",
+    "humanize_time",
+    "Lowercase",
+    "LogAction",
+    "LogActions",
+    "BotMissingPermissions",
+)
 
 
 # functions
@@ -57,3 +65,18 @@ class LogActions:
     ROLE_CREATE = LogAction("yellow", ":heavy_plus_sign:", "Role Created")
     ROLE_DELETE = LogAction("dark_orange", ":heavy_minus_sign:", "Role Deleted")
     ROLE_UPDATE = LogAction("orange", ":red_circle:", "Role Updated")
+
+
+# exceptions
+class BotMissingPermissions(DiscordException):
+    def __init__(self, permissions) -> None:
+        missing = [
+            f"**{perm.replace('_', ' ').replace('guild', 'server').title()}**"
+            for perm in permissions
+        ]
+        sub = (
+            f"{', '.join(missing[:-1])} and {missing[-1]}"
+            if len(missing) > 1
+            else missing[0]
+        )
+        super().__init__(f"I require {sub} permissions to run this command.")

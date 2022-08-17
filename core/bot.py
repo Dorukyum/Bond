@@ -9,6 +9,8 @@ from discord.errors import ExtensionFailed
 from discord.ext import commands
 from tortoise import Tortoise
 
+from .context import Context
+
 
 class Toolkit(commands.Bot):
     on_ready_fired: bool = False
@@ -90,7 +92,7 @@ class Toolkit(commands.Bot):
         print(self.user, "is ready")
 
     async def on_application_command_error(
-        self, ctx: discord.ApplicationContext, error: Exception
+        self, ctx: Context, error: Exception
     ):
         if isinstance(error, discord.ApplicationCommandInvokeError):
             if isinstance((error := error.original), discord.HTTPException):
@@ -130,9 +132,16 @@ class Toolkit(commands.Bot):
             )
         )
 
-    async def on_message_edit(self, before: discord.Message, after: discord.Message):
+    async def on_message_edit(
+        self, before: discord.Message, after: discord.Message
+    ) -> None:
         if before.content != after.content:
             await self.process_commands(after)
+
+    async def get_application_context(
+        self, interaction: discord.Interaction
+    ) -> Context:
+        return Context(self, interaction)
 
     def run(self):
         super().run(getenv("TOKEN"))

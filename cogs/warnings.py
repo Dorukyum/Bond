@@ -1,8 +1,7 @@
 import discord
-from discord import ApplicationContext
 
 from cogs.modlogs import ModLogs
-from core import Cog, GuildModel, LogActions, WarnModel
+from core import Cog, Context, GuildModel, LogActions, WarnModel
 
 
 class Warns(Cog):
@@ -17,7 +16,7 @@ class Warns(Cog):
     @discord.option("member", description="The member to warn.")
     @discord.option("reason", description="The reason of the warning.")
     async def warn(
-        self, ctx: ApplicationContext, member: discord.Member, *, reason: str
+        self, ctx: Context, member: discord.Member, *, reason: str
     ):
         """Warn a member."""
         if member == ctx.author:
@@ -51,7 +50,7 @@ class Warns(Cog):
     @discord.option(
         "id", description="The ID of the warning. Use `/warns` to view warn data."
     )
-    async def delwarn(self, ctx: ApplicationContext, id: int):
+    async def delwarn(self, ctx: Context, id: int):
         """Delete a warning."""
         if warn := await WarnModel.get_or_none(id=id, guild_id=ctx.guild_id):
             await warn.delete()
@@ -62,7 +61,7 @@ class Warns(Cog):
     @discord.guild_only()
     @discord.default_permissions(manage_messages=True)
     @discord.option("member", description="The member to view the warnings given to.")
-    async def warns(self, ctx: ApplicationContext, member: discord.Member):
+    async def warns(self, ctx: Context, member: discord.Member):
         """View the warnings given to a member."""
         if member.bot:
             return await ctx.respond("Bots can't be warned.")

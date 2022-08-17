@@ -1,8 +1,7 @@
 from typing import Optional
 import discord
-from discord import ApplicationContext
 
-from core import Cog, Lowercase, TagModel, s
+from core import Cog, Context, Lowercase, TagModel, s
 
 
 class Tags(Cog):
@@ -12,7 +11,7 @@ class Tags(Cog):
 
     @tag.command()
     @discord.option("name", description="The name of the tag to view.")
-    async def view(self, ctx: ApplicationContext, *, name: Lowercase):
+    async def view(self, ctx: Context, *, name: Lowercase):
         """View a tag's content."""
         if tag := await TagModel.get_or_none(name=name, guild_id=ctx.guild_id):
             await ctx.respond(tag.content)
@@ -23,7 +22,7 @@ class Tags(Cog):
     @tag.command()
     @discord.option("name", description="The name of the tag to create.")
     @discord.option("content", description="The content of the tag to create.")
-    async def create(self, ctx: ApplicationContext, name: Lowercase, *, content: str):
+    async def create(self, ctx: Context, name: Lowercase, *, content: str):
         """Create a tag."""
         if await TagModel.exists(name=name, guild_id=ctx.guild_id):
             await ctx.respond("A tag with this name already exists.")
@@ -40,7 +39,7 @@ class Tags(Cog):
     @tag.command()
     @discord.option("name", description="The name of the tag to edit.")
     @discord.option("content", description="The new content of the tag.")
-    async def edit(self, ctx: ApplicationContext, name: Lowercase, *, content: str):
+    async def edit(self, ctx: Context, name: Lowercase, *, content: str):
         """Edit the content of a tag."""
         if tag := await TagModel.get_or_none(name=name, guild_id=ctx.guild_id):
             if (
@@ -59,7 +58,7 @@ class Tags(Cog):
         "name",
         description="The name of the tag to delete. You must own the tag to be able to delete it.",
     )
-    async def delete(self, ctx: ApplicationContext, *, name: Lowercase):
+    async def delete(self, ctx: Context, *, name: Lowercase):
         """Delete a tag."""
         if tag := await TagModel.get_or_none(name=name, guild_id=ctx.guild_id):
             if (
@@ -79,7 +78,7 @@ class Tags(Cog):
         "member", description="The member to transfer ownership of the tag to."
     )
     async def transfer(
-        self, ctx: ApplicationContext, name: Lowercase, member: discord.Member
+        self, ctx: Context, name: Lowercase, member: discord.Member
     ):
         """Transfer a tag's ownership."""
         if tag := await TagModel.get_or_none(name=name, guild_id=ctx.guild_id):
@@ -95,7 +94,7 @@ class Tags(Cog):
     @discord.option("name", description="The current name of the tag to rename.")
     @discord.option("new_name", description="The new name of the tag.")
     async def rename(
-        self, ctx: ApplicationContext, name: Lowercase, *, new_name: Lowercase
+        self, ctx: Context, name: Lowercase, *, new_name: Lowercase
     ):
         """Rename a tag."""
         if tag := await TagModel.get_or_none(name=name, guild_id=ctx.guild_id):
@@ -116,7 +115,7 @@ class Tags(Cog):
     @discord.option(
         "name", description="The name of the tag to view information about."
     )
-    async def info(self, ctx: ApplicationContext, *, name: Lowercase):
+    async def info(self, ctx: Context, *, name: Lowercase):
         """View information about a tag."""
         if tag := await TagModel.get_or_none(name=name, guild_id=ctx.guild_id):
             owner = self.bot.get_user(tag.author_id) or await self.bot.fetch_user(
@@ -137,16 +136,16 @@ class Tags(Cog):
     @discord.option(
         "name", description="The name of the tag to view with escaped markdown."
     )
-    async def raw(self, ctx: ApplicationContext, *, name: Lowercase):
+    async def raw(self, ctx: Context, *, name: Lowercase):
         """View the content of a tag, with escaped markdown."""
-        if tag := await TagModel.get()(name=name, guild_id=ctx.guild_id):
+        if tag := await TagModel.get_or_none(name=name, guild_id=ctx.guild_id):
             await ctx.respond(discord.utils.escape_markdown(tag.content))
         else:
             await ctx.respond("A tag with this name doesn't exist.")
 
     @tag.command()
     @discord.option("name", description="The name of the tag to claim.")
-    async def claim(self, ctx: ApplicationContext, *, name: Lowercase):
+    async def claim(self, ctx: Context, *, name: Lowercase):
         """Claim a tag."""
         if tag := await TagModel.get_or_none(name=name, guild_id=ctx.guild_id):
             if ctx.guild.get_member(tag.author_id):
@@ -159,7 +158,7 @@ class Tags(Cog):
 
     @tag.command()
     @discord.option("query", description="The query to use while searching tags.")
-    async def search(self, ctx: ApplicationContext, *, query: str):
+    async def search(self, ctx: Context, *, query: str):
         """Search the guild's tags."""
         if tags := await TagModel.filter(guild_id=ctx.guild_id):
             await ctx.respond(
@@ -184,7 +183,7 @@ class Tags(Cog):
         description="The member to list the tags of.",
         default=None,
     )
-    async def tag_list(self, ctx: ApplicationContext, member: Optional[discord.Member]):
+    async def tag_list(self, ctx: Context, member: Optional[discord.Member]):
         """List the tags of a member or all tags created in this server."""
         if member:
             if tags := await TagModel.filter(
