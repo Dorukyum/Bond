@@ -59,10 +59,9 @@ class Toolkit(commands.Bot):
     def load_cog(self, cog: str) -> None:
         try:
             self.load_extension(cog)
-        except ExtensionFailed as e:
-            print("".join(format_exception(e.original)))
         except Exception as e:
-            print("".join(format_exception(e)))
+            e = getattr(e, "original", e)
+            print("".join(format_exception(type(e), e, e.__traceback__)))
 
     async def on_connect(self) -> None:
         if "-s" in argv:
