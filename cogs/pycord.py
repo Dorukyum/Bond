@@ -105,7 +105,7 @@ class Pycord(Cog):
         )
 
     @discord.slash_command(guild_ids=[881207955029110855])
-    async def close(self, ctx: discord.Context, lock: bool = False):
+    async def close(self, ctx: Context, lock: bool = False):
         """Allows a staff member or the owner of the thread to close the thread"""
 
         if not isinstance(ctx.channel, discord.Thread):
