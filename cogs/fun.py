@@ -1,5 +1,6 @@
 from asyncio import sleep
 from random import choice
+from typing import Optional
 
 import discord
 
@@ -62,22 +63,45 @@ class Fun(Cog):
     @discord.option("question", description="The question of the poll.")
     @discord.option("choice1", description="The first choice.")
     @discord.option("choice2", description="The second choice.")
+    @discord.option("choice3", str, description="The third choice.", default=None)
+    @discord.option("choice4", str, description="The fourth choice.", default=None)
+    @discord.option("choice5", str, description="The fifth choice.", default=None)
     async def poll(
-        self, ctx: Context, question: str, choice1: str, choice2: str
+        self,
+        ctx: Context,
+        question: str,
+        choice1: str,
+        choice2: str,
+        choice3: Optional[str],
+        choice4: Optional[str],
+        choice5: Optional[str],
     ):
-        """Create a poll."""
-        interaction = await ctx.respond(
-            embed=discord.Embed(
-                title=f"Poll: {question}",
-                description=f":a: {choice1}\n:b: {choice2}",
-                color=discord.Color.brand_red(),
-            ).set_author(
-                name=ctx.author.display_name, icon_url=ctx.author.display_avatar
+        """Create a poll with upto 5 choices."""
+        choices = [
+            (emoji, choice)
+            for emoji, choice in zip(
+                ("🇦", "🇧", "🇨", "🇩", "🇪"),
+                (choice1, choice2, choice3, choice4, choice5),
             )
-        )
-        message = await interaction.original_message()
-        await message.add_reaction("🅰")
-        await message.add_reaction("🅱")
+            if choice is not None
+        ]
+
+        message = await (
+            await ctx.respond(
+                embed=discord.Embed(
+                    title=f"Poll: {question}",
+                    description="\n".join(
+                        f"{emoji} {choice}" for emoji, choice in choices
+                    ),
+                    color=0x0060FF,
+                ).set_author(
+                    name=ctx.author.display_name, icon_url=ctx.author.display_avatar
+                )
+            )
+        ).original_message()
+        for emoji, _ in choices:
+            await message.add_reaction(emoji)
+            await sleep(1)
 
     @discord.slash_command()
     @discord.option("question", description="The question of the poll.")
@@ -94,6 +118,7 @@ class Fun(Cog):
         )
         message = await interaction.original_message()
         await message.add_reaction("✅")
+        await sleep(1)
         await message.add_reaction("❎")
 
 
