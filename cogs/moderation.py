@@ -104,9 +104,9 @@ class Moderation(Cog):
 
     async def purge_channel(self, ctx: Context, **kwargs):
         await ctx.assert_permissions(read_message_history=True, manage_messages=True)
-        if purge := getattr(ctx.channel, "purge"):
+        if purge := getattr(ctx.channel, "purge", None):
             count = len(await purge(**kwargs))
-            return await ctx.respond(f"Purged **{count}** messages.")
+            return await ctx.respond(f"Purged **{count}** messages.", ephemeral=True)
         await ctx.respond("This channel cannot be purged.", ephemeral=True)
 
     purge = discord.SlashCommandGroup(
