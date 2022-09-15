@@ -35,6 +35,9 @@ It's built with UI components and application commands to be user-friendly.
 - Timeout new accounts on join
 - Ban or timeout when too many mentions are sent
 
+### ✅ Dropdown Roles
+- `/dropdown_roles setup`: Setup a dropdown menu for choosing roles.
+
 ### 🏷️ Tags
 - `/tag create`: Create a tag
 - `/tag view`: View the content of a tag

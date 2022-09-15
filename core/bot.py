@@ -41,6 +41,7 @@ class Toolkit(commands.Bot):
         ]
         for cog in [
             "cogs.automod",
+            "cogs.dropdown_roles",
             "cogs.fun",
             "cogs.general",
             "cogs.help",
