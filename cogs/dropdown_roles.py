@@ -97,6 +97,10 @@ class DropdownRolesSetup(discord.ui.View):
 
     @discord.ui.button(label="Submit", style=discord.ButtonStyle.blurple)
     async def submit_button(self, _, interaction: discord.Interaction):
+        if not self.roles:
+            return await interaction.response.send_message(
+                "You cannot create a dropdown without adding roles.", ephemeral=True
+            )
         await interaction.channel.send(  # type: ignore # StageChannel has no attribute "send"
             self.content,
             view=discord.ui.View(RoleDropdown(self.roles), timeout=None),
@@ -104,6 +108,7 @@ class DropdownRolesSetup(discord.ui.View):
         await interaction.response.send_message(
             "Successfully created role selection dropdown.", ephemeral=True
         )
+        self.stop()
 
 
 class DropdownRoles(Cog):
@@ -121,7 +126,7 @@ class DropdownRoles(Cog):
 
     @dropdown_roles.command()
     @discord.option(
-        "message", 
+        "message",
         str,
         description="The content of the message to be sent along with the dropdown.",
         default=None,
