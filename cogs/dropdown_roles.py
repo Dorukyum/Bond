@@ -1,4 +1,4 @@
-from typing import Set
+from typing import Optional, Set
 
 import discord
 from discord.ext.commands import RoleConverter, RoleNotFound
@@ -82,8 +82,9 @@ class ChooseRoleModal(discord.ui.Modal):
 
 
 class DropdownRolesSetup(discord.ui.View):
-    def __init__(self) -> None:
+    def __init__(self, message: Optional[str]) -> None:
         super().__init__()
+        self.content = message
         self.roles: Set[discord.Role] = set()
 
     @discord.ui.button(label="Add roles", style=discord.ButtonStyle.green)
@@ -97,7 +98,8 @@ class DropdownRolesSetup(discord.ui.View):
     @discord.ui.button(label="Submit", style=discord.ButtonStyle.blurple)
     async def submit_button(self, _, interaction: discord.Interaction):
         await interaction.channel.send(  # type: ignore # StageChannel has no attribute "send"
-            view=discord.ui.View(RoleDropdown(self.roles), timeout=None)
+            self.content,
+            view=discord.ui.View(RoleDropdown(self.roles), timeout=None),
         )
         await interaction.response.send_message(
             "Successfully created role selection dropdown.", ephemeral=True
@@ -118,10 +120,18 @@ class DropdownRoles(Cog):
     )
 
     @dropdown_roles.command()
-    async def setup(self, ctx: Context):
+    @discord.option(
+        "message", 
+        str,
+        description="The content of the message to be sent along with the dropdown.",
+        default=None,
+    )
+    async def setup(self, ctx: Context, message: Optional[str]):
         """Setup a dropdown menu for choosing roles."""
         await ctx.respond(
-            "Add roles to get started.", view=DropdownRolesSetup(), ephemeral=True
+            "Add roles to get started.",
+            view=DropdownRolesSetup(message),
+            ephemeral=True,
         )
 
 
