@@ -38,6 +38,8 @@ class RoleDropdown(discord.ui.Select):
             await interaction.response.send_message(
                 f"You've received role <@&{role_id}>.", ephemeral=True
             )
+        assert self._view
+        await self._view.message.edit(view=self._view)
 
 
 class ChooseRoleModal(discord.ui.Modal):
