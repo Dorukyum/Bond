@@ -123,7 +123,10 @@ class DropdownRoles(Cog):
         )
 
     dropdown_roles = discord.SlashCommandGroup(
-        "dropdown_roles", "Commands related to self-role selection dropdowns."
+        "dropdown_roles",
+        "Commands related to self-role selection dropdowns.",
+        guild_only=True,
+        default_member_permissions=discord.Permissions(manage_guild=True),
     )
 
     @dropdown_roles.command()
