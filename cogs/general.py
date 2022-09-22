@@ -216,7 +216,15 @@ class General(Cog):
         """View the current timestamp."""
         time = discord.utils.utcnow()
         await ctx.respond(
-            f"{discord.utils.format_dt(time, style=style)} (`{round(time.timestamp())}`)"
+            embed=discord.Embed(
+                title="Timestamp",
+                description=(
+                    f"{discord.utils.format_dt(time, style=style)}\n\n"
+                    f"`{round(time.timestamp())}`"
+                ),
+                color=0x0060FF,
+                timestamp=time,
+            )
         )
 
     @discord.slash_command()
