@@ -1,4 +1,5 @@
-from typing import Optional
+from typing import List, Optional
+
 import discord
 
 from core import Cog, Context, Lowercase, TagModel, s
@@ -9,8 +10,20 @@ class Tags(Cog):
 
     tag = discord.SlashCommandGroup("tag", "Commands related to tags.", guild_only=True)
 
+    async def get_tag_names(self, ctx: discord.AutocompleteContext) -> List[str]:
+        assert (guild_id := ctx.interaction.guild_id)
+        return [
+            tag.name
+            for tag in await TagModel.filter(guild_id=guild_id)
+            if ctx.value in tag.name
+        ]
+
     @tag.command()
-    @discord.option("name", description="The name of the tag to view.")
+    @discord.option(
+        "name",
+        description="The name of the tag to view.",
+        autocomplete=get_tag_names,
+    )
     async def view(self, ctx: Context, *, name: Lowercase):
         """View a tag's content."""
         if tag := await TagModel.get_or_none(name=name, guild_id=ctx.guild_id):
@@ -77,9 +90,7 @@ class Tags(Cog):
     @discord.option(
         "member", description="The member to transfer ownership of the tag to."
     )
-    async def transfer(
-        self, ctx: Context, name: Lowercase, member: discord.Member
-    ):
+    async def transfer(self, ctx: Context, name: Lowercase, member: discord.Member):
         """Transfer a tag's ownership."""
         if tag := await TagModel.get_or_none(name=name, guild_id=ctx.guild_id):
             if tag.author_id == ctx.author.id:
@@ -93,9 +104,7 @@ class Tags(Cog):
     @tag.command()
     @discord.option("name", description="The current name of the tag to rename.")
     @discord.option("new_name", description="The new name of the tag.")
-    async def rename(
-        self, ctx: Context, name: Lowercase, *, new_name: Lowercase
-    ):
+    async def rename(self, ctx: Context, name: Lowercase, *, new_name: Lowercase):
         """Rename a tag."""
         if tag := await TagModel.get_or_none(name=name, guild_id=ctx.guild_id):
             if tag.author_id == ctx.author.id:
