@@ -5,11 +5,11 @@ from typing import Dict
 
 import discord
 from aiohttp import ClientSession
-from discord.errors import ExtensionFailed
 from discord.ext import commands
 from tortoise import Tortoise
 
 from .context import Context
+from .models import GuildModel
 
 
 class Toolkit(commands.Bot):
@@ -92,9 +92,7 @@ class Toolkit(commands.Bot):
         await Tortoise.generate_schemas()
         print(self.user, "is ready")
 
-    async def on_application_command_error(
-        self, ctx: Context, error: Exception
-    ):
+    async def on_application_command_error(self, ctx: Context, error: Exception):
         if isinstance(error, discord.ApplicationCommandInvokeError):
             if isinstance((error := error.original), discord.HTTPException):
                 message = (
@@ -138,6 +136,10 @@ class Toolkit(commands.Bot):
     ) -> None:
         if before.content != after.content:
             await self.process_commands(after)
+
+    async def on_guild_remove(self, guild: discord.Guild) -> None:
+        if saved := await GuildModel.get_or_none(id=guild.id):
+            await saved.delete()
 
     async def get_application_context(
         self, interaction: discord.Interaction
