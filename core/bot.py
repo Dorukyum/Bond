@@ -18,7 +18,13 @@ class Toolkit(commands.Bot):
 
     def __init__(self):
         super().__init__(
+            activity=discord.Activity(
+                type=discord.ActivityType.listening, name=f"/help"
+            ),
+            allowed_mentions=discord.AllowedMentions.none(),
+            chunk_guilds_at_startup=False,
             command_prefix="t." if "-t" not in argv else "d.",
+            help_command=None,
             intents=discord.Intents(
                 members=True,
                 messages=True,
@@ -27,11 +33,6 @@ class Toolkit(commands.Bot):
                 bans=True,
             ),
             owner_ids=[543397958197182464],
-            help_command=None,
-            allowed_mentions=discord.AllowedMentions.none(),
-            activity=discord.Activity(
-                type=discord.ActivityType.listening, name=f"/help"
-            ),
         )
 
         self.to_load = [

@@ -30,11 +30,6 @@ class Pycord(Cog):
         super().__init__(bot)
         self.staff_list = None
         self.staff_list_channel = None
-        self.pycord = None
-
-    @Cog.listener()
-    async def on_ready(self):
-        self.pycord = self.bot.get_guild(881207955029110855)
 
     async def convert_attr(self, path):
         thing = discord
@@ -151,11 +146,10 @@ class Pycord(Cog):
             882105157536591932,  # Trainee Moderator
             881519419375910932,  # Helper
         ]
-        assert self.pycord is not None
         embed = discord.Embed(title="**Staff List**", color=0x2F3136)
         embed.description = ""
         for role in staff_roles:
-            role = self.pycord.get_role(role)
+            role = ctx.guild.get_role(role)
             embed.description += f"{role.mention} | **{len(role.members)}** \n"
 
             for member in role.members:
