@@ -24,6 +24,8 @@ class GuildModel(BaseModel):
     mod_log = fields.IntField(default=0)
     server_log = fields.IntField(default=0)
     suggestions = fields.IntField(default=0)
+    gitlink = fields.BooleanField(default=False)
+    repo = fields.CharField(50, null=True)
 
     @classmethod
     async def get_text_channel(

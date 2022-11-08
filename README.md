@@ -31,7 +31,7 @@ It's built with UI components and application commands to be user-friendly.
 - Server logs (channel updates, role updates)
 
 ### 🤖 Automoderation
-- `/automod`: Enable or disable automoderation.
+- `/automod`: Enable or disable automoderation
 - Timeout new accounts on join
 - Ban or timeout when too many mentions are sent
 
@@ -61,6 +61,12 @@ It's built with UI components and application commands to be user-friendly.
 - `/suggestions set`: Set the channel for member suggestions
 - `/suggestions disable`: Disable member suggestions
 - `/suggest`: Make a suggestion
+
+### 💻 Developer Utilities
+- `/gitlink`: Enable or disable linking code snippets
+- Fetch GitHub repository and gist URLs with line numbers
+- `/repository`: Set the default GitHub repository to use for pr and issue linking
+- Triggered with "##123" (123 being the issue / pr number)
 
 ### 😁 Emojis
 - `/emoji add`: Add a custom emoji to the server

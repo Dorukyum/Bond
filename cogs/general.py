@@ -1,16 +1,11 @@
 from contextlib import suppress
 from io import BytesIO
-from re import compile
 from typing import Optional
 from urllib import parse
 
 import discord
 
 from core import Cog, Context, GuildModel, humanize_time
-
-PULL_HASH_REGEX = compile(
-    r"(?:(?P<org>(?:[A-Za-z]|\d|-)+)/)?(?P<repo>(?:[A-Za-z]|\d|-)+)?(?:##)(?P<index>[0-9]+)"
-)
 
 
 class General(Cog):
@@ -311,7 +306,6 @@ class General(Cog):
         if message.author.bot:
             return
 
-        # AFK
         if message.author.id in self.bot.cache["afk"].keys():
             del self.bot.cache["afk"][message.author.id]
             await message.add_reaction("\U0001f44b")
@@ -321,23 +315,6 @@ class General(Cog):
         for mention in message.mentions:
             if msg := self.bot.cache["afk"].get(mention.id):
                 await message.channel.send(f"{mention.display_name} is AFK: {msg}")
-
-        # Pull requests and issues
-        def make_link(index, org=None, repo=None):
-            org = org or "Pycord-Development"
-            repo = repo or "pycord"
-            return f"https://github.com/{org}/{repo}/pull/{index}"
-
-        links = list(
-            set(
-                make_link(index, org, repo)
-                for org, repo, index in PULL_HASH_REGEX.findall(message.content)
-            )
-        )[:15]
-        if len(links) > 2:
-            links = [f"<{link}>" for link in links]
-        if links:
-            await message.reply("\n".join(links))
 
     @discord.user_command(name="View Account Age")
     async def account_age(self, ctx, member: discord.Member):
