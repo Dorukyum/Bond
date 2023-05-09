@@ -20,7 +20,7 @@ GITHUB_GIST_RE = re.compile(
 )
 
 PULL_HASH_REGEX = re.compile(
-    r"(?:(?P<org>(?:[A-Za-z]|\d|-)+)/)?(?P<repo>(?:[A-Za-z]|\d|-)+)?(?:##)(?P<index>[0-9]+)"
+    r"(?:(?P<org>(?:[A-Za-z]|\d|-)+)/)?(?P<repo>(?:[A-Za-z]|\d|-|_|.)+)?(?:##)(?P<index>[0-9]+)"
 )
 
 
