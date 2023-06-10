@@ -27,7 +27,6 @@ class Toolkit(commands.Bot):
             ),
             allowed_mentions=discord.AllowedMentions.none(),
             chunk_guilds_at_startup=False,
-            command_prefix="d." if DEBUG else "t.",
             help_command=None,
             intents=discord.Intents(
                 members=True,
