@@ -54,7 +54,7 @@ class Toolkit(commands.Bot):
 
     @property
     def http_session(self) -> ClientSession:
-        return self.http._HTTPClient__session
+        return self.http._HTTPClient__session  # type: ignore # it exists
 
     def load_cog(self, cog: str) -> None:
         try:
@@ -73,10 +73,14 @@ class Toolkit(commands.Bot):
             return
         self.on_ready_fired = True
 
-        self.errors_webhook = discord.Webhook.from_url(
-            getenv("ERRORS_WEBHOOK"),
-            session=self.http_session,
-            bot_token=self.http.token,
+        self.errors_webhook = (
+            discord.Webhook.from_url(
+                webhook_url,
+                session=self.http_session,
+                bot_token=self.http.token,
+            )
+            if (webhook_url := getenv("ERRORS_WEBHOOK"))
+            else None
         )
         environ.setdefault("JISHAKU_HIDE", "1")
         environ.setdefault("JISHAKU_NO_UNDERSCORE", "1")
@@ -97,7 +101,7 @@ class Toolkit(commands.Bot):
                 if error.text:
                     message += f": {error.text}"
                 return await ctx.respond(message)
-            if not isinstance(error, discord.DiscordException):
+            if self.errors_webhook and not isinstance(error, discord.DiscordException):
                 await ctx.respond(
                     "An unexpected error has occured and I've notified my developer. "
                     "In the meantime, consider joining my support server.",
