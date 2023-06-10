@@ -1,3 +1,4 @@
+import logging
 from os import environ, getenv
 from sys import argv
 from traceback import format_exception
@@ -12,6 +13,9 @@ from .context import Context
 from .models import GuildModel
 
 
+DEBUG: bool = "-d" in argv
+
+
 class Toolkit(commands.Bot):
     on_ready_fired: bool = False
     cache: Dict[str, Dict] = {"afk": {}, "example_list": {}}
@@ -23,7 +27,7 @@ class Toolkit(commands.Bot):
             ),
             allowed_mentions=discord.AllowedMentions.none(),
             chunk_guilds_at_startup=False,
-            command_prefix="t." if "-t" not in argv else "d.",
+            command_prefix="d." if DEBUG else "t.",
             help_command=None,
             intents=discord.Intents(
                 members=True,
@@ -34,6 +38,19 @@ class Toolkit(commands.Bot):
             ),
             owner_ids=[543397958197182464],
         )
+
+        logger = logging.getLogger("discord")
+        logger.setLevel(logging.DEBUG if DEBUG else logging.INFO)
+        handler = logging.FileHandler(
+            filename="discord.log", encoding="utf-8", mode="w"
+        )
+        handler.setFormatter(
+            logging.Formatter(
+                "[%(asctime)s %(levelname)s] %(name)s: %(message)s",
+                "%d/%m/%y %H:%M:%S",
+            )
+        )
+        logger.addHandler(handler)
 
         for cog in [
             "jishaku",
@@ -146,4 +163,4 @@ class Toolkit(commands.Bot):
         return Context(self, interaction)
 
     def run(self):
-        super().run(getenv("TOKEN"))
+        super().run(getenv("DEBUG_TOKEN") if DEBUG else getenv("TOKEN"))
