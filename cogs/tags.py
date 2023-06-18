@@ -1,4 +1,4 @@
-from typing import List, Optional
+from typing import List
 
 import discord
 
@@ -192,7 +192,7 @@ class Tags(Cog):
         description="The member to list the tags of.",
         default=None,
     )
-    async def tag_list(self, ctx: Context, member: Optional[discord.Member]):
+    async def tag_list(self, ctx: Context, member: discord.Member | None):
         """List the tags of a member or all tags created in this server."""
         if member:
             if tags := await TagModel.filter(

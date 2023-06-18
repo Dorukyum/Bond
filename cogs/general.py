@@ -1,6 +1,5 @@
 from contextlib import suppress
 from io import BytesIO
-from typing import Optional
 from urllib import parse
 
 import discord
@@ -84,7 +83,7 @@ class General(Cog):
         description="The user to view information about.",
         default=None,
     )
-    async def userinfo(self, ctx: Context, user: Optional[discord.User]):
+    async def userinfo(self, ctx: Context, user: discord.User | None):
         """View information about a user."""
         assert ctx.author
         target = user or ctx.author
@@ -207,7 +206,7 @@ class General(Cog):
         choices=["f", "F", "d", "D", "t", "T", "R"],
         default=None,
     )
-    async def timestamp(self, ctx: Context, style: Optional[str]):
+    async def timestamp(self, ctx: Context, style: str):
         """View the current timestamp."""
         time = discord.utils.utcnow()
         await ctx.respond(
@@ -272,7 +271,7 @@ class General(Cog):
         "reason", str, description="The reason to delete the emoji.", default=None
     )
     async def emoji_delete(
-        self, ctx: Context, name: str, reason: Optional[str]
+        self, ctx: Context, name: str, reason: str | None,
     ):
         """Delete a custom emoji from this guild."""
         await ctx.assert_permissions(manage_emojis=True)

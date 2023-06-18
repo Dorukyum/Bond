@@ -1,5 +1,4 @@
 import asyncio
-from typing import Optional, Union
 
 import discord
 
@@ -20,7 +19,7 @@ class ModLogs(Cog):
         self,
         mod: discord.Member,
         target: discord.User,
-        reason: Optional[str],
+        reason: str | None,
         action: LogAction,
         channel: discord.TextChannel,
     ) -> None:
@@ -36,11 +35,11 @@ class ModLogs(Cog):
     async def server_log(
         self,
         mod: discord.Member,
-        target: Union[discord.Role, discord.TextChannel],
-        reason: Optional[str],
+        target: discord.Role | discord.TextChannel,
+        reason: str | None,
         action: LogAction,
         channel: discord.TextChannel,
-        after: Optional[Union[discord.Role, discord.TextChannel]] = None,
+        after: discord.Role | discord.TextChannel | None = None,
     ) -> None:
         if isinstance(target, discord.Role):
             # action target is a role

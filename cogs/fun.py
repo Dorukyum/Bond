@@ -1,6 +1,5 @@
 from asyncio import sleep
 from random import choice
-from typing import Optional
 
 import discord
 
@@ -72,9 +71,9 @@ class Fun(Cog):
         question: str,
         choice1: str,
         choice2: str,
-        choice3: Optional[str],
-        choice4: Optional[str],
-        choice5: Optional[str],
+        choice3: str | None,
+        choice4: str | None,
+        choice5: str | None,
     ):
         """Create a poll with upto 5 choices."""
         choices = [

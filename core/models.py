@@ -1,4 +1,4 @@
-from typing import Any, Optional
+from typing import Any
 
 from discord import Guild, TextChannel
 from tortoise import fields
@@ -30,7 +30,7 @@ class GuildModel(BaseModel):
     @classmethod
     async def get_text_channel(
         cls, guild: Guild, field_name: str
-    ) -> Optional[TextChannel]:
+    ) -> TextChannel | None:
         """Return the text channel from a guild set to the given field."""
         guild_data, _ = await cls.get_or_create(id=guild.id)
         if channel_id := getattr(guild_data, field_name):

@@ -2,7 +2,6 @@ import logging
 from os import environ, getenv
 from sys import argv
 from traceback import format_exception
-from typing import Dict
 
 import discord
 from aiohttp import ClientSession
@@ -18,7 +17,7 @@ DEBUG: bool = "-d" in argv
 
 class Toolkit(commands.Bot):
     on_ready_fired: bool = False
-    cache: Dict[str, Dict] = {"afk": {}, "example_list": {}}
+    cache: dict[str, dict] = {"afk": {}, "example_list": {}}
 
     def __init__(self):
         super().__init__(

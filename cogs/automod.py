@@ -1,7 +1,6 @@
 from contextlib import suppress
 from datetime import timedelta
 from tortoise.exceptions import ConfigurationError
-from typing import Union
 
 import discord
 
@@ -11,7 +10,7 @@ from core import Cog, Context, GuildModel
 class Automod(Cog):
     """Commands related to the automoderation system."""
 
-    async def automod_on(self, target: Union[discord.Message, discord.Member]) -> bool:
+    async def automod_on(self, target: discord.Message | discord.Member) -> bool:
         """Returns whether or not the target should be automodded."""
         with suppress(ConfigurationError):
             return bool(

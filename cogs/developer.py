@@ -1,6 +1,6 @@
 import re
 import textwrap
-from typing import Type, Union, overload
+from typing import Type, overload
 
 import discord
 from aiohttp import ClientResponseError
@@ -27,7 +27,7 @@ PULL_HASH_REGEX = re.compile(
 class Delete(discord.ui.View):
     """Delete View for git-codeblock"""
 
-    def __init__(self, user: Union[discord.User, discord.Member]) -> None:
+    def __init__(self, user: discord.User | discord.Member) -> None:
         super().__init__()
         self.user = user
 

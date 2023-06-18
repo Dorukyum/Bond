@@ -1,12 +1,10 @@
-from typing import List, Optional
-
 import discord
 
 from core import Cog, Context
 
 
 class RoleDropdown(discord.ui.Select):
-    def __init__(self, roles: List[discord.Role]) -> None:
+    def __init__(self, roles: list[discord.Role]) -> None:
         super().__init__(
             custom_id="role_dropdown",
             placeholder="Select a role",
@@ -34,7 +32,7 @@ class RoleDropdown(discord.ui.Select):
 
 
 class DropdownRolesSetup(discord.ui.Select):
-    def __init__(self, custom_message: Optional[str] = None) -> None:
+    def __init__(self, custom_message: str | None = None) -> None:
         super().__init__(
             discord.ComponentType.role_select,
             placeholder="Choose self-roles",
@@ -84,7 +82,7 @@ class DropdownRoles(Cog):
         description="The content of the message to be sent along with the dropdown.",
         default=None,
     )
-    async def setup(self, ctx: Context, message: Optional[str]):
+    async def setup(self, ctx: Context, message: str | None):
         """Setup a dropdown menu for choosing roles."""
         await ctx.respond(
             "Add roles to get started.",
