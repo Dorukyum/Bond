@@ -16,10 +16,7 @@ DEBUG: bool = "-d" in argv
 
 
 class Toolkit(commands.Bot):
-    on_ready_fired: bool = False
-    cache: dict[str, dict] = {"afk": {}, "example_list": {}}
-
-    def __init__(self):
+    def __init__(self) -> None:
         super().__init__(
             activity=discord.Activity(
                 type=discord.ActivityType.listening, name=f"/help"
@@ -50,7 +47,20 @@ class Toolkit(commands.Bot):
         )
         logger.addHandler(handler)
 
-        for cog in [
+        self.cache: dict[str, dict] = {"afk": {}, "example_list": {}}
+        environ.setdefault("JISHAKU_HIDE", "1")
+        environ.setdefault("JISHAKU_NO_UNDERSCORE", "1")
+        self.errors_webhook = (
+            discord.Webhook.from_url(
+                webhook_url,
+                session=self.http_session,
+                bot_token=self.http.token,
+            )
+            if (webhook_url := getenv("ERRORS_WEBHOOK"))
+            else None
+        )
+
+        for cog in (
             "jishaku",
             "cogs.automod",
             "cogs.developer",
@@ -64,12 +74,8 @@ class Toolkit(commands.Bot):
             "cogs.pycord",
             "cogs.tags",
             "cogs.warnings",
-        ]:
+        ):
             self.load_cog(cog)
-
-    @property
-    def http_session(self) -> ClientSession:
-        return self.http._HTTPClient__session  # type: ignore # it exists
 
     def load_cog(self, cog: str) -> None:
         try:
@@ -78,32 +84,35 @@ class Toolkit(commands.Bot):
             e = getattr(e, "original", e)
             print("".join(format_exception(type(e), e, e.__traceback__)))
 
+    async def setup_tortoise(self) -> None:
+        await Tortoise.init(
+            db_url="sqlite://data/database.db", modules={"models": ["core.models"]}
+        )
+        await Tortoise.generate_schemas()
+
+    async def start(self, token: str, *, reconnect: bool = True) -> None:
+        await self.setup_tortoise()
+        return await super().start(token, reconnect=reconnect)
+
+    async def close(self) -> None:
+        await Tortoise.close_connections()
+        return await super().close()
+
+    async def get_application_context(
+        self, interaction: discord.Interaction
+    ) -> Context:
+        return Context(self, interaction)
+
+    @property
+    def http_session(self) -> ClientSession:
+        return self.http._HTTPClient__session  # type: ignore # it exists
+
     async def on_connect(self) -> None:
         if "-s" in argv:
             await self.sync_commands()
             print("Synchronized commands.")
 
-    async def on_ready(self):
-        if self.on_ready_fired:
-            return
-        self.on_ready_fired = True
-
-        self.errors_webhook = (
-            discord.Webhook.from_url(
-                webhook_url,
-                session=self.http_session,
-                bot_token=self.http.token,
-            )
-            if (webhook_url := getenv("ERRORS_WEBHOOK"))
-            else None
-        )
-        environ.setdefault("JISHAKU_HIDE", "1")
-        environ.setdefault("JISHAKU_NO_UNDERSCORE", "1")
-
-        await Tortoise.init(
-            db_url="sqlite://data/database.db", modules={"models": ["core.models"]}
-        )
-        await Tortoise.generate_schemas()
+    async def on_ready(self) -> None:
         print(self.user, "is ready")
 
     async def on_application_command_error(self, ctx: Context, error: Exception):
@@ -155,10 +164,5 @@ class Toolkit(commands.Bot):
         if saved := await GuildModel.get_or_none(id=guild.id):
             await saved.delete()
 
-    async def get_application_context(
-        self, interaction: discord.Interaction
-    ) -> Context:
-        return Context(self, interaction)
-
-    def run(self):
+    def run(self) -> None:
         super().run(getenv("DEBUG_TOKEN") if DEBUG else getenv("TOKEN"))
