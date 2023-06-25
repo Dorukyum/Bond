@@ -47,9 +47,11 @@ class Toolkit(commands.Bot):
         )
         logger.addHandler(handler)
 
-        self.cache: dict[str, dict] = {"afk": {}, "example_list": {}}
-        environ.setdefault("JISHAKU_HIDE", "1")
         environ.setdefault("JISHAKU_NO_UNDERSCORE", "1")
+        if not DEBUG:
+            environ.setdefault("JISHAKU_HIDE", "1")
+
+        self.cache: dict[str, dict] = {"afk": {}, "example_list": {}}
         self.errors_webhook = (
             discord.Webhook.from_url(
                 webhook_url,
