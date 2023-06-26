@@ -25,8 +25,6 @@ PULL_HASH_REGEX = re.compile(
 
 
 class Delete(discord.ui.View):
-    """Delete View for git-codeblock"""
-
     def __init__(self, user: discord.User | discord.Member) -> None:
         super().__init__()
         self.user = user
@@ -37,20 +35,24 @@ class Delete(discord.ui.View):
             or self.user == interaction.user
             or (
                 isinstance(interaction.user, discord.Member)
-                and interaction.user.guild_permissions.manage_messages
+                and interaction.channel
+                and not isinstance(interaction.channel, discord.PartialMessageable)
+                and interaction.channel.permissions_for(interaction.user).manage_messages
             )
         ):
             return True
         await interaction.response.send_message(
-            "`Manage Messages` permission required to delete this.",
+            "You need to either be the user who triggered this gitlink "
+            "or have `Manage Messages` permissions in this channel.",
             ephemeral=True,
         )
         return False
 
     @discord.ui.button(label="Delete", style=discord.ButtonStyle.red)
     async def delete(self, _, interaction: discord.Interaction) -> None:
+        await interaction.response.defer()
         if interaction.message:
-            await interaction.message.delete()
+            await interaction.delete_original_response()
         self.stop()
 
 
