@@ -1,5 +1,3 @@
-from typing import Any
-
 from discord import Guild, TextChannel
 from tortoise import fields
 from tortoise.models import Model
@@ -7,18 +5,7 @@ from tortoise.models import Model
 __all__ = ("GuildModel", "TagModel", "WarnModel")
 
 
-class BaseModel(Model):
-    @classmethod
-    async def update(cls, field_name: str, id: int, value: Any) -> bool:
-        """Updates a database field with the given value. Returns True if the value is not 0."""
-        await cls.update_or_create({field_name: value}, id=id)
-        return value != 0
-
-    class Meta:
-        abstract = True
-
-
-class GuildModel(BaseModel):
+class GuildModel(Model):
     id = fields.IntField(pk=True)
     automod = fields.BooleanField(default=False)
     mod_log = fields.IntField(default=0)
@@ -41,7 +28,7 @@ class GuildModel(BaseModel):
         table = "guilds"
 
 
-class TagModel(BaseModel):
+class TagModel(Model):
     name = fields.TextField()
     created_at = fields.DatetimeField(null=True, auto_now_add=True)
     author_id = fields.IntField()
@@ -56,7 +43,7 @@ class TagModel(BaseModel):
         table = "tags"
 
 
-class WarnModel(BaseModel):
+class WarnModel(Model):
     id = fields.IntField(pk=True)
     created_at = fields.DatetimeField(null=True, auto_now_add=True)
     mod_id = fields.IntField()
