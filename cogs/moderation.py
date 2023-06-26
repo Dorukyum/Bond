@@ -71,13 +71,15 @@ class Moderation(Cog):
         default="No reason provided",
     )
     async def lock(self, ctx: Context, *, reason: str):
-        """Lock the current channel, disabling send messages permissions for the default role."""
+        """Disable the Send Messages permission for the default role."""
         await ctx.assert_permissions(manage_roles=True)
-        if not ctx.channel.permissions_for(ctx.guild.default_role).send_messages:
+        assert isinstance(ctx.channel, discord.TextChannel) and ctx.guild
+        if ctx.channel.overwrites_for(ctx.guild.default_role).send_messages is False:
             return await ctx.respond("This channel is already locked.")
-        await ctx.channel.set_permissions(
-            ctx.guild.default_role,
-            send_messages=False,
+        await ctx.channel.edit(
+            overwrites={
+                ctx.guild.default_role: discord.PermissionOverwrite(send_messages=False)
+            },
             reason=f"{ctx.author} ({ctx.author.id}): {reason}",
         )
         await ctx.respond("Locked this channel.")
@@ -91,13 +93,15 @@ class Moderation(Cog):
         default="No reason provided",
     )
     async def unlock(self, ctx: Context, *, reason: str):
-        """Unlock the current channel, enabling send messages permissions for the default role."""
+        """Set the Send Messages permission to the default state for the default role."""
         await ctx.assert_permissions(manage_roles=True)
-        if ctx.channel.permissions_for(ctx.guild.default_role).send_messages:
+        assert isinstance(ctx.channel, discord.TextChannel) and ctx.guild
+        if ctx.channel.overwrites_for(ctx.guild.default_role).send_messages is not False:
             return await ctx.respond("This channel isn't locked.")
-        await ctx.channel.set_permissions(
-            ctx.guild.default_role,
-            send_messages=True,
+        await ctx.channel.edit(
+            overwrites={
+                ctx.guild.default_role: discord.PermissionOverwrite(send_messages=None)
+            },
             reason=f"{ctx.author} ({ctx.author.id}): {reason}",
         )
         await ctx.respond("Unlocked this channel.")
