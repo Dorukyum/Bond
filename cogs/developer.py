@@ -197,12 +197,8 @@ class Developer(Cog):
 
         for pattern, handler in self.pattern_handlers:
             for match in pattern.finditer(content):
-                try:
-                    snippet = await handler(**match.groupdict())
-                    all_snippets.append((match.start(), snippet))
-                except ClientResponseError as error:
-                    error_message = error.message
-                    print(error_message)
+                snippet = await handler(**match.groupdict())
+                all_snippets.append((match.start(), snippet))
 
         # Sorts the list of snippets by their match index
         return "\n".join(map(lambda x: x[1], sorted(all_snippets)))
