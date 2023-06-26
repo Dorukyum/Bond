@@ -76,6 +76,7 @@ class Toolkit(commands.Bot):
             "cogs.pycord",
             "cogs.tags",
             "cogs.warnings",
+            "cogs.rtfm",
         ):
             self.load_cog(cog)
 
