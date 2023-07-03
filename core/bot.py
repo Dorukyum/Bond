@@ -11,7 +11,6 @@ from tortoise import Tortoise
 from .context import Context
 from .models import GuildModel
 
-
 DEBUG: bool = "-d" in argv
 
 

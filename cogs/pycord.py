@@ -102,7 +102,7 @@ class Pycord(Cog):
     @discord.slash_command(guild_ids=[881207955029110855])
     async def close(self, ctx: Context, lock: bool = False):
         """Allows a staff member or the owner of the thread to close the thread"""
-
+        assert isinstance(ctx.author, discord.Member)
         if not isinstance(ctx.channel, discord.Thread):
             return await ctx.respond(
                 "This command can only be used in threads.", ephemeral=True
@@ -137,6 +137,7 @@ class Pycord(Cog):
     @discord.slash_command(guild_ids=[881207955029110855])
     @discord.default_permissions(manage_guild=True)
     async def update_staff_list(self, ctx: Context):
+        assert ctx.guild
         staff_roles = [
             881247351937855549,  # Project Lead
             929080208148017242,  # Project Advisor
@@ -150,6 +151,7 @@ class Pycord(Cog):
         embed.description = ""
         for role in staff_roles:
             role = ctx.guild.get_role(role)
+            assert role
             embed.description += f"{role.mention} | **{len(role.members)}** \n"
 
             for member in role.members:
@@ -162,6 +164,7 @@ class Pycord(Cog):
             self.staff_list_channel = self.staff_list_channel or self.bot.get_channel(
                 884730803588829206
             )
+            assert isinstance(self.staff_list_channel, discord.TextChannel)
             await self.staff_list_channel.purge(limit=1)
             self.staff_list = await self.staff_list_channel.send(embed=embed)
         await ctx.respond("Done!")
@@ -176,6 +179,7 @@ class Pycord(Cog):
     )
     async def role(self, ctx: Context, role: str):
         """Choose a role to claim or get rid of."""
+        assert isinstance(ctx.author, discord.Member)
         if int(role) in ctx.author._roles:
             await ctx.author.remove_roles(discord.Object(role))
             return await ctx.respond(f"The <@&{role}> role has been removed from you.")

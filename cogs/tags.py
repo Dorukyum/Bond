@@ -1,6 +1,7 @@
 from typing import List
 
 import discord
+from discord.utils import escape_markdown, format_dt
 
 from core import Cog, Context, Lowercase, TagModel, s
 
@@ -11,10 +12,10 @@ class Tags(Cog):
     tag = discord.SlashCommandGroup("tag", "Commands related to tags.", guild_only=True)
 
     async def get_tag_names(self, ctx: discord.AutocompleteContext) -> List[str]:
-        assert (guild_id := ctx.interaction.guild_id)
+        assert ctx.interaction.guild_id
         return [
             tag.name
-            for tag in await TagModel.filter(guild_id=guild_id)
+            for tag in await TagModel.filter(guild_id=ctx.interaction.guild_id)
             if ctx.value in tag.name
         ]
 
@@ -54,6 +55,9 @@ class Tags(Cog):
     @discord.option("content", description="The new content of the tag.")
     async def edit(self, ctx: Context, name: Lowercase, *, content: str):
         """Edit the content of a tag."""
+        assert isinstance(ctx.channel, discord.TextChannel) and isinstance(
+            ctx.author, discord.Member
+        )
         if tag := await TagModel.get_or_none(name=name, guild_id=ctx.guild_id):
             if (
                 tag.author_id == ctx.author.id
@@ -73,6 +77,9 @@ class Tags(Cog):
     )
     async def delete(self, ctx: Context, *, name: Lowercase):
         """Delete a tag."""
+        assert isinstance(ctx.channel, discord.TextChannel) and isinstance(
+            ctx.author, discord.Member
+        )
         if tag := await TagModel.get_or_none(name=name, guild_id=ctx.guild_id):
             if (
                 tag.author_id == ctx.author.id
@@ -133,10 +140,8 @@ class Tags(Cog):
             await ctx.respond(
                 embed=discord.Embed(title=tag.name, color=discord.Color.blurple())
                 .add_field(name="Owner", value=owner.mention)
-                .add_field(name="Uses", value=tag.uses)
-                .add_field(
-                    name="Created At", value=discord.utils.format_dt(tag.created_at)
-                )
+                .add_field(name="Uses", value=tag.uses)  # type: ignore # IntField returns an int
+                .add_field(name="Created At", value=format_dt(tag.created_at))
             )
         else:
             await ctx.respond("A tag with this name doesn't exist.")
@@ -148,7 +153,7 @@ class Tags(Cog):
     async def raw(self, ctx: Context, *, name: Lowercase):
         """View the content of a tag, with escaped markdown."""
         if tag := await TagModel.get_or_none(name=name, guild_id=ctx.guild_id):
-            await ctx.respond(discord.utils.escape_markdown(tag.content))
+            await ctx.respond(escape_markdown(tag.content))
         else:
             await ctx.respond("A tag with this name doesn't exist.")
 
@@ -156,6 +161,7 @@ class Tags(Cog):
     @discord.option("name", description="The name of the tag to claim.")
     async def claim(self, ctx: Context, *, name: Lowercase):
         """Claim a tag."""
+        assert ctx.guild
         if tag := await TagModel.get_or_none(name=name, guild_id=ctx.guild_id):
             if ctx.guild.get_member(tag.author_id):
                 await ctx.respond("The author of this tag is still in the server.")
@@ -194,6 +200,7 @@ class Tags(Cog):
     )
     async def tag_list(self, ctx: Context, member: discord.Member | None):
         """List the tags of a member or all tags created in this server."""
+        assert ctx.guild
         if member:
             if tags := await TagModel.filter(
                 guild_id=ctx.guild_id, author_id=member.id

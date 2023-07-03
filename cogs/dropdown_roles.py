@@ -41,17 +41,25 @@ class DropdownRolesSetup(discord.ui.Select):
         self.custom_message = custom_message
 
     async def callback(self, interaction: discord.Interaction):
-        if any(
-            role.position >= interaction.user.top_role.position   # type: ignore # these roles aren't None
-            for role in self.values
-        ) and interaction.guild.owner_id != interaction.user.id:  # type: ignore # these members aren't None
+        assert (
+            interaction.guild
+            and interaction.user
+            and isinstance(interaction.channel, discord.TextChannel)
+        )
+        if (
+            any(
+                role.position >= interaction.user.top_role.position  # type: ignore # these roles aren't None
+                for role in self.values
+            )
+            and interaction.guild.owner_id != interaction.user.id
+        ):
             return await interaction.response.send_message(
                 "You can only choose roles that are below your top role.",
                 ephemeral=True,
             )
         await interaction.channel.send(
             content=self.custom_message,
-            view=discord.ui.View(RoleDropdown(self.values)),
+            view=discord.ui.View(RoleDropdown(self.values)),  # type: ignore # self.values is of type list[discord.Role]
         )
         await interaction.response.send_message(
             "Successfuly created self-role selection dropdown.",

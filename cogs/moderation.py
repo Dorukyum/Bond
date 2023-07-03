@@ -27,10 +27,11 @@ class Moderation(Cog):
         reason: str,
     ):
         """Ban the supplied members from the guild. Limited to 10 at a time."""
+        assert ctx.guild
         await ctx.assert_permissions(ban_members=True)
         converter = MemberConverter()
         converted_members = [
-            await converter.convert(ctx, member) for member in members.split()
+            await converter.convert(ctx, member) for member in members.split()  # type: ignore # mismatching context type
         ]
         if (count := len(converted_members)) > 10:
             return await ctx.respond("You can only ban 10 members at a time.")
@@ -50,6 +51,7 @@ class Moderation(Cog):
     )
     async def slowmode(self, ctx: Context, seconds: int):
         """Set slowmode for the current channel."""
+        assert isinstance(ctx.channel, discord.TextChannel)
         await ctx.assert_permissions(manage_channels=True)
         if not 21600 >= seconds >= 0:
             return await ctx.respond(
@@ -96,7 +98,10 @@ class Moderation(Cog):
         """Set the Send Messages permission to the default state for the default role."""
         await ctx.assert_permissions(manage_roles=True)
         assert isinstance(ctx.channel, discord.TextChannel) and ctx.guild
-        if ctx.channel.overwrites_for(ctx.guild.default_role).send_messages is not False:
+        if (
+            ctx.channel.overwrites_for(ctx.guild.default_role).send_messages
+            is not False
+        ):
             return await ctx.respond("This channel isn't locked.")
         await ctx.channel.edit(
             overwrites={

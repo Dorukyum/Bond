@@ -3,6 +3,7 @@ from io import BytesIO
 from urllib import parse
 
 import discord
+from discord.utils import TimestampStyle, format_dt, utcnow
 
 from core import Cog, Context, GuildModel, humanize_time
 
@@ -141,6 +142,7 @@ class General(Cog):
     async def suggest(self, ctx: Context, *, suggestion: str):
         """Make a suggestion for the server. This will be sent to the channel set by the server managers."""
         await ctx.assert_permissions(external_emojis=True)
+        assert ctx.guild
         if not (channel := await GuildModel.get_text_channel(ctx.guild, "suggestions")):
             return await ctx.respond("This server doesn't have a suggestions channel.")
 
@@ -170,9 +172,7 @@ class General(Cog):
         "channel",
         description="The channel new member suggestions will be sent to.",
     )
-    async def suggestions_set(
-        self, ctx: Context, channel: discord.TextChannel
-    ):
+    async def suggestions_set(self, ctx: Context, channel: discord.TextChannel):
         """Set the channel for member suggestions."""
         await GuildModel.update_or_create(
             id=ctx.guild_id, defaults={"suggestions": channel.id}
@@ -206,14 +206,14 @@ class General(Cog):
         choices=["f", "F", "d", "D", "t", "T", "R"],
         default=None,
     )
-    async def timestamp(self, ctx: Context, style: str):
+    async def timestamp(self, ctx: Context, style: TimestampStyle):
         """View the current timestamp."""
-        time = discord.utils.utcnow()
+        time = utcnow()
         await ctx.respond(
             embed=discord.Embed(
                 title="Timestamp",
                 description=(
-                    f"{discord.utils.format_dt(time, style=style)}\n\n"
+                    f"{format_dt(utcnow(), style=style)}\n\n"
                     f"`{round(time.timestamp())}`"
                 ),
                 color=0x0060FF,
@@ -253,6 +253,7 @@ class General(Cog):
     @discord.option("url", description="The image url of the emoji.")
     async def emoji_add(self, ctx: Context, name: str, url: str):
         """Add a custom emoji to this guild."""
+        assert ctx.guild
         await ctx.assert_permissions(manage_emojis=True)
         async with self.bot.http_session.get(url) as res:
             if 300 > res.status >= 200:
@@ -271,9 +272,13 @@ class General(Cog):
         "reason", str, description="The reason to delete the emoji.", default=None
     )
     async def emoji_delete(
-        self, ctx: Context, name: str, reason: str | None,
+        self,
+        ctx: Context,
+        name: str,
+        reason: str | None,
     ):
         """Delete a custom emoji from this guild."""
+        assert ctx.guild
         await ctx.assert_permissions(manage_emojis=True)
         for emoji in ctx.guild.emojis:
             if emoji.name == name:
@@ -282,6 +287,7 @@ class General(Cog):
         await ctx.respond(f'No emoji named "{name}" found.')
 
     @discord.slash_command()
+    @discord.guild_only()
     @discord.option(
         "reason",
         description="The message to show when you're mentioned.",
@@ -294,6 +300,7 @@ class General(Cog):
     )
     async def afk(self, ctx: Context, *, reason: str, change_nick: bool):
         """Become AFK."""
+        assert isinstance(ctx.author, discord.Member)
         await ctx.respond(f"Set your AFK: {reason}")
         self.bot.cache["afk"][ctx.author.id] = reason
         if change_nick and not ctx.author.display_name.startswith("[AFK] "):
@@ -318,7 +325,7 @@ class General(Cog):
     @discord.user_command(name="View Account Age")
     async def account_age(self, ctx, member: discord.Member):
         """View the age of an account."""
-        age = discord.utils.utcnow() - member.created_at
+        age = utcnow() - member.created_at
         await ctx.respond(
             f"{member.mention} is {humanize_time(age)} old.", ephemeral=True
         )

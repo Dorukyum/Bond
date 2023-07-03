@@ -1,6 +1,5 @@
 from discord.ext.commands import command
 from jishaku.codeblocks import codeblock_converter
-from jishaku.cog import Jishaku
 from jishaku.modules import ExtensionConverter
 
 from core import Cog
@@ -9,11 +8,11 @@ from core import Cog
 class Owner(Cog, command_attrs={"hidden": True}):
     def __init__(self, bot) -> None:
         super().__init__(bot)
-        self.jishaku: Jishaku = bot.get_cog("Jishaku")
+        self.jishaku = bot.get_cog("Jishaku")
 
     @command(name="eval")
-    async def _eval(self, ctx, *, code: codeblock_converter):
-        await self.jishaku.jsk_python(ctx, argument=code)
+    async def _eval(self, ctx, *, code):
+        await self.jishaku.jsk_python(ctx, argument=codeblock_converter(code))
 
     @command(aliases=["reload"])
     async def load(self, ctx, *files: ExtensionConverter):
