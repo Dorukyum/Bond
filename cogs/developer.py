@@ -1,10 +1,9 @@
 import re
 import textwrap
+from io import BytesIO
 from typing import Type, overload
 
 import discord
-from aiohttp import ClientResponseError
-from tortoise.exceptions import ConfigurationError
 
 from core import Cog, GuildModel
 
@@ -30,20 +29,22 @@ class Delete(discord.ui.View):
         self.user = user
 
     async def interaction_check(self, interaction: discord.Interaction) -> bool:
+        assert interaction.channel
         if (
             self.user.bot
             or self.user == interaction.user
             or (
                 isinstance(interaction.user, discord.Member)
-                and interaction.channel
                 and not isinstance(interaction.channel, discord.PartialMessageable)
-                and interaction.channel.permissions_for(interaction.user).manage_messages
+                and interaction.channel.permissions_for(
+                    interaction.user
+                ).manage_messages
             )
         ):
             return True
         await interaction.response.send_message(
-            "You need to either be the user who triggered this gitlink "
-            "or have `Manage Messages` permissions in this channel.",
+            "You need to either be the user who requested this snippet or have "
+            "`Manage Messages` permissions in this channel to delete it.",
             ephemeral=True,
         )
         return False
@@ -79,7 +80,7 @@ class Developer(Cog):
         ...
 
     async def _fetch(self, url: str, response_type):
-        """Makes HTTP requests using aiohttp."""
+        """Makes an HTTP request to GitHub using aiohttp."""
         async with self.bot.http_session.get(
             url,
             raise_for_status=True,
@@ -103,7 +104,7 @@ class Developer(Cog):
 
     async def fetch_snippet(
         self, repo: str, path: str, start_line: str, end_line: str
-    ) -> str:
+    ) -> tuple[str, ...] | None:
         """Fetches a snippet from a GitHub repo."""
         branches = await self._fetch(
             f"https://api.github.com/repos/{repo}/branches",
@@ -126,7 +127,7 @@ class Developer(Cog):
         file_path: str,
         start_line: str,
         end_line: str,
-    ) -> str:
+    ) -> tuple[str, ...] | None:
         """Fetches a snippet from a GitHub gist."""
         gist_json = await self._fetch(
             f"https://api.github.com/gists/{gist_id}{f'/{revision}' if len(revision) > 0 else ''}",
@@ -142,11 +143,10 @@ class Developer(Cog):
                 return self.snippet_to_codeblock(
                     file_contents, gist_file, start_line, end_line
                 )
-        return ""
 
     def snippet_to_codeblock(
         self, file_contents: str, file_path: str, start_line: str, end_line: str
-    ) -> str:
+    ) -> tuple[str, ...] | None:
         """
         Given the entire file contents and target lines, creates a code block.
         First, we split the file contents into a list of lines and then keep and join only the required
@@ -166,60 +166,73 @@ class Developer(Cog):
         if start > end:
             start, end = end, start
         if start > len(split_file_contents) or end < 1:
-            return ""
+            return
         start = max(1, start)
         end = min(len(split_file_contents), end)
 
         # Gets the code lines, dedents them, and inserts zero-width spaces to prevent Markdown injection
-        required = "\n".join(split_file_contents[start - 1 : end])
-        required = textwrap.dedent(required).rstrip().replace("`", "`\u200b")
+        code = (
+            textwrap.dedent("\n".join(split_file_contents[start - 1 : end]))
+            .rstrip()
+            .replace("`", "`\u200b")
+        )
 
         # Extracts the code language and checks whether it's a "valid" language
-        language = file_path.split("/")[-1].split(".")[-1]
-        trimmed_language = language.replace("-", "").replace("+", "").replace("_", "")
-        is_valid_language = trimmed_language.isalnum()
-        if not is_valid_language:
-            language = ""
+        language = (
+            file_path.split("/")[-1]
+            .split(".")[-1]
+            .replace("-", "")
+            .replace("+", "")
+            .replace("_", "")
+        )
+        language = language if language.isalnum() else "txt"
 
         if start == end:
-            ret = f"`{file_path}` line {start}\n"
+            title = f"`{file_path}` line {start}\n"
         else:
-            ret = f"`{file_path}` lines {start} to {end}\n"
+            title = f"`{file_path}` lines {start} to {end}\n"
+        return title, code, language
 
-        if len(required) != 0:
-            return f"{ret}```{language}\n{required}```"
-        # Returns an empty codeblock if the snippet is empty
-        return f"{ret}``` ```"
-
-    async def parse_snippets(self, content: str) -> str:
-        """Parse message content and return a string with a code block for each URL found."""
-        all_snippets = []
-
+    async def parse_snippets(self, content: str) -> tuple[str, ...] | None:
+        """Parses message content and return code snippet information."""
         for pattern, handler in self.pattern_handlers:
-            for match in pattern.finditer(content):
-                snippet = await handler(**match.groupdict())
-                all_snippets.append((match.start(), snippet))
+            if snippet := pattern.search(content):
+                return await handler(**snippet.groupdict())
 
-        # Sorts the list of snippets by their match index
-        return "\n".join(map(lambda x: x[1], sorted(all_snippets)))
+    @discord.message_command(name="Fetch Code Snippet")
+    async def gitlink(self, ctx: discord.ApplicationContext, message: discord.Message):
+        """Fetch and display a code snippet from a GitHub permalink."""
+        assert isinstance(ctx.author, discord.Member) and isinstance(
+            ctx.channel, discord.TextChannel
+        )
+        if (
+            ctx.author != message.author
+            and not ctx.channel.permissions_for(ctx.author).manage_messages
+        ):
+            return await ctx.respond(
+                "You need to either be the user who sent this message or have "
+                "`Manage Messages` permissions in this channel to request a snippet.",
+                ephemeral=True,
+            )
 
-    @discord.slash_command()
-    @discord.guild_only()
-    @discord.default_permissions(manage_guild=True)
-    @discord.option(
-        "status",
-        description="Turn GitHub snippet linking on or off.",
-        choices=["On", "Off"],
-    )
-    async def gitlink(self, ctx: discord.ApplicationContext, status: str):
-        """Toggle GitHub snippet linking for this server."""
-        guild, _ = await GuildModel.get_or_create(id=ctx.guild_id)
-        as_bool = status == "On"
-        if guild.gitlink == as_bool:
-            return await ctx.respond(f"GitLink is already {status.lower()}.")
-
-        await guild.update_from_dict({"gitlink": as_bool}).save()
-        await ctx.respond(f"GitLink is now {status.lower()}.")
+        snippet = await self.parse_snippets(message.content)
+        if not snippet:
+            return await ctx.respond(
+                "There were no GitHub snippet links found in this message.",
+                ephemeral=True,
+            )
+        if not snippet[1]:
+            return await ctx.respond("The snippet is empty.", ephemeral=True)
+        if len(content := f"{snippet[0]}```{snippet[2]}\n{snippet[1]}```") <= 2000:
+            return await ctx.respond(content, view=Delete(ctx.author))
+        await ctx.respond(
+            snippet[0],
+            file=discord.File(
+                BytesIO(snippet[1].encode("utf-8")),
+                f"output.{snippet[2]}",
+            ),
+            view=Delete(ctx.author),
+        )
 
     @discord.slash_command()
     @discord.guild_only()
@@ -247,31 +260,22 @@ class Developer(Cog):
 
     @Cog.listener()
     async def on_message(self, message: discord.Message) -> None:
-        try:
-            if not (
-                not message.author.bot
-                and message.guild
-                and (data := await GuildModel.get_or_none(id=message.guild.id))
-            ):
-                return
-        except ConfigurationError:
+        if not (
+            not message.author.bot
+            and message.guild
+            and (data := await GuildModel.get_or_none(id=message.guild.id))
+            and data.repo
+        ):
             return
 
-        if data.gitlink:
-            message_to_send = await self.parse_snippets(message.content)
-            if 0 < len(message_to_send) <= 1990:
-                # TODO: Text Pagination
-                await message.channel.send(message_to_send, view=Delete(message.author))
-
-        if data.repo is not None:
-            links = [
-                f"https://github.com/{org or data.repo.split('/')[0]}/{repo or data.repo.split('/')[1]}/pull/{index}"
-                for org, repo, index in {*PULL_HASH_REGEX.findall(message.content)[:10]}
-            ]
-            if len(links) > 2:
-                links = [f"<{link}>" for link in links]
-            if links:
-                await message.reply("\n".join(links))
+        links = [
+            f"https://github.com/{org or data.repo.split('/')[0]}/{repo or data.repo.split('/')[1]}/pull/{index}"
+            for org, repo, index in {*PULL_HASH_REGEX.findall(message.content)[:10]}
+        ]
+        if len(links) > 2:
+            links = [f"<{link}>" for link in links]
+        if links:
+            await message.reply("\n".join(links))
 
 
 def setup(bot):
