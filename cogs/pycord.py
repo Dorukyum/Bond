@@ -1,5 +1,6 @@
 import re
 from inspect import cleandoc
+from io import BytesIO
 
 import discord
 
@@ -52,7 +53,15 @@ class Pycord(Cog):
         if thing.__doc__ is None:
             return await ctx.respond(f"Couldn't find documentation for `{path}`.")
 
-        await ctx.respond(f"```\n{cleandoc(thing.__doc__)[:1993]}```")
+        if len(doc := cleandoc(thing.__doc__)) > 1992:
+            return await ctx.respond(
+                file=discord.File(
+                    BytesIO(doc.encode("utf-8")),
+                    "docstring.txt",
+                ),
+            )
+
+        await ctx.respond(f"```\n{doc}```")
 
     async def update_example_cache(self):
         """Updates the cached example list with the latest contents from the repo."""
