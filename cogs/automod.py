@@ -1,8 +1,8 @@
 from contextlib import suppress
 from datetime import timedelta
-from tortoise.exceptions import ConfigurationError
 
 import discord
+from tortoise.exceptions import ConfigurationError
 
 from core import Cog, Context, GuildModel
 
@@ -19,6 +19,7 @@ class Automod(Cog):
                 and (guild := await GuildModel.get_or_none(id=target.guild.id))
                 and guild.automod
             )
+        return False
 
     @discord.slash_command()
     @discord.guild_only()
@@ -40,6 +41,7 @@ class Automod(Cog):
 
     @Cog.listener()
     async def on_message(self, message: discord.Message):
+        assert message.guild and isinstance(message.author, discord.Member)
         if await self.automod_on(message):
             mentions = len(message.raw_mentions)
             if mentions >= 7 not in message.author.roles:
@@ -60,6 +62,7 @@ class Automod(Cog):
 
     @Cog.listener()
     async def on_member_join(self, member: discord.Member):
+        assert member.joined_at
         if await self.automod_on(member):
             age = member.joined_at - member.created_at
             if age.days < 28:

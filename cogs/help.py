@@ -1,4 +1,5 @@
 import discord
+from discord.utils import utcnow
 
 from core import Cog, Context
 
@@ -20,16 +21,18 @@ class HelpSelect(discord.ui.Select):
         self.cog = cog
 
     async def callback(self, interaction: discord.Interaction):
-        cog = self.cog.bot.get_cog(self.values[0])
+        cog_name = self.values[0]
+        assert isinstance(cog_name, str)
+        cog = self.cog.bot.get_cog(cog_name)
         assert cog
         embed = discord.Embed(
-            title=f"{cog.__cog_name__} Commands",
+            title=f"{cog_name} Commands",
             description="\n".join(
-                f"`/{command.qualified_name}`: {command.description}"
+                f"`/{command.qualified_name}`: {command.description}"  # type: ignore # description exists
                 for command in cog.walk_commands()
             ),
             color=0x0060FF,
-            timestamp=discord.utils.utcnow(),
+            timestamp=utcnow(),
         )
         await interaction.response.send_message(
             embed=embed,

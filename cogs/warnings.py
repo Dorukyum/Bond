@@ -15,13 +15,11 @@ class Warns(Cog):
     @discord.default_permissions(manage_messages=True)
     @discord.option("member", description="The member to warn.")
     @discord.option("reason", description="The reason of the warning.")
-    async def warn(
-        self, ctx: Context, member: discord.Member, *, reason: str
-    ):
+    async def warn(self, ctx: Context, member: discord.Member, *, reason: str):
         """Warn a member."""
+        assert ctx.guild and isinstance(ctx.author, discord.Member)
         if member == ctx.author:
             return await ctx.respond("You can't warn yourself.")
-        assert ctx.guild and isinstance(ctx.author, discord.Member)
         if (
             member.top_role.position > ctx.author.top_role.position
             and not ctx.guild.owner_id == ctx.author.id

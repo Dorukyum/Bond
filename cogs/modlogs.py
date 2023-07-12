@@ -1,15 +1,9 @@
 import asyncio
 
 import discord
+from discord.utils import utcnow
 
-from core import (
-    Cog,
-    Context,
-    GuildModel,
-    LogAction,
-    LogActions,
-    humanize_time,
-)
+from core import Cog, Context, GuildModel, LogAction, LogActions, humanize_time
 
 
 class ModLogs(Cog):
@@ -18,7 +12,7 @@ class ModLogs(Cog):
     async def mod_log(
         self,
         mod: discord.Member,
-        target: discord.User,
+        target: discord.User | discord.Member,
         reason: str | None,
         action: LogAction,
         channel: discord.TextChannel,
@@ -42,7 +36,7 @@ class ModLogs(Cog):
         after: discord.Role | discord.TextChannel | None = None,
     ) -> None:
         if isinstance(target, discord.Role):
-            # action target is a role
+            assert isinstance(after, discord.Role)
             if action is LogActions.ROLE_UPDATE:
                 changes_of_role = []
                 if target.name != after.name:
@@ -74,6 +68,7 @@ class ModLogs(Cog):
             )
         else:
             if action is LogActions.CHANNEL_UPDATE:
+                assert after
                 changes_of_channel = []
                 if target.name != after.name:
                     changes_of_channel.append(
@@ -85,6 +80,7 @@ class ModLogs(Cog):
                     )
 
                 if isinstance(target, discord.TextChannel):
+                    assert isinstance(after, discord.TextChannel)
                     if target.topic != after.topic:
                         if target.topic and after.topic:
                             changes_of_channel.append(
@@ -102,6 +98,7 @@ class ModLogs(Cog):
                         )
 
                 elif isinstance(target, discord.VoiceChannel):
+                    assert isinstance(after, discord.VoiceChannel)
                     if target.user_limit != after.user_limit:
                         changes_of_channel.append(
                             f"Voice members limit has changed from `{target.user_limit}` to `{after.user_limit}`."
@@ -182,6 +179,7 @@ class ModLogs(Cog):
                 limit=20, action=discord.AuditLogAction.ban
             ):
                 if entry.target == user:
+                    assert isinstance(entry.user, discord.Member)
                     return await self.mod_log(
                         entry.user, user, entry.reason, LogActions.BAN, channel
                     )
@@ -194,6 +192,7 @@ class ModLogs(Cog):
                 limit=20, action=discord.AuditLogAction.unban
             ):
                 if entry.target == user:
+                    assert isinstance(entry.user, discord.Member)
                     return await self.mod_log(
                         entry.user, user, entry.reason, LogActions.UNBAN, channel
                     )
@@ -206,12 +205,14 @@ class ModLogs(Cog):
                 limit=20, action=discord.AuditLogAction.kick
             ):
                 if entry.target == member:
+                    assert isinstance(entry.user, discord.Member)
                     return await self.mod_log(
                         entry.user, member, entry.reason, LogActions.KICK, channel
                     )
 
     @Cog.listener()
     async def on_member_update(self, before: discord.Member, after: discord.Member):
+        assert after.communication_disabled_until
         if (
             before.communication_disabled_until == after.communication_disabled_until
             or not after.timed_out
@@ -223,12 +224,11 @@ class ModLogs(Cog):
                 limit=20, action=discord.AuditLogAction.member_update
             ):
                 if entry.target == after and entry.user != after:
+                    assert isinstance(entry.user, discord.Member)
                     if entry.reason and entry.reason.startswith("Automod:"):
                         return  # don't log auto-timeouts
 
-                    duration = (
-                        after.communication_disabled_until - discord.utils.utcnow()
-                    )
+                    duration = after.communication_disabled_until - utcnow()
                     reason = f"{entry.reason}\n:hourglass_flowing_sand: **Duration:** {humanize_time(duration)}"
                     return await self.mod_log(
                         entry.user, after, reason, LogActions.TIMEOUT, channel
