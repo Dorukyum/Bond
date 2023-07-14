@@ -1,11 +1,11 @@
-import io
-import os
-import re
-import zlib
-
 # Directly taken and modified from Rapptz/RoboDanny
 # https://github.com/Rapptz/RoboDanny/blob/715a5cf8545b94d61823f62db484be4fac1c95b1/cogs/api.py
 # This code is under the Mozilla Public License 2.0
+
+import re
+from io import BytesIO
+from os import path
+from zlib import decompressobj
 
 
 class SphinxObjectFileReader:
@@ -13,7 +13,7 @@ class SphinxObjectFileReader:
     BUFSIZE = 16 * 1024
 
     def __init__(self, buffer):
-        self.stream = io.BytesIO(buffer)
+        self.stream = BytesIO(buffer)
 
     def readline(self):
         return self.stream.readline().decode("utf-8")
@@ -22,7 +22,7 @@ class SphinxObjectFileReader:
         self.stream.readline()
 
     def read_compressed_chunks(self):
-        decompressor = zlib.decompressobj()
+        decompressor = decompressobj()
         while True:
             chunk = self.stream.read(self.BUFSIZE)
             if len(chunk) == 0:
@@ -91,6 +91,6 @@ class SphinxObjectFileReader:
             if projname == "discord.py":
                 key = key.replace("discord.ext.commands.", "").replace("discord.", "")
 
-            result[f"{prefix}{key}"] = os.path.join(url, location)
+            result[f"{prefix}{key}"] = path.join(url, location)
 
         return result

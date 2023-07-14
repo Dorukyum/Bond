@@ -1,16 +1,10 @@
-# -*- coding: utf-8 -*-
+# Directly taken and modified from TechStruck/TechStruck-Bot
+# https://github.com/TechStruck/TechStruck-Bot/blob/271e900f084101f2fa9910e9348c8d49ea396842/bot/utils/fuzzy.py
+# This code is under the Mozilla Public License 2.0
 
-"""
-This Source Code Form is subject to the terms of the Mozilla Public
-License, v. 2.0. If a copy of the MPL was not distributed with this
-file, You can obtain one at http://mozilla.org/MPL/2.0/.
-"""
-
-# help with: http://chairnerd.seatgeek.com/fuzzywuzzy-fuzzy-string-matching-in-python/
-
-import heapq
 import re
 from difflib import SequenceMatcher
+from heapq import nlargest
 
 
 def ratio(a, b):
@@ -30,7 +24,7 @@ def partial_ratio(a, b):
     blocks = m.get_matching_blocks()
 
     scores = []
-    for i, j, n in blocks:
+    for i, j, _ in blocks:
         start = max(j - i, 0)
         end = start + len(short)
         o = SequenceMatcher(None, short, long[start:end])
@@ -82,11 +76,13 @@ def _extraction_generator(query, choices, scorer=quick_ratio, score_cutoff=0):
                 yield (choice, score)
 
 
-def extract(query, choices, *, scorer=quick_ratio, score_cutoff=0, limit=10):
+def extract(
+    query, choices, *, scorer=quick_ratio, score_cutoff=0, limit: int | None = 10
+):
     it = _extraction_generator(query, choices, scorer, score_cutoff)
     key = lambda t: t[1]
     if limit is not None:
-        return heapq.nlargest(limit, it, key=key)
+        return nlargest(limit, it, key=key)
     return sorted(it, key=key, reverse=True)
 
 
@@ -121,9 +117,7 @@ def extract_or_exact(query, choices, *, limit=None, scorer=quick_ratio, score_cu
 
 
 def extract_matches(query, choices, *, scorer=quick_ratio, score_cutoff=0):
-    matches = extract(
-        query, choices, scorer=scorer, score_cutoff=score_cutoff, limit=None
-    )
+    matches = extract(query, choices, scorer=scorer, score_cutoff=score_cutoff)
     if len(matches) == 0:
         return []
 
@@ -145,7 +139,7 @@ def extract_matches(query, choices, *, scorer=quick_ratio, score_cutoff=0):
     return to_return
 
 
-def finder(text, collection, *, key=None, lazy=True):
+async def finder(text, collection, *, key=None):
     suggestions = []
     text = str(text)
     pat = ".*?".join(map(re.escape, text))
@@ -161,14 +155,11 @@ def finder(text, collection, *, key=None, lazy=True):
             return tup[0], tup[1], key(tup[2])
         return tup
 
-    if lazy:
-        return (z for _, _, z in sorted(suggestions, key=sort_key))
-    else:
-        return [z for _, _, z in sorted(suggestions, key=sort_key)]
+    return [z for _, _, z in sorted(suggestions, key=sort_key)]
 
 
-def find(text, collection, *, key=None):
+async def find(text, collection, *, key=None) -> list | None:
     try:
-        return finder(text, collection, key=key, lazy=False)[0]
+        return await finder(text, collection, key=key)
     except IndexError:
         return None

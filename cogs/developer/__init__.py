@@ -4,8 +4,14 @@ from io import BytesIO
 from typing import Type, overload
 
 import discord
+from discord.ext.pages import Paginator
+from discord.utils import as_chunks
 
 from core import Cog, GuildModel
+
+from .rtfm import OVERRIDES, TARGETS, SphinxObjectFileReader, create_buttons, finder
+
+__all__ = ("setup",)
 
 GITHUB_RE = re.compile(
     r"https://github\.com/(?P<repo>[a-zA-Z0-9-]+/[\w.-]+)/blob/"
@@ -21,6 +27,12 @@ GITHUB_GIST_RE = re.compile(
 PULL_HASH_REGEX = re.compile(
     r"(?:(?P<org>(?:[A-Za-z]|\d|-)+)\/)?(?P<repo>(?:[A-Za-z]|\d|-|_|\.)+)?(?:##)(?P<index>[0-9]+)"
 )
+
+
+async def rtfm_autocomplete(ctx: discord.AutocompleteContext):
+    assert isinstance(ctx.cog, Developer)
+    results = await ctx.cog.get_rtfm_results(ctx.options["documentation"], ctx.value)
+    return [key for key, _ in results] if results else []
 
 
 class Delete(discord.ui.View):
@@ -66,6 +78,8 @@ class Developer(Cog):
             (GITHUB_RE, self.fetch_snippet),
             (GITHUB_GIST_RE, self.fetch_gist_snippet),
         ]
+        self.rtfm_cache: dict[str, dict] = {}
+        self.bot.loop.create_task(self.build_docs())
 
     @overload
     async def _fetch(self, url: str, response_type: Type[str]) -> str:
@@ -256,6 +270,97 @@ class Developer(Cog):
         await GuildModel.update_or_create(id=ctx.guild_id, defaults={"repo": repo})
         await ctx.respond(
             f"The default GitHub repository for pr and issue linking is now `{repo}`."
+        )
+
+    async def build_docs(self) -> None:
+        await self.bot.wait_until_ready()
+        for target in TARGETS:
+            self.bot.loop.create_task(self.build_documentation((target)))
+
+    async def build_documentation(self, target: str) -> None:
+        url = TARGETS[target]
+        req = await self.bot.http_session.get(
+            OVERRIDES.get(target, url + "/objects.inv")
+        )
+        if req.status != 200:
+            raise discord.ApplicationCommandError(
+                f"Failed to build RTFM cache for {target}"
+            )
+        self.rtfm_cache[target] = SphinxObjectFileReader(
+            await req.read()
+        ).parse_object_inv(url)
+
+    async def get_rtfm_results(self, target: str, query: str) -> list:
+        if not (cached := self.rtfm_cache.get(target)):
+            return []
+        results = await finder(
+            query,
+            list(cached.items()),
+            key=lambda x: x[0],
+        )
+        return results
+
+    async def do_rtfm(self, ctx: discord.ApplicationContext, doc: str, query: str):
+        if not (results := await self.get_rtfm_results(doc, query)):
+            return await ctx.respond("Couldn't find any results")
+
+        if len(results) <= 15:
+            embed = discord.Embed(
+                title=f"Searched in {doc}",
+                description="\n".join([f"[`{key}`]({url})" for key, url in results]),
+                color=discord.Color.blurple(),
+            )
+            return await ctx.respond(embed=embed)
+
+        chunks = as_chunks(iter(results), 15)
+        embeds = [
+            discord.Embed(
+                title=f"Searched in {doc}",
+                description="\n".join([f"[`{key}`]({url})" for key, url in chunk]),
+                color=discord.Color.blurple(),
+            )
+            for chunk in chunks
+        ]
+        paginator = Paginator(
+            embeds,  # type: ignore # embeds is compatible
+            custom_buttons=create_buttons(),
+            use_default_buttons=False,
+        )
+        await paginator.respond(ctx.interaction)
+
+    rtfm = discord.SlashCommandGroup(
+        name="rtfm", description="Search through docs of a library."
+    )
+
+    @rtfm.command()
+    @discord.option(
+        "documentation",
+        description="The documentation to search through.",
+        choices=[*TARGETS.keys()],
+    )
+    @discord.option(
+        "query", description="The search query.", autocomplete=rtfm_autocomplete
+    )
+    async def search(
+        self,
+        ctx: discord.ApplicationContext,
+        documentation: str,
+        query: str,
+    ):
+        """Search through a specific documentation."""
+        await self.do_rtfm(ctx, documentation, query)
+
+    @rtfm.command()
+    async def list(self, ctx: discord.ApplicationContext):
+        """List all avaliable documentation search targets."""
+        await ctx.respond(
+            embed=discord.Embed(
+                title="Avaliable RTFM Targets",
+                description=", ".join(
+                    [f"[{target}]({link})" for target, link in TARGETS.items()]
+                ),
+                color=discord.Color.green(),
+            )
         )
 
     @Cog.listener()
