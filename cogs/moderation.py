@@ -64,50 +64,96 @@ class Moderation(Cog):
 
     @discord.slash_command()
     @discord.guild_only()
-    @discord.default_permissions(ban_members=True)
+    @discord.default_permissions(manage_roles=True)
+    @discord.option(
+        "permission",
+        description='The permission to deny. Defaults to "Send Messages".',
+        choices=["Send Messages", "View Channel"],
+        default="Send Messages",
+    )
+    @discord.option(
+        "role",
+        discord.Role,
+        description="The role to modify permission overwrites for. Defaults to @everyone.",
+        default=None,
+    )
     @discord.option(
         "reason",
         description="The reason for locking this channel.",
         default="No reason provided",
     )
-    async def lock(self, ctx: Context, *, reason: str):
-        """Disable the Send Messages permission for the default role."""
+    async def lock(self, ctx: Context, permission: str, role: discord.Role | None, *, reason: str):
+        """Deny Send Messages or View Channel permissions in the current channel for the specified role."""
         await ctx.assert_permissions(manage_roles=True)
         assert isinstance(ctx.channel, discord.TextChannel) and ctx.guild
-        if ctx.channel.overwrites_for(ctx.guild.default_role).send_messages is False:
-            return await ctx.respond("This channel is already locked.")
+        permission_string = permission.lower().replace(" ", "_")
+        role = role or ctx.guild.default_role
+        overwrites = ctx.channel.overwrites
+        if target_overwrites := overwrites.get(role):
+            if getattr(target_overwrites, permission_string) is False:
+                return await ctx.respond(
+                    f"The {permission} permission is already denied for {role.mention} in this channel."
+                )
+            setattr(target_overwrites, permission_string, False)
+        else:
+            overwrites[role] = discord.PermissionOverwrite(**{permission_string: False})
         await ctx.channel.edit(
-            overwrites={
-                ctx.guild.default_role: discord.PermissionOverwrite(send_messages=False)
-            },
+            overwrites=overwrites,  # type: ignore # Member is compatible with Member | Role
             reason=f"{ctx.author} ({ctx.author.id}): {reason}",
         )
-        await ctx.respond("Locked this channel.")
+        await ctx.respond(
+            f"The {permission} permission is now denied for {role.mention} in this channel."
+        )
 
     @discord.slash_command()
     @discord.guild_only()
-    @discord.default_permissions(ban_members=True)
+    @discord.default_permissions(manage_roles=True)
+    @discord.option(
+        "permission",
+        description='The permission to set back to the default state. Defaults to "Send Messages".',
+        choices=["Send Messages", "View Channel"],
+        default="Send Messages",
+    )
+    @discord.option(
+        "role",
+        discord.Role,
+        description="The role to modify permission overwrites for. Defaults to @everyone.",
+        default=None,
+    )
+    @discord.option(
+        "neutralize",
+        description="Whether to remove the permission overwrite instead of allowing the permissions explicitly.",
+        default=False,
+    )
     @discord.option(
         "reason",
         description="The reason for unlocking this channel.",
         default="No reason provided",
     )
-    async def unlock(self, ctx: Context, *, reason: str):
-        """Set the Send Messages permission to the default state for the default role."""
+    async def unlock(self, ctx: Context, permission: str, role: discord.Role | None, neutralize: bool, *, reason: str):
+        """Allow Send Messages or View Channel permissions in the current channel for the specified role."""
         await ctx.assert_permissions(manage_roles=True)
         assert isinstance(ctx.channel, discord.TextChannel) and ctx.guild
-        if (
-            ctx.channel.overwrites_for(ctx.guild.default_role).send_messages
-            is not False
-        ):
-            return await ctx.respond("This channel isn't locked.")
+        permission_string = permission.lower().replace(" ", "_")
+        role = role or ctx.guild.default_role
+        overwrites = ctx.channel.overwrites
+        new_state = None if neutralize else True
+        new_state_text = "neutral" if neutralize else "allowed"
+        if target_overwrites := overwrites.get(role):
+            if getattr(target_overwrites, permission_string) is new_state:
+                return await ctx.respond(
+                    f"The {permission} permission is already {new_state_text} for {role.mention} in this channel."
+                )
+            setattr(target_overwrites, permission_string, new_state)
+        else:
+            overwrites[role] = discord.PermissionOverwrite(**{permission_string: new_state})
         await ctx.channel.edit(
-            overwrites={
-                ctx.guild.default_role: discord.PermissionOverwrite(send_messages=None)
-            },
+            overwrites=overwrites,  # type: ignore # Member is compatible with Member | Role
             reason=f"{ctx.author} ({ctx.author.id}): {reason}",
         )
-        await ctx.respond("Unlocked this channel.")
+        await ctx.respond(
+            f"The {permission} permission is now {new_state_text} for {role.mention} in this channel."
+        )
 
     async def purge_channel(self, ctx: Context, **kwargs):
         await ctx.assert_permissions(read_message_history=True, manage_messages=True)
