@@ -48,18 +48,16 @@ class Moderation(Cog):
     @discord.option(
         "seconds",
         description="The slowmode cooldown in seconds, 0 to disable slowmode.",
+        min_value=0,
+        max_value=21600,
     )
     async def slowmode(self, ctx: Context, seconds: int):
         """Set slowmode for the current channel."""
         assert isinstance(ctx.channel, discord.TextChannel)
         await ctx.assert_permissions(manage_channels=True)
-        if not 21600 >= seconds >= 0:
-            return await ctx.respond(
-                "Slowmode should be between `21600` and `0` seconds."
-            )
         await ctx.channel.edit(slowmode_delay=seconds)
         await ctx.respond(
-            f"The slowmode cooldown is now `{seconds}` second{s(seconds)}."
+            f"Slowmode delay is now `{seconds}` second{s(seconds)}."
             if seconds > 0
             else "Slowmode is now disabled."
         )
