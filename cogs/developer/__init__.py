@@ -300,13 +300,28 @@ class Developer(Cog):
         )
         return results
 
-    async def do_rtfm(self, ctx: discord.ApplicationContext, doc: str, query: str):
-        if not (results := await self.get_rtfm_results(doc, query)):
+    @discord.command()
+    @discord.option(
+        "documentation",
+        description="The documentation to search through.",
+        choices=[*TARGETS.keys()],
+    )
+    @discord.option(
+        "query", description="The search query.", autocomplete=rtfm_autocomplete
+    )
+    async def rtfm(
+        self,
+        ctx: discord.ApplicationContext,
+        documentation: str,
+        query: str,
+    ):
+        """Search through a specific documentation."""
+        if not (results := await self.get_rtfm_results(documentation, query)):
             return await ctx.respond("Couldn't find any results")
 
         if len(results) <= 15:
             embed = discord.Embed(
-                title=f"Searched in {doc}",
+                title=f"Searched in {documentation}",
                 description="\n".join([f"[`{key}`]({url})" for key, url in results]),
                 color=discord.Color.blurple(),
             )
@@ -315,7 +330,7 @@ class Developer(Cog):
         chunks = as_chunks(iter(results), 15)
         embeds = [
             discord.Embed(
-                title=f"Searched in {doc}",
+                title=f"Searched in {documentation}",
                 description="\n".join([f"[`{key}`]({url})" for key, url in chunk]),
                 color=discord.Color.blurple(),
             )
@@ -327,41 +342,6 @@ class Developer(Cog):
             use_default_buttons=False,
         )
         await paginator.respond(ctx.interaction)
-
-    rtfm = discord.SlashCommandGroup(
-        name="rtfm", description="Search through docs of a library."
-    )
-
-    @rtfm.command()
-    @discord.option(
-        "documentation",
-        description="The documentation to search through.",
-        choices=[*TARGETS.keys()],
-    )
-    @discord.option(
-        "query", description="The search query.", autocomplete=rtfm_autocomplete
-    )
-    async def search(
-        self,
-        ctx: discord.ApplicationContext,
-        documentation: str,
-        query: str,
-    ):
-        """Search through a specific documentation."""
-        await self.do_rtfm(ctx, documentation, query)
-
-    @rtfm.command()
-    async def list(self, ctx: discord.ApplicationContext):
-        """List all avaliable documentation search targets."""
-        await ctx.respond(
-            embed=discord.Embed(
-                title="Avaliable RTFM Targets",
-                description=", ".join(
-                    [f"[{target}]({link})" for target, link in TARGETS.items()]
-                ),
-                color=discord.Color.green(),
-            )
-        )
 
     @Cog.listener()
     async def on_message(self, message: discord.Message) -> None:
