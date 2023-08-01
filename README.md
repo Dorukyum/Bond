@@ -65,6 +65,7 @@ It's built with UI components and application commands to be user-friendly.
 ### 💻 Developer Utilities
 - `/repository`: Set the default GitHub repository to use for pr and issue linking
 - [Triggered with "##123" (123 being the issue / pr number)]
+- `/rtfm`: Search through an online documentation with a specific query
 - `Fetch Code Snippet`: Fetch and display a code snippet from a GitHub permalink
 
 ### 😁 Emojis
