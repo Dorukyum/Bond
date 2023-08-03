@@ -51,15 +51,6 @@ class Toolkit(commands.Bot):
             environ.setdefault("JISHAKU_HIDE", "1")
 
         self.cache: dict[str, dict] = {"afk": {}, "example_list": {}}
-        self.errors_webhook = (
-            discord.Webhook.from_url(
-                webhook_url,
-                session=self.http_session,
-                bot_token=self.http.token,
-            )
-            if (webhook_url := getenv("ERRORS_WEBHOOK"))
-            else None
-        )
 
         for cog in (
             "jishaku",
@@ -109,6 +100,16 @@ class Toolkit(commands.Bot):
         return self.http._HTTPClient__session  # type: ignore # it exists
 
     async def on_connect(self) -> None:
+        self.errors_webhook = (
+            discord.Webhook.from_url(
+                webhook_url,
+                session=self.http_session,
+                bot_token=self.http.token,
+            )
+            if (webhook_url := getenv("ERRORS_WEBHOOK"))
+            else None
+        )
+
         if "-s" in argv:
             await self.sync_commands()
             print("Synchronized commands.")
