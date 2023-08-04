@@ -14,7 +14,7 @@ It's built with UI components and application commands to be user-friendly.
 - `/massban`: Ban multiple members at once
 - `/warn`: Warn members
 - `/delwarn`: Delete a warning
-- `/warns`: View warnings given to a specific member
+- `/warnlogs`: View warnings given to a specific member
 - `/slowmode`: Set channel slowmode delay
 - `/lock`: Lock a channel instantly
 - `/unlock`: Unlock a locked channel
