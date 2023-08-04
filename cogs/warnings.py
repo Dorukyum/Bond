@@ -30,7 +30,7 @@ class Warns(Cog):
         if ctx.guild.owner_id == member.id:
             return await ctx.respond("You can't warn the owner of the server.")
         if member.bot:
-            return await ctx.respond("You can't warn a bot.")
+            return await ctx.respond("Please warn a user, not bot.")
         await WarnModel.create(
             mod_id=ctx.author.id,
             target_id=member.id,
