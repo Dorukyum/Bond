@@ -3,7 +3,6 @@ from discord.utils import utcnow
 
 from core import Cog, Context
 
-
 class HelpSelect(discord.ui.Select):
     def __init__(self, cog: Cog) -> None:
         super().__init__(
@@ -56,7 +55,7 @@ class Help(Cog):
         embed.set_thumbnail(url=self.bot.user.display_avatar.url)
         embed.add_field(name="Server Count", value=str(len(self.bot.guilds)))
         embed.add_field(name="User Count", value=str(len(self.bot.users)))
-        embed.add_field(name="Ping", value=f"{self.bot.latency*1000:.2f}ms")
+        embed.add_field(name="Ping-pong responds", value=f"{self.bot.latency*1000:.2f}ms")
 
         view = discord.ui.View(HelpSelect(self))
         await ctx.respond(embed=embed, view=view)
