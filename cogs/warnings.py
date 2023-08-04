@@ -46,7 +46,7 @@ class Warns(Cog):
     @discord.guild_only()
     @discord.default_permissions(manage_messages=True)
     @discord.option(
-        "id", description="The ID of the warning. Use `/warns` to view warn data."
+        "id", description="The ID of the warning. Use `/warnlogs` to view warn data."
     )
     async def delwarn(self, ctx: Context, id: int):
         """Delete a warning."""
@@ -59,7 +59,7 @@ class Warns(Cog):
     @discord.guild_only()
     @discord.default_permissions(manage_messages=True)
     @discord.option("member", description="The member to view the warnings given to.")
-    async def warns(self, ctx: Context, member: discord.Member):
+    async def warnlogs(self, ctx: Context, member: discord.Member):
         """View the warnings given to a member."""
         if member.bot:
             return await ctx.respond("Bots can't be warned.")
