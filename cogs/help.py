@@ -55,11 +55,13 @@ class Help(Cog):
         )
         embed.set_thumbnail(url=self.bot.user.display_avatar.url)
         embed.add_field(name="Server Count", value=str(len(self.bot.guilds)))
-        embed.add_field(name="User Count", value=str(len(self.bot.users)))
+        embed.add_field(
+            name="Member Count",
+            value=str(sum(guild.member_count for guild in self.bot.guilds)),
+        )
         embed.add_field(name="Ping", value=f"{self.bot.latency*1000:.2f}ms")
 
-        view = discord.ui.View(HelpSelect(self))
-        await ctx.respond(embed=embed, view=view)
+        await ctx.respond(embed=embed, view=discord.ui.View(HelpSelect(self)))
 
 
 def setup(bot):
