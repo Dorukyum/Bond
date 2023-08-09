@@ -15,7 +15,7 @@ class HelpSelect(discord.ui.Select):
                 )
                 for cog_name, cog in cog.bot.cogs.items()
                 if cog.__cog_commands__
-                and cog_name not in ["Jishaku", "Pycord", "Developer", "Help"]
+                and cog_name not in ["Jishaku", "Pycord", "Owner", "Help"]
             ],
         )
         self.cog = cog
