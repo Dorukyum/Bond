@@ -1,11 +1,10 @@
 <div align="center">
 	<h1>Toolkit 🛠️</h1>
 	<img alt="Discord" src="https://img.shields.io/discord/789829818547175446?label=Discord&style=for-the-badge&logo=discord&color=5865F2&logoColor=white">
-	<img alt="GitHub contributors" src="https://img.shields.io/github/contributors/Dorukyum/Toolkit?style=for-the-badge">
-	<img alt="Lines of code" src="https://img.shields.io/tokei/lines/github/Dorukyum/Toolkit?style=for-the-badge">
-	<h3>Gain full control over your Discord server.</h3>
+	<img alt="GitHub stars" src="https://img.shields.io/github/stars/Dorukyum/Toolkit?label=GitHub+Stars&style=for-the-badge&logo=github&color=45CDD11">
 </div>
 
+### Gain full control over your Discord server.
 Toolkit is a Discord bot created to make server management as easy as possible.
 It's built with UI components and application commands to be user-friendly.
 
@@ -22,7 +21,6 @@ It's built with UI components and application commands to be user-friendly.
 - `/purge member`: Delete messages only from a specific member
 - `/purge bots`: Delete messages only from bots
 - `/purge containing`: Delete messages only containing a specific substring
-- `View Account Age`: Simply check the age of an account (user command)
 
 ### 🗒️ Logs
 - `/logs set`: Set the logs channel for a logging category
