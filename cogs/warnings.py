@@ -1,6 +1,6 @@
 import discord
 
-from cogs.modlogs import ModLogs
+from cogs.logs import Logs as LogsCog
 from core import Cog, Context, GuildModel, LogActions, WarnModel
 
 
@@ -39,7 +39,7 @@ class Warns(Cog):
         )
         await ctx.respond(f"Warned `{member}`.")
         if channel := await GuildModel.get_text_channel(ctx.guild, "mod_log"):
-            if isinstance((cog := self.bot.get_cog("ModLogs")), ModLogs):
+            if isinstance((cog := self.bot.get_cog("Logs")), LogsCog):
                 await cog.mod_log(ctx.author, member, reason, LogActions.WARN, channel)
 
     @discord.slash_command()

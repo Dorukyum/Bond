@@ -6,7 +6,34 @@ from discord.utils import utcnow
 from core import Cog, Context, GuildModel, LogAction, LogActions, humanize_time
 
 
-class ModLogs(Cog):
+class CreateThreadModal(discord.ui.Modal):
+    def __init__(self, view: "CreateThreadView") -> None:
+        super().__init__(
+            discord.ui.InputText(label="Thread name", max_length=99),
+            title="Create Thread",
+        )
+        self.view = view
+
+    async def callback(self, interaction: discord.Interaction) -> None:
+        assert self.view.message and self.children[0].value
+        thread = await self.view.message.create_thread(name=self.children[0].value)
+        await interaction.response.send_message(
+            f"Thread created: {thread.mention}", ephemeral=True
+        )
+        await self.view.message.edit(view=None)
+        self.view.stop()
+
+
+class CreateThreadView(discord.ui.View):
+    def __init__(self) -> None:
+        super().__init__(timeout=3600, disable_on_timeout=True)
+
+    @discord.ui.button(label="Create Thread", style=discord.ButtonStyle.green)
+    async def create_thread(self, _, interaction: discord.Interaction) -> None:
+        await interaction.response.send_modal(CreateThreadModal(self))
+
+
+class Logs(Cog):
     """Commands related to logs."""
 
     async def mod_log(
@@ -19,11 +46,16 @@ class ModLogs(Cog):
     ) -> None:
         await channel.send(
             embed=discord.Embed(
-                description=f"**{action.emoji} {action.text} {target.name}**#{target.discriminator} *(ID {target.id})*\n:page_facing_up: **Reason:** {reason}",
-                color=getattr(discord.Color, action.color)(),
+                description=(
+                    f"{action.emoji} **{action.text}** {target} (ID: {target.id})\n"
+                    f":page_facing_up: **Reason:** {reason}\n"
+                    f":calendar_spiral: <t:{int(utcnow().timestamp())}>"
+                ),
+                color=action.color,
             )
-            .set_author(name=f"{mod} (ID {mod.id})", icon_url=mod.display_avatar)
-            .set_thumbnail(url=target.display_avatar)
+            .set_author(name=f"{mod.display_name} (ID: {mod.id})", icon_url=mod.display_avatar)
+            .set_thumbnail(url=target.display_avatar),
+            view=CreateThreadView(),
         )
 
     async def server_log(
@@ -35,94 +67,65 @@ class ModLogs(Cog):
         channel: discord.TextChannel,
         after: discord.Role | discord.TextChannel | None = None,
     ) -> None:
+        changes: list[str] = []
         if isinstance(target, discord.Role):
             assert isinstance(after, discord.Role)
             if action is LogActions.ROLE_UPDATE:
-                changes_of_role = []
                 if target.name != after.name:
-                    changes_of_role.append(
-                        f"Name has been changed from {target.name} to {after.name}."
+                    changes.append(
+                        f"- Name changed from **@{target.name}** to {after.mention}."
                     )
-                if target.hoist != after.hoist:
-                    if after.hoist:
-                        changes_of_role.append("Role has been hoisted.")
-                    else:
-                        changes_of_role.append("Role has been non-hoisted.")
-                await channel.send(
-                    embed=discord.Embed(
-                        description=f"**{action.emoji} {action.text}** {after.mention} *(ID {target.id})*\n:page_facing_up: **Reason:** {reason}",
-                        color=getattr(discord.Color, action.color)(),
-                    )
-                    .add_field(
-                        name="Changes",
-                        value="\n".join(changes_of_role),
-                    )
-                    .set_author(name=f"{mod} (ID {mod.id})")
+                if after.hoist and not target.hoist:
+                    changes.append("Members are now displayed seperately from online members.")
+                elif target.hoist and not after.hoist:
+                    changes.append("Members are no longer displayed seperately from online members.")
+        elif action is LogActions.CHANNEL_UPDATE:
+            assert after
+            if target.name != after.name:
+                changes.append(
+                    f"- Name changed from **#{target.name}** to {after.mention}."
                 )
-                return
-            await channel.send(
-                embed=discord.Embed(
-                    description=f"**{action.emoji} {action.text}** {after.mention} *(ID {target.id})*\n:page_facing_up: **Reason:** {reason}",
-                    color=getattr(discord.Color, action.color)(),
-                ).set_author(name=f"{mod} (ID {mod.id})")
+            if target.position != after.position:
+                changes.append(
+                    f"- Position changed from `{target.position+1}` to `{after.position+1}`."
+                )
+
+            if isinstance(target, discord.TextChannel):
+                assert isinstance(after, discord.TextChannel)
+                if target.topic != after.topic:
+                    if target.topic and after.topic:
+                        changes.append(
+                            "- Topic changed from `{target.topic}` to `{after.topic}`."
+                        )
+                    elif not target.topic:
+                        changes.append("- Topic has been added.")
+                    else:
+                        changes.append("- Topic has been removed.")
+                if target.slowmode_delay != after.slowmode_delay:
+                    changes.append(
+                        f"- Slowmode delay changed from `{target.slowmode_delay}s` to `{after.slowmode_delay}s`."
+                    )
+            elif isinstance(target, discord.VoiceChannel):
+                assert isinstance(after, discord.VoiceChannel)
+                if target.user_limit != after.user_limit:
+                    changes.append(
+                        f"- Voice users limit changed from `{target.user_limit}` to `{after.user_limit}`."
+                    )
+
+        await channel.send(
+            embed=discord.Embed(
+                description=(
+                    f"{action.emoji} **{action.text}** {target.mention} (ID: {target.id})\n"
+                    f":page_facing_up: **Reason:** {reason}\n"
+                    f":calendar_spiral: <t:{int(utcnow().timestamp())}>"
+                ),
+                color=action.color,
+                fields=[discord.EmbedField(name="Changes", value="\n".join(changes))],
             )
-        else:
-            if action is LogActions.CHANNEL_UPDATE:
-                assert after
-                changes_of_channel = []
-                if target.name != after.name:
-                    changes_of_channel.append(
-                        f"Name has been changed from **#{target.name}** to {after.mention}."
-                    )
-                if target.position != after.position:
-                    changes_of_channel.append(
-                        f"Position has been changed from {target.position+1} to {after.position+1}."
-                    )
-
-                if isinstance(target, discord.TextChannel):
-                    assert isinstance(after, discord.TextChannel)
-                    if target.topic != after.topic:
-                        if target.topic and after.topic:
-                            changes_of_channel.append(
-                                "Topic has been changed from `{0.topic}` to `{1.topic}`.".format(
-                                    target, after
-                                )
-                            )
-                        elif not target.topic:
-                            changes_of_channel.append("Topic has been added.")
-                        else:
-                            changes_of_channel.append("Topic has been removed.")
-                    if target.slowmode_delay != after.slowmode_delay:
-                        changes_of_channel.append(
-                            f"Slowmode has been changed from `{target.slowmode_delay}s` to `{after.slowmode_delay}s`."
-                        )
-
-                elif isinstance(target, discord.VoiceChannel):
-                    assert isinstance(after, discord.VoiceChannel)
-                    if target.user_limit != after.user_limit:
-                        changes_of_channel.append(
-                            f"Voice members limit has changed from `{target.user_limit}` to `{after.user_limit}`."
-                        )
-
-                if changes_of_channel:
-                    await channel.send(
-                        embed=discord.Embed(
-                            description=f"**{action.emoji} {action.text}** {target.mention} *(ID {target.id})*\n:page_facing_up: **Reason:** {reason}",
-                            color=getattr(discord.Color, action.color)(),
-                        )
-                        .add_field(
-                            name="Changes",
-                            value="\n".join(changes_of_channel),
-                        )
-                        .set_author(name=f"{mod} (ID {mod.id})")
-                    )
-                return
-            await channel.send(
-                embed=discord.Embed(
-                    description=f"**{action.emoji} {action.text}** {target.mention} *(ID {target.id})*\n:page_facing_up: **Reason:** {reason}",
-                    color=getattr(discord.Color, action.color)(),
-                ).set_author(name=f"{mod} (ID {mod.id})")
-            )
+            .set_author(name=f"{mod.display_name} (ID: {mod.id})", icon_url=mod.display_avatar)
+            .set_thumbnail(url=mod.display_avatar),
+            view=CreateThreadView(),
+        )
 
     logs = discord.SlashCommandGroup(
         "logs",
@@ -327,4 +330,4 @@ class ModLogs(Cog):
 
 
 def setup(bot):
-    bot.add_cog(ModLogs(bot))
+    bot.add_cog(Logs(bot))

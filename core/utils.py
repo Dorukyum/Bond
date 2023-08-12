@@ -2,7 +2,7 @@ from collections import namedtuple
 from datetime import timedelta
 from typing import Any, Literal
 
-from discord import DiscordException
+from discord import Color, DiscordException
 from discord.ext import commands
 
 __all__ = (
@@ -54,17 +54,17 @@ LogAction = namedtuple("LogData", ("color", "emoji", "text"))
 
 
 class LogActions:
-    WARN = LogAction("orange", ":warning:", "Warned")
-    TIMEOUT = LogAction("brand_red", ":stopwatch:", "Timed out")
-    KICK = LogAction("brand_red", ":hammer:", "Kicked")
-    BAN = LogAction("brand_red", ":hammer:", "Banned")
-    UNBAN = LogAction("brand_green", ":unlock:", "Unbanned")
-    CHANNEL_CREATE = LogAction("yellow", ":heavy_plus_sign:", "Channel Created")
-    CHANNEL_DELETE = LogAction("dark_orange", ":heavy_minus_sign:", "Channel Deleted")
-    CHANNEL_UPDATE = LogAction("orange", ":red_circle:", "Channel Updated")
-    ROLE_CREATE = LogAction("yellow", ":heavy_plus_sign:", "Role Created")
-    ROLE_DELETE = LogAction("dark_orange", ":heavy_minus_sign:", "Role Deleted")
-    ROLE_UPDATE = LogAction("orange", ":red_circle:", "Role Updated")
+    WARN = LogAction(Color.yellow(), ":warning:", "Warned")
+    TIMEOUT = LogAction(Color.dark_orange(), ":stopwatch:", "Timed out")
+    KICK = LogAction(Color.orange(), ":boot:", "Kicked")
+    BAN = LogAction(Color.from_rgb(255, 0, 0), ":no_entry_sign:", "Banned")
+    UNBAN = LogAction(Color.brand_green(), ":unlock:", "Unbanned")
+    # CHANNEL_CREATE = LogAction(Color.yellow(), ":heavy_plus_sign:", "Created channel")
+    # CHANNEL_DELETE = LogAction(Color.dark_orange(), ":heavy_minus_sign:", "Deleted channel")
+    CHANNEL_UPDATE = LogAction(Color.orange(), ":wrench:", "Updated channel")
+    # ROLE_CREATE = LogAction(Color.yellow(), ":heavy_plus_sign:", "Created role")
+    # ROLE_DELETE = LogAction(Color.dark_orange(), ":heavy_minus_sign:", "Deleted role")
+    ROLE_UPDATE = LogAction(Color.orange(), ":wrench:", "Updated role")
 
 
 # exceptions
