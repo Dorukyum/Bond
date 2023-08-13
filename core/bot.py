@@ -1,6 +1,4 @@
-import logging
 from os import environ, getenv
-from sys import argv
 from traceback import format_exception
 
 import discord
@@ -11,8 +9,6 @@ from tortoise import Tortoise
 from .context import Context
 from .models import GuildModel
 
-DEBUG: bool = "-d" in argv
-
 
 class Toolkit(commands.Bot):
     def __init__(self) -> None:
@@ -21,6 +17,7 @@ class Toolkit(commands.Bot):
                 type=discord.ActivityType.listening, name=f"/help"
             ),
             allowed_mentions=discord.AllowedMentions.none(),
+            auto_sync_commands=False,
             chunk_guilds_at_startup=False,
             help_command=None,
             intents=discord.Intents(
@@ -32,49 +29,7 @@ class Toolkit(commands.Bot):
             ),
             owner_ids=[543397958197182464],
         )
-
-        logger = logging.getLogger("discord")
-        logger.setLevel(logging.DEBUG if DEBUG else logging.INFO)
-        handler = logging.FileHandler(
-            filename="discord.log", encoding="utf-8", mode="w"
-        )
-        handler.setFormatter(
-            logging.Formatter(
-                "[%(asctime)s %(levelname)s] %(name)s: %(message)s",
-                "%d/%m/%y %H:%M:%S",
-            )
-        )
-        logger.addHandler(handler)
-
-        environ.setdefault("JISHAKU_NO_UNDERSCORE", "1")
-        if not DEBUG:
-            environ.setdefault("JISHAKU_HIDE", "1")
-
         self.cache: dict[str, dict] = {"afk": {}, "example_list": {}}
-
-        for cog in (
-            "jishaku",
-            "cogs.automod",
-            "cogs.developer",
-            "cogs.dropdown_roles",
-            "cogs.fun",
-            "cogs.general",
-            "cogs.help",
-            "cogs.moderation",
-            "cogs.modlogs",
-            "cogs.owner",
-            "cogs.pycord",
-            "cogs.tags",
-            "cogs.warnings",
-        ):
-            self.load_cog(cog)
-
-    def load_cog(self, cog: str) -> None:
-        try:
-            self.load_extension(cog)
-        except Exception as e:
-            e = getattr(e, "original", e)
-            print("".join(format_exception(type(e), e, e.__traceback__)))
 
     async def setup_tortoise(self) -> None:
         await Tortoise.init(
@@ -99,7 +54,7 @@ class Toolkit(commands.Bot):
     def http_session(self) -> ClientSession:
         return self.http._HTTPClient__session  # type: ignore # it exists
 
-    async def on_connect(self) -> None:
+    async def on_ready(self) -> None:
         self.errors_webhook = (
             discord.Webhook.from_url(
                 webhook_url,
@@ -109,12 +64,6 @@ class Toolkit(commands.Bot):
             if (webhook_url := getenv("ERRORS_WEBHOOK"))
             else None
         )
-
-        if "-s" in argv:
-            await self.sync_commands()
-            print("Synchronized commands.")
-
-    async def on_ready(self) -> None:
         print(self.user, "is ready")
 
     async def on_application_command_error(self, ctx: Context, error: Exception):
@@ -166,5 +115,21 @@ class Toolkit(commands.Bot):
         if saved := await GuildModel.get_or_none(id=guild.id):
             await saved.delete()
 
-    def run(self) -> None:
-        super().run(getenv("DEBUG_TOKEN") if DEBUG else getenv("TOKEN"))
+    def run(
+        self, debug: bool = False, cogs: list[str] | None = None, sync: bool = False
+    ) -> None:
+        self.load_extensions("jishaku", *cogs or ("cogs", "cogs.developer"))
+        if sync:
+
+            async def on_connect() -> None:
+                await self.sync_commands(delete_existing=not debug)
+                print("Synchronized commands.")
+
+            self.on_connect = on_connect
+
+        environ.setdefault("JISHAKU_NO_UNDERSCORE", "1")
+        if debug:
+            return super().run(getenv("DEBUG_TOKEN", getenv("TOKEN")))
+
+        environ.setdefault("JISHAKU_HIDE", "1")
+        super().run(getenv("TOKEN"))
