@@ -31,6 +31,7 @@ class Pycord(Cog):
         super().__init__(bot)
         self.staff_list = None
         self.staff_list_channel = None
+        self.chunked = False
 
     async def convert_attr(self, path):
         thing = discord
@@ -147,6 +148,11 @@ class Pycord(Cog):
     @discord.default_permissions(manage_guild=True)
     async def update_staff_list(self, ctx: Context):
         assert ctx.guild
+        if not self.chunked:
+            await ctx.defer()
+            await ctx.guild.chunk()
+            self.chunked = True
+
         staff_roles = [
             881247351937855549,  # Project Lead
             929080208148017242,  # Project Advisor
