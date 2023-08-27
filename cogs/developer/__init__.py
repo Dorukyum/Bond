@@ -305,6 +305,7 @@ class Developer(Cog):
         "documentation",
         description="The documentation to search through.",
         choices=[*TARGETS.keys()],
+        default="pycord"
     )
     @discord.option(
         "query", description="The search query.", autocomplete=rtfm_autocomplete
