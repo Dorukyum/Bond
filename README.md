@@ -28,11 +28,6 @@ It's built with UI components and application commands to be user-friendly.
 - Moderation logs (ban, kick, timeout)
 - Server logs (channel updates, role updates)
 
-### 🤖 Automoderation
-- `/automod`: Enable or disable automoderation
-- Timeout new accounts on join
-- Ban or timeout when too many mentions are sent
-
 ### ✅ Dropdown Roles
 - `/dropdown_roles setup`: Setup a dropdown menu for choosing roles.
 
