@@ -1,16 +1,13 @@
-from collections import namedtuple
 from datetime import timedelta
 from typing import Any, Literal
 
-from discord import Color, DiscordException
+from discord import DiscordException
 from discord.ext import commands
 
 __all__ = (
     "s",
     "humanize_time",
     "Lowercase",
-    "LogAction",
-    "LogActions",
     "BotMissingPermissions",
 )
 
@@ -47,24 +44,6 @@ class _Lowercase(commands.Converter):
 
 
 Lowercase: Any = _Lowercase()
-
-
-# enums
-LogAction = namedtuple("LogData", ("color", "emoji", "text"))
-
-
-class LogActions:
-    WARN = LogAction(Color.yellow(), ":warning:", "Warned")
-    TIMEOUT = LogAction(Color.dark_orange(), ":stopwatch:", "Timed out")
-    KICK = LogAction(Color.orange(), ":boot:", "Kicked")
-    BAN = LogAction(Color.from_rgb(255, 0, 0), ":no_entry_sign:", "Banned")
-    UNBAN = LogAction(Color.brand_green(), ":unlock:", "Unbanned")
-    # CHANNEL_CREATE = LogAction(Color.yellow(), ":heavy_plus_sign:", "Created channel")
-    # CHANNEL_DELETE = LogAction(Color.dark_orange(), ":heavy_minus_sign:", "Deleted channel")
-    CHANNEL_UPDATE = LogAction(Color.orange(), ":wrench:", "Updated channel")
-    # ROLE_CREATE = LogAction(Color.yellow(), ":heavy_plus_sign:", "Created role")
-    # ROLE_DELETE = LogAction(Color.dark_orange(), ":heavy_minus_sign:", "Deleted role")
-    ROLE_UPDATE = LogAction(Color.orange(), ":wrench:", "Updated role")
 
 
 # exceptions

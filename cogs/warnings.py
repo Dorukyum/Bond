@@ -1,7 +1,7 @@
 import discord
 
 from cogs.logs import Logs as LogsCog
-from core import Cog, Context, GuildModel, LogActions, WarnModel
+from core import Cog, Context, GuildModel, WarnModel
 
 
 class Warns(Cog):
@@ -38,9 +38,10 @@ class Warns(Cog):
             reason=reason,
         )
         await ctx.respond(f"Warned `{member}`.")
+
         if channel := await GuildModel.get_text_channel(ctx.guild, "mod_log"):
             if isinstance((cog := self.bot.get_cog("Logs")), LogsCog):
-                await cog.mod_log(ctx.author, member, reason, LogActions.WARN, channel)
+                await cog.log_moderation_action("warning", member, ctx.author, reason, channel)
 
     @discord.slash_command()
     @discord.guild_only()
