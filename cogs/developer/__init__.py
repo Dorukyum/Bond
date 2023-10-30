@@ -25,7 +25,7 @@ GITHUB_GIST_RE = re.compile(
 )
 
 PULL_HASH_REGEX = re.compile(
-    r"(?:(?P<org>(?:[A-Za-z]|\d|-)+)\/)?(?P<repo>(?:[A-Za-z]|\d|-|_|\.)+)?(?:##)(?P<index>[0-9]+)"
+    r"(?:(?P<org>(?:[A-Za-z]|\d|-)+)\/)?(?P<repo>(?:[A-Za-z]|\d|-|_|\.)+)?(?:#)(?P<index>[0-9]+)"
 )
 
 
@@ -214,7 +214,9 @@ class Developer(Cog):
                 return await handler(**snippet.groupdict())
 
     @discord.message_command(name="Fetch Code Snippet")
-    async def gitlink(self, ctx: discord.ApplicationContext, message: discord.Message):
+    async def fetch_code_snippet(
+        self, ctx: discord.ApplicationContext, message: discord.Message
+    ):
         """Fetch and display a code snippet from a GitHub permalink."""
         assert isinstance(ctx.author, discord.Member) and isinstance(
             ctx.channel, discord.TextChannel
@@ -246,6 +248,34 @@ class Developer(Cog):
                 f"output.{snippet[2]}",
             ),
             view=Delete(ctx.author),
+        )
+
+    @discord.message_command(name="Link GitHub Issues", guild_only=True)
+    async def link_github_issues(
+        self, ctx: discord.ApplicationContext, message: discord.Message
+    ):
+        """Extract GitHub issue and pull request links mentioned with #."""
+        links = []
+        data = await GuildModel.get_or_none(id=ctx.guild_id)
+        for org, repo, index in {*PULL_HASH_REGEX.findall(message.content)[:10]}:
+            data_split = data and data.repo.split("/") or []
+            if not repo and len(data_split) >= 1:
+                repo = data_split[-1]
+                if not org and len(data_split) == 2:
+                    org = data_split[0]
+            if not (org and repo):
+                return await ctx.respond(
+                    "You have to either configure or mention both a GitHub repository "
+                    "and the owner organization in the following format: `org/repo`."
+                )
+            links.append(f"https://github.com/{org}/{repo}/pull/{index}")
+
+        if not links:
+            return await ctx.respond(
+                "No GitHub issue or pull request mentions (ex. #123) found."
+            )
+        await ctx.respond(
+            links[0] if len(links) == 1 else "\n".join(f"<{link}>" for link in links)
         )
 
     @discord.slash_command()
@@ -342,25 +372,6 @@ class Developer(Cog):
             use_default_buttons=False,
         )
         await paginator.respond(ctx.interaction)
-
-    @Cog.listener()
-    async def on_message(self, message: discord.Message) -> None:
-        if not (
-            not message.author.bot
-            and message.guild
-            and (data := await GuildModel.get_or_none(id=message.guild.id))
-            and data.repo
-        ):
-            return
-
-        links = [
-            f"https://github.com/{org or data.repo.split('/')[0]}/{repo or data.repo.split('/')[1]}/pull/{index}"
-            for org, repo, index in {*PULL_HASH_REGEX.findall(message.content)[:10]}
-        ]
-        if len(links) > 2:
-            links = [f"<{link}>" for link in links]
-        if links:
-            await message.reply("\n".join(links))
 
 
 def setup(bot):
