@@ -1,6 +1,7 @@
 from contextlib import suppress
 from io import BytesIO
 from urllib import parse
+from aiohttp import InvalidURL
 
 import discord
 from discord.utils import TimestampStyle, format_dt, utcnow
@@ -255,16 +256,20 @@ class General(Cog):
         """Add a custom emoji to this guild."""
         assert ctx.guild
         await ctx.assert_permissions(manage_emojis=True)
-        async with self.bot.http_session.get(url) as res:
-            if 300 > res.status >= 200:
-                emoji = await ctx.guild.create_custom_emoji(
-                    name=name, image=BytesIO(await res.read()).getvalue()
-                )
-                await ctx.respond(f"{emoji} Successfully created emoji.")
-            else:
-                await ctx.respond(
-                    f"An HTTP error has occured while fetching the image: {res.status} {res.reason}"
-                )
+        try:
+            async with self.bot.http_session.get(url) as res:
+                if 300 > res.status >= 200:
+                    emoji = await ctx.guild.create_custom_emoji(
+                        name=name, image=BytesIO(await res.read()).getvalue()
+                    )
+                    await ctx.respond(f"{emoji} Successfully created emoji.")
+                else:
+                    await ctx.respond(
+                        f"An HTTP error has occured while fetching the image: {res.status} {res.reason}"
+                    )
+        except InvalidURL:
+            await ctx.respond("You have provided an invalid URL.", ephemeral=True)
+
 
     @emoji.command(name="delete")
     @discord.option("name", description="The name of the emoji to delete.")
