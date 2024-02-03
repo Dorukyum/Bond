@@ -28,9 +28,6 @@ It's built with UI components and application commands to be user-friendly.
 - Moderation logs (ban, kick, timeout)
 - Server logs (channel updates, role updates)
 
-### ✅ Dropdown Roles
-- `/dropdown_roles setup`: Setup a dropdown menu for choosing roles.
-
 ### 🏷️ Tags
 - `/tag create`: Create a tag
 - `/tag view`: View the content of a tag
