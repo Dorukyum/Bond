@@ -6,6 +6,7 @@ from discord.ext import commands
 
 __all__ = (
     "s",
+    "list_items",
     "humanize_time",
     "Lowercase",
     "BotMissingPermissions",
@@ -20,6 +21,14 @@ def s(data) -> Literal["", "s"]:
         data = len(data)
     check = data != 1
     return "s" if check else ""
+
+
+def list_items(items) -> str:
+    return (
+        f"{', '.join(items[:-1])} and {items[-1]}"
+        if len(items) > 1
+        else items[0]
+    )
 
 
 def humanize_time(time: timedelta) -> str:
