@@ -19,10 +19,7 @@ class Context(ApplicationContext):
             description=description,
             timestamp=utcnow(),
             color=Color.green(),
-        ).set_author(
-            name="Success",
         )
-
         return await self.respond(embed=embed, **kwargs)
 
     async def exception(self, title: str, description: str | None = None, **kwargs):
@@ -31,10 +28,7 @@ class Context(ApplicationContext):
             description=description,
             timestamp=utcnow(),
             color=Color.red(),
-        ).set_author(
-            name="Exception",
         )
-
         return await self.respond(embed=embed, **kwargs)
 
     async def info(self, title: str, description: str | None = None, **kwargs):
@@ -43,9 +37,6 @@ class Context(ApplicationContext):
             description=description,
             timestamp=utcnow(),
             color=0xFFFFFF,
-        ).set_author(
-            name="Info",
         )
-
         return await self.respond(embed=embed, **kwargs)
 
