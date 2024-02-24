@@ -7,7 +7,7 @@ from discord.ext import commands
 from tortoise import Tortoise
 
 from .context import Context
-from .models import GuildModel
+from .models import GuildModel, TagModel, WarnModel
 
 
 class Toolkit(commands.Bot):
@@ -112,8 +112,12 @@ class Toolkit(commands.Bot):
             await self.process_commands(after)
 
     async def on_guild_remove(self, guild: discord.Guild) -> None:
-        if saved := await GuildModel.get_or_none(id=guild.id):
-            await saved.delete()
+        if data := await GuildModel.get_or_none(id=guild.id):
+            await data.delete()
+        for data in await TagModel.filter(id=guild.id):
+            await data.delete()
+        for data in await WarnModel.filter(id=guild.id):
+            await data.delete()
 
     def run(
         self, debug: bool = False, cogs: list[str] | None = None, sync: bool = False
