@@ -25,7 +25,7 @@ It's built with UI components and application commands to be user-friendly.
 ### 🗒️ Logs
 - `/logs set`: Set the logs channel for a logging category
 - `/logs disable`: Disable logs for a logging category
-- Moderation logs (ban, kick, timeout)
+- Moderation logs (ban, unban, kick, timeout, warn)
 - Server logs (channel updates, role updates)
 
 ### 🏷️ Tags
@@ -54,9 +54,9 @@ It's built with UI components and application commands to be user-friendly.
 
 ### 💻 Developer Utilities
 - `/repository`: Set the default GitHub repository to use for pr and issue linking
-- [Triggered with "##123" (123 being the issue / pr number)]
-- `/rtfm`: Search through an online documentation with a specific query
+- `Link GitHub issues`: Extract GitHub issue and pull request links from a message in form #123
 - `Fetch Code Snippet`: Fetch and display a code snippet from a GitHub permalink
+- `/rtfm`: Search through an online documentation with a specific query
 
 ### 😁 Emojis
 - `/emoji add`: Add a custom emoji to the server
@@ -69,7 +69,6 @@ It's built with UI components and application commands to be user-friendly.
 
 ### ➕ Other
 - `/timestamp`: View the current timestamp
-- `/afk`: Set your AFK status to respond to pings
 - `/ping`: View the bot's websocket latency
 
 ## How to Contribute
