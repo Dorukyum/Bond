@@ -3,11 +3,11 @@ from dotenv import load_dotenv
 
 import logging
 
-from core import Toolkit
+from core import Bond
 
 
 if __name__ == "__main__":
-    parser = ArgumentParser(prog="Toolkit")
+    parser = ArgumentParser(prog="Bond")
     parser.add_argument(
         "-d",
         "--debug",
@@ -38,5 +38,5 @@ if __name__ == "__main__":
     )
     logger.addHandler(handler)
 
-    bot = Toolkit()
+    bot = Bond()
     bot.run(debug=debug, cogs=args.cogs, sync=args.sync)

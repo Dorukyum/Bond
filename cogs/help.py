@@ -46,10 +46,10 @@ class Help(Cog):
         """Get help about the bot, a command or a command category."""
         assert self.bot.user
         embed = discord.Embed(
-            title=self.bot.user.name,
+            title="The name's Bond",
             description=(
-                "A bot built to help you manage your Discord server as easily as possible.\n"
-                "Use the menu below to view commands."
+                "I'm here to keep the server organized.\n"
+                "The dropdown below lets you view commands I offer."
             ),
             colour=0x0060FF,
         )

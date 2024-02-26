@@ -10,12 +10,9 @@ from .context import Context
 from .models import GuildModel, TagModel, WarnModel
 
 
-class Toolkit(commands.Bot):
+class Bond(commands.Bot):
     def __init__(self) -> None:
         super().__init__(
-            activity=discord.Activity(
-                type=discord.ActivityType.listening, name=f"/help"
-            ),
             allowed_mentions=discord.AllowedMentions.none(),
             auto_sync_commands=False,
             chunk_guilds_at_startup=False,
@@ -86,7 +83,7 @@ class Toolkit(commands.Bot):
                         ),
                         discord.ui.Button(
                             label="GitHub Repo",
-                            url="https://github.com/Dorukyum/Toolkit",
+                            url="https://github.com/Dorukyum/Bond",
                         ),
                     ),
                 )

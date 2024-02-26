@@ -1,15 +1,18 @@
 <div align="center">
-	<h1>Toolkit 🛠️</h1>
+	<h1>Bond</h1>
 	<img alt="Discord" src="https://img.shields.io/discord/789829818547175446?label=Discord&style=for-the-badge&logo=discord&color=5865F2&logoColor=white">
-	<img alt="GitHub stars" src="https://img.shields.io/github/stars/Dorukyum/Toolkit?label=GitHub+Stars&style=for-the-badge&logo=github&color=45CDD11">
+	<img alt="GitHub stars" src="https://img.shields.io/github/stars/Dorukyum/Bond?label=GitHub+Stars&style=for-the-badge&logo=github&color=45CDD11">
 </div>
 
-### Gain full control over your Discord server.
-Toolkit is a Discord bot created to make server management as easy as possible.
-It's built with UI components and application commands to be user-friendly.
+## Introduction
+Bond is a Discord bot that provides a unique set of commands for easy server organization and moderation.
 
-## Commands
-### ⚡ Moderation
+Click to [add Bond to your server](https://discord.com/oauth2/authorize?client_id=882631512829329448&permissions=8&scope=applications.commands+bot) now.
+
+## List of Commands
+<details>
+<summary>⚡ Moderation (11)</summary>
+
 - `/massban`: Ban multiple members at once
 - `/warn`: Warn members
 - `/delwarn`: Delete a warning
@@ -22,13 +25,19 @@ It's built with UI components and application commands to be user-friendly.
 - `/purge bots`: Delete messages only from bots
 - `/purge containing`: Delete messages only containing a specific substring
 
-### 🗒️ Logs
+</details>
+<details>
+<summary>🗒️ Logs (2)</summary>
+
 - `/logs set`: Set the logs channel for a logging category
 - `/logs disable`: Disable logs for a logging category
 - Moderation logs (ban, unban, kick, timeout, warn)
 - Server logs (channel updates, role updates)
 
-### 🏷️ Tags
+</details>
+<details>
+<summary>🏷️ Tags (9)</summary>
+
 - `/tag create`: Create a tag
 - `/tag view`: View the content of a tag
 - `/tag raw`: View the raw content of a tag (escapes markdown)
@@ -39,42 +48,65 @@ It's built with UI components and application commands to be user-friendly.
 - `/tag info`: View information about a tag
 - `/tag delete`: Delete a tag
 
-### 📈 Statistics / Information
+</details>
+<details>
+<summary>📈 Statistics / Information (2)</summary>
+
 - `/serverinfo`: View statistics / information about the server
 - `/userinfo`: View information about a user
 
-### 📊 Polls
+</details>
+<details>
+<summary>📊 Polls (2)</summary>
+
 - `/poll`: Start a poll
 - `/poll_yesno`: Start a poll with two options: yes or no
 
-### 📢 Suggestions
+</details>
+<details>
+<summary>📢 Suggestions (3)</summary>
+
 - `/suggestions set`: Set the channel for member suggestions
 - `/suggestions disable`: Disable member suggestions
 - `/suggest`: Make a suggestion
 
-### 💻 Developer Utilities
+</details>
+<details>
+<summary>💻 Developer Utilities (2)</summary>
+
 - `/repository`: Set the default GitHub repository to use for pr and issue linking
 - `Link GitHub issues`: Extract GitHub issue and pull request links from a message in form #123
 - `Fetch Code Snippet`: Fetch and display a code snippet from a GitHub permalink
 - `/rtfm`: Search through an online documentation with a specific query
 
-### 😁 Emojis
+</details>
+<details>
+<summary>😁 Emojis (2)</summary>
+
 - `/emoji add`: Add a custom emoji to the server
 - `/emoji delete`: Delete a custom server emoji
 
-### 🚀 Fun
+</details>
+<details>
+<summary>🚀 Fun (2)</summary>
+
 - `/8ball ask`: Ask something to the magic 8 ball
 - `/8ball yes_or_no`: Respond with either yes or no
 - `/how_many`: Learn how many members have the specified substring in their name
 
-### ➕ Other
+</details>
+<details>
+<summary>➕ Other (2)</summary>
+
 - `/timestamp`: View the current timestamp
 - `/ping`: View the bot's websocket latency
 
-## How to Contribute
+</details>
+
+## Contribution
 1. Fork this GitHub repository
 2. Make changes
 3. Create a pull request
 
 ## Reporting Bugs and Making Suggestions
-Feel free to [create an issue](https://github.com/Dorukyum/Toolkit/issues/new) or [contact me on Discord](https://discord.gg/8JsMVhBP4W).
+Feel free to [create an issue](https://github.com/Dorukyum/Bond/issues/new) or [contact me on Discord](https://discord.gg/8JsMVhBP4W).

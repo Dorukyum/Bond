@@ -1,12 +1,12 @@
 from discord.ext import commands
 
-from .bot import Toolkit
+from .bot import Bond
 from .context import Context
 from .models import GuildModel, TagModel, WarnModel
 from .utils import Lowercase, humanize_time, s, list_items
 
 __all__ = (
-    "Toolkit",
+    "Bond",
     "Cog",
     "Context",
     "GuildModel",
@@ -22,5 +22,5 @@ __all__ = (
 class Cog(commands.Cog):
     """Base class for all cogs"""
 
-    def __init__(self, bot: Toolkit) -> None:
+    def __init__(self, bot: Bond) -> None:
         self.bot = bot
