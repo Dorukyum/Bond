@@ -26,7 +26,7 @@ class Bond(commands.Bot):
             ),
             owner_ids=[543397958197182464],
         )
-        self.cache: dict[str, dict] = {"afk": {}, "example_list": {}}
+        self.cache: dict[str, dict] = {"example_list": {}}
 
     async def setup_tortoise(self) -> None:
         await Tortoise.init(
