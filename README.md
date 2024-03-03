@@ -14,9 +14,11 @@ Click to [add Bond to your server](https://discord.com/oauth2/authorize?client_i
 <summary>⚡ Moderation (11)</summary>
 
 - `/massban`: Ban multiple members at once
-- `/warn`: Warn members
-- `/delwarn`: Delete a warning
-- `/warns`: View warnings given to a specific member
+- `/warn`: Warn a member
+- `Warn Member`: Warn the right-clicked member
+- `/warning list`: View warnings given to a specific member
+- `View Warnings`: View warnings given to the right-clicked member
+- `/warning delete`: Delete a warning
 - `/slowmode`: Set channel slowmode delay
 - `/lock`: Lock a channel instantly
 - `/unlock`: Unlock a locked channel
