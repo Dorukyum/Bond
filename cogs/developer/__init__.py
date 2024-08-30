@@ -330,7 +330,7 @@ class Developer(Cog):
         )
         return results
 
-    @discord.command()
+    @discord.command(integration_types={discord.IntegrationType.user_install, discord.IntegrationType.guild_install}, contexts={discord.InteractionContextType.guild, discord.InteractionContextType.bot_dm, discord.InteractionContextType.private_channel})
     @discord.option(
         "documentation",
         description="The documentation to search through.",
