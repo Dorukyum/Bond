@@ -7,8 +7,7 @@ from core import Cog, Context, s
 class Moderation(Cog):
     """Commands related to moderation."""
 
-    @discord.slash_command()
-    @discord.guild_only()
+    @discord.slash_command(contexts={discord.InteractionContextType.guild})
     @discord.default_permissions(ban_members=True)
     @discord.option(
         "members",
@@ -42,8 +41,7 @@ class Moderation(Cog):
             )
         await ctx.respond(f"Banned **{count}** member{s(converted_members)}.")
 
-    @discord.slash_command()
-    @discord.guild_only()
+    @discord.slash_command(contexts={discord.InteractionContextType.guild})
     @discord.default_permissions(manage_messages=True)
     @discord.option(
         "seconds",
@@ -62,8 +60,7 @@ class Moderation(Cog):
             else "Slowmode is now disabled."
         )
 
-    @discord.slash_command()
-    @discord.guild_only()
+    @discord.slash_command(contexts={discord.InteractionContextType.guild})
     @discord.default_permissions(manage_roles=True)
     @discord.option(
         "permission",
@@ -105,8 +102,7 @@ class Moderation(Cog):
             f"The {permission} permission is now denied for {role.mention} in this channel."
         )
 
-    @discord.slash_command()
-    @discord.guild_only()
+    @discord.slash_command(contexts={discord.InteractionContextType.guild})
     @discord.default_permissions(manage_roles=True)
     @discord.option(
         "permission",
@@ -165,7 +161,7 @@ class Moderation(Cog):
     purge = discord.SlashCommandGroup(
         "purge",
         "Commands to purge messages.",
-        guild_only=True,
+        contexts={discord.InteractionContextType.guild},
         default_member_permissions=discord.Permissions(manage_messages=True),
     )
 

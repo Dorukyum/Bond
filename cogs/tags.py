@@ -9,7 +9,7 @@ from core import Cog, Context, Lowercase, TagModel, s
 class Tags(Cog):
     """Commands related to tags."""
 
-    tag = discord.SlashCommandGroup("tag", "Commands related to tags.", guild_only=True)
+    tag = discord.SlashCommandGroup("tag", "Commands related to tags.", contexts={discord.InteractionContextType.guild})
 
     async def get_tag_names(self, ctx: discord.AutocompleteContext) -> List[str]:
         assert ctx.interaction.guild_id

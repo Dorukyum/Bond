@@ -75,8 +75,7 @@ class Warnings(Cog):
             f"By **{f'{mod.name} ({mod.mention})' if mod else f'Unknown User (<@{warn.mod_id}>)'}**"
         )
 
-    @discord.slash_command(name="warn")
-    @discord.guild_only()
+    @discord.slash_command(name="warn", contexts={discord.InteractionContextType.guild})
     @discord.default_permissions(manage_messages=True)
     @discord.option("member", description="The member to warn.")
     @discord.option("reason", description="The reason of the warning.")
@@ -84,15 +83,14 @@ class Warnings(Cog):
         """Warn a member."""
         await warn(ctx.interaction, member, reason)
 
-    @discord.user_command(name="Warn Member")
-    @discord.guild_only()
+    @discord.user_command(name="Warn Member", contexts={discord.InteractionContextType.guild})
     @discord.default_permissions(manage_messages=True)
     async def warn_member(self, ctx: Context, member: discord.Member):
         """Warn a member."""
         await ctx.send_modal(WarnModal(member, self.bot.get_cog("Logs")))
 
     warning = discord.SlashCommandGroup(
-        "warning", "Commands related to warnings.", guild_only=True, default_member_permissions=discord.Permissions(manage_messages=True)
+        "warning", "Commands related to warnings.", contexts={discord.InteractionContextType.guild}, default_member_permissions=discord.Permissions(manage_messages=True)
     )
 
     @warning.command()
