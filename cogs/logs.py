@@ -268,7 +268,7 @@ class Logs(Cog):
     logs = discord.SlashCommandGroup(
         "logs",
         "Commands related to logs.",
-        guild_only=True,
+        contexts={discord.InteractionContextType.guild},
         default_member_permissions=discord.Permissions(manage_guild=True),
     )
 

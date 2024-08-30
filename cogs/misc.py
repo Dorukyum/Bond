@@ -12,8 +12,7 @@ from core import Cog, Context
 class Miscellaneous(Cog):
     """Miscellaneous commands."""
 
-    @discord.slash_command()
-    @discord.guild_only()
+    @discord.slash_command(contexts={discord.InteractionContextType.guild})
     async def serverinfo(self, ctx: Context):
         """View information/statistics about the server."""
         guild = ctx.guild
@@ -218,8 +217,7 @@ class Miscellaneous(Cog):
         await sleep(2)
         await ctx.respond(f"> {question}\n{answer}")
 
-    @discord.slash_command()
-    @discord.guild_only()
+    @discord.slash_command(contexts={discord.InteractionContextType.guild})
     @discord.option("text", description="The text to check for in display names.")
     async def how_many(self, ctx: Context, *, text: str):
         """Shows the amount of members that have the provided text in their display name."""
