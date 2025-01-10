@@ -155,12 +155,13 @@ class Pycord(Cog):
 
         staff_roles = [
             881247351937855549,  # Project Lead
-            929080208148017242,  # Project Advisor
-            881223820059504691,  # Core Developer
-            881411529415729173,  # Server Manager
+            1214123250074914837,  # Project Manager
+            881223820059504691,  # Maintainer
             881407111211384902,  # Moderator
             882105157536591932,  # Trainee Moderator
             881519419375910932,  # Helper
+            1271746588070645842, # Translation Maintainer
+            1271748253678829601, # Translation Reviewer
         ]
         embed = discord.Embed(title="**Staff List**", color=0x2F3136)
         embed.description = ""
