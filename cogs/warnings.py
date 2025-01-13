@@ -90,7 +90,10 @@ class Warnings(Cog):
         await ctx.send_modal(WarnModal(member, self.bot.get_cog("Logs")))
 
     warning = discord.SlashCommandGroup(
-        "warning", "Commands related to warnings.", contexts={discord.InteractionContextType.guild}, default_member_permissions=discord.Permissions(manage_messages=True)
+        "warning",
+        "Commands related to warnings.",
+        contexts={discord.InteractionContextType.guild},
+        default_member_permissions=discord.Permissions(manage_messages=True),
     )
 
     @warning.command()

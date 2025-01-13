@@ -250,7 +250,10 @@ class Developer(Cog):
             view=Delete(ctx.author),
         )
 
-    @discord.message_command(name="Link GitHub Issues", contexts={discord.InteractionContextType.guild})
+    @discord.message_command(
+        name="Link GitHub Issues",
+        contexts={discord.InteractionContextType.guild},
+    )
     async def link_github_issues(
         self, ctx: discord.ApplicationContext, message: discord.Message
     ):
@@ -329,7 +332,17 @@ class Developer(Cog):
         )
         return results
 
-    @discord.command(integration_types={discord.IntegrationType.user_install, discord.IntegrationType.guild_install}, contexts={discord.InteractionContextType.guild, discord.InteractionContextType.bot_dm, discord.InteractionContextType.private_channel})
+    @discord.command(
+        integration_types={
+            discord.IntegrationType.guild_install,
+            discord.IntegrationType.user_install,
+        },
+        contexts={
+            discord.InteractionContextType.bot_dm,
+            discord.InteractionContextType.guild,
+            discord.InteractionContextType.private_channel,
+        },
+    )
     @discord.option(
         "documentation",
         description="The documentation to search through.",
