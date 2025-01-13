@@ -1,4 +1,4 @@
-from os import environ, getenv
+from os import environ, getenv, makedirs
 from traceback import format_exception
 
 import discord
@@ -29,6 +29,7 @@ class Bond(commands.Bot):
         self.cache: dict[str, dict] = {"example_list": {}}
 
     async def setup_tortoise(self) -> None:
+        makedirs("data", exist_ok=True)
         await Tortoise.init(
             db_url="sqlite://data/database.db", modules={"models": ["core.models"]}
         )

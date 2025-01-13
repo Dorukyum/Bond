@@ -12,7 +12,7 @@ class Server(Cog):
     emoji = discord.SlashCommandGroup(
         "emoji",
         "Commands related to emojis.",
-        guild_only=True,
+        contexts={discord.InteractionContextType.guild},
         default_member_permissions=discord.Permissions(manage_guild=True),
     )
 
@@ -59,7 +59,7 @@ class Server(Cog):
     suggestions = discord.SlashCommandGroup(
         "suggestions",
         "Commands related to member suggestions.",
-        guild_only=True,
+        contexts={discord.InteractionContextType.guild},
         default_member_permissions=discord.Permissions(manage_guild=True),
     )
 
@@ -89,8 +89,7 @@ class Server(Cog):
             )
         await ctx.respond("Member suggestions are already disabled for this server.")
 
-    @discord.slash_command()
-    @discord.guild_only()
+    @discord.slash_command(contexts={discord.InteractionContextType.guild})
     @discord.option("suggestion", description="The suggestion.")
     async def suggest(self, ctx: Context, *, suggestion: str):
         """Make a suggestion for the server. This will be sent to the channel set by the server managers."""

@@ -250,7 +250,10 @@ class Developer(Cog):
             view=Delete(ctx.author),
         )
 
-    @discord.message_command(name="Link GitHub Issues", guild_only=True)
+    @discord.message_command(
+        name="Link GitHub Issues",
+        contexts={discord.InteractionContextType.guild},
+    )
     async def link_github_issues(
         self, ctx: discord.ApplicationContext, message: discord.Message
     ):
@@ -278,8 +281,7 @@ class Developer(Cog):
             links[0] if len(links) == 1 else "\n".join(f"<{link}>" for link in links)
         )
 
-    @discord.slash_command()
-    @discord.guild_only()
+    @discord.slash_command(contexts={discord.InteractionContextType.guild})
     @discord.default_permissions(manage_guild=True)
     @discord.option(
         "repo",
@@ -330,7 +332,17 @@ class Developer(Cog):
         )
         return results
 
-    @discord.command()
+    @discord.command(
+        integration_types={
+            discord.IntegrationType.guild_install,
+            discord.IntegrationType.user_install,
+        },
+        contexts={
+            discord.InteractionContextType.bot_dm,
+            discord.InteractionContextType.guild,
+            discord.InteractionContextType.private_channel,
+        },
+    )
     @discord.option(
         "documentation",
         description="The documentation to search through.",
