@@ -11,7 +11,7 @@ Click to [add Bond to your server](https://discord.com/oauth2/authorize?client_i
 
 ## List of Commands
 <details>
-<summary>⚡ Moderation (11)</summary>
+<summary>⚡ Moderation (13)</summary>
 
 - `/massban`: Ban multiple members at once
 - `/warn`: Warn a member
@@ -74,7 +74,7 @@ Click to [add Bond to your server](https://discord.com/oauth2/authorize?client_i
 
 </details>
 <details>
-<summary>💻 Developer Utilities (2)</summary>
+<summary>💻 Developer Utilities (4)</summary>
 
 - `/repository`: Set the default GitHub repository to use for pr and issue linking
 - `Link GitHub issues`: Extract GitHub issue and pull request links from a message in form #123
@@ -90,7 +90,7 @@ Click to [add Bond to your server](https://discord.com/oauth2/authorize?client_i
 
 </details>
 <details>
-<summary>🚀 Fun (2)</summary>
+<summary>🚀 Fun (3)</summary>
 
 - `/8ball ask`: Ask something to the magic 8 ball
 - `/8ball yes_or_no`: Respond with either yes or no
