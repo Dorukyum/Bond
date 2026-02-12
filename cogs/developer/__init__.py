@@ -79,7 +79,12 @@ class Developer(Cog):
             (GITHUB_GIST_RE, self.fetch_gist_snippet),
         ]
         self.rtfm_cache: dict[str, dict] = {}
-        self.bot.loop.create_task(self.build_docs())
+
+    @Cog.listener()
+    async def on_ready(self):
+        await self.bot.wait_until_ready()
+        for target in TARGETS:
+            await self.build_documentation(target)
 
     @overload
     async def _fetch(self, url: str, response_type: Type[str]) -> str:
@@ -303,11 +308,6 @@ class Developer(Cog):
         await ctx.respond(
             f"The default GitHub repository for pr and issue linking is now `{repo}`."
         )
-
-    async def build_docs(self) -> None:
-        await self.bot.wait_until_ready()
-        for target in TARGETS:
-            self.bot.loop.create_task(self.build_documentation((target)))
 
     async def build_documentation(self, target: str) -> None:
         url = TARGETS[target]
